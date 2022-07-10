@@ -1,0 +1,19 @@
+{
+  "include": ["src", "scripts"],
+  "compilerOptions": {
+    "target": "ES2021", // Target node 16
+    "noEmit": true, // Compile via esbuild
+
+    /* Imports */
+    "moduleResolution": "node", // Allow `index` imports
+    "resolveJsonModule": true, // Allow json import
+    "forceConsistentCasingInFileNames": true, // Avoid difference in case between file name and import
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "useUnknownInCatchVariables": true
+  }
+}

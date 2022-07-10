@@ -59,7 +59,7 @@ export const getRulesEntries = (rules: Rule[]): Map<string, RuleEntry> => {
   const startRulesEntries = performance.now();
   const rulesEntries = new Map<string, RuleEntry>();
   let order = 0;
-  const allowNegativeRE = /^[1-9]/;
+  const allowNegativeRE = /^[1-9]|^0\./;
   const addTheme = (
     rule: Rule,
     prefix: string,

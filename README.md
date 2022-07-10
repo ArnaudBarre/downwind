@@ -29,3 +29,4 @@ await build({
 - vite plugin
 - variants in css files
 - shortcuts
+- lighter ring, transform, filter, font-variant-numeric

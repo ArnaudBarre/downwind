@@ -3,6 +3,7 @@
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
       <excludeFolder url="file://$MODULE_DIR$/dist" />
+      <excludeFolder url="file://$MODULE_DIR$/src/snapshots" />
       <excludePattern pattern="bun.lockb" />
     </content>
     <orderEntry type="inheritedJdk" />

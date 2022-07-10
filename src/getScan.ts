@@ -14,7 +14,7 @@ export const getScan = ({
   const contentMap = new Map<string, Set<string>>();
   const allClasses = new Set<string>();
 
-  const validSelectorRE = /^[a-z0-9:/[\]#-]+$/;
+  const validSelectorRE = /^[a-z0-9.:/[\]#-]+$/;
   const scanCode = (code: string) => {
     const matches: RuleMatch[] = [];
     const tokens = code

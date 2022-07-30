@@ -1,5 +1,5 @@
 {
-  "include": ["src", "scripts", "tests"],
+  "include": ["playground", "scripts", "src", "tests"],
   "compilerOptions": {
     "target": "ES2021", // Target node 16
     "noEmit": true, // Compile via esbuild

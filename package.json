@@ -7,7 +7,7 @@
   "scripts": {
     "start": "scripts/bundle.ts --dev",
     "build": "scripts/bundle.ts",
-    "test": "scripts/test.ts",
+    "test": "tests/run-tests.ts",
     "tsc": "tsc",
     "lint": "bun run lint-ci --fix --cache",
     "lint-ci": "eslint src scripts --ext ts,tsx --report-unused-disable-directives --max-warnings 0",

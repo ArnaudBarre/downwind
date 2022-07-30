@@ -4,8 +4,6 @@ import { transform as parcelTransform } from "@parcel/css";
 import { cssModuleToJS, initDownwind } from "./index";
 import { esbuildPlugins as esbuildPluginsDeclaration } from "./types";
 
-const UTILS_PLACEHOLDER = ".__downwind_utils__{padding:0}";
-
 export const esbuildPlugins: typeof esbuildPluginsDeclaration = (targets) => {
   const cssModulesMap: Record<string, string> = {};
   let hasCSSUtils = false;
@@ -13,6 +11,11 @@ export const esbuildPlugins: typeof esbuildPluginsDeclaration = (targets) => {
   const initPromise = initDownwind(targets).then((result) => {
     downwind = result;
   });
+  let useMinify = false;
+  const getPlaceholder = () =>
+    useMinify
+      ? ".__downwind_utils__{padding:0}"
+      : ".__downwind_utils__ {\n  padding: 0;\n}";
 
   return [
     {
@@ -40,6 +43,8 @@ export const esbuildPlugins: typeof esbuildPluginsDeclaration = (targets) => {
     {
       name: "virtual",
       setup: (pluginBuild) => {
+        useMinify = pluginBuild.initialOptions.minify ?? false;
+
         pluginBuild.onStart(() => initPromise);
         pluginBuild.onResolve({ filter: /^virtual:@downwind\// }, (args) => ({
           path: args.path.slice(18),
@@ -49,11 +54,11 @@ export const esbuildPlugins: typeof esbuildPluginsDeclaration = (targets) => {
           { filter: /./, namespace: "downwind-virtual" },
           (args) => {
             switch (args.path) {
-              case "css-base":
+              case "base":
                 return { contents: downwind.getBase(), loader: "css" };
-              case "css-utils":
+              case "utils":
                 hasCSSUtils = true;
-                return { contents: UTILS_PLACEHOLDER, loader: "css" };
+                return { contents: getPlaceholder(), loader: "css" };
               default:
                 throw new Error(
                   `Unexpected virtual entry: @downwind/${args.path}`,
@@ -66,6 +71,9 @@ export const esbuildPlugins: typeof esbuildPluginsDeclaration = (targets) => {
     {
       name: "css-scan",
       setup: (pluginBuild) => {
+        const useWrite = pluginBuild.initialOptions.write ?? true;
+        if (useWrite) pluginBuild.initialOptions.metafile = true;
+
         pluginBuild.onStart(() => initPromise);
         pluginBuild.onLoad({ filter: /\.[jt]sx?$/u }, ({ path }) => {
           // https://github.com/evanw/esbuild/issues/1222
@@ -75,23 +83,42 @@ export const esbuildPlugins: typeof esbuildPluginsDeclaration = (targets) => {
         });
         pluginBuild.onEnd((result) => {
           if (!hasCSSUtils) return;
-          const paths = Object.keys(result.metafile!.outputs);
-          const cssPath = paths.find((p) => p.endsWith(".css"))!;
-          const withUtils = readFileSync(cssPath, "utf-8").replace(
-            UTILS_PLACEHOLDER,
-            downwind.generate(),
-          );
 
-          writeFileSync(
-            cssPath,
-            parcelTransform({
-              filename: "dist/assets/index.css",
+          const transform = (cssPath: string, content: string) => {
+            if (!content.includes(getPlaceholder())) {
+              throw new Error(
+                "Downwind: Could not inject CSS utils in build output",
+              );
+            }
+            const withUtils = content.replace(
+              getPlaceholder(),
+              downwind.generate(),
+            );
+            return parcelTransform({
+              filename: cssPath,
               code: Buffer.from(withUtils),
-              minify: true,
+              minify: useMinify,
               targets,
-            }).code,
-          );
-          rmSync(`${cssPath}.map`);
+            }).code;
+          };
+
+          if (useWrite) {
+            const paths = Object.keys(result.metafile!.outputs);
+            const cssPath = paths.find((p) => p.endsWith(".css"))!;
+            const content = readFileSync(cssPath, "utf-8");
+            writeFileSync(cssPath, transform(cssPath, content));
+            rmSync(`${cssPath}.map`, { force: true });
+          } else {
+            const cssOutput = result.outputFiles!.find((p) =>
+              p.path.endsWith(".css"),
+            )!;
+            const transformed = transform(cssOutput.path, cssOutput.text);
+            cssOutput.contents = transformed;
+            // https://github.com/evanw/esbuild/issues/2423
+            Object.defineProperty(cssOutput, "text", {
+              value: transformed.toString(),
+            });
+          }
         });
       },
     },

@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 import { getConfig } from "./getConfig";
 import {
   getRuleMeta,

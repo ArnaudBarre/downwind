@@ -5,15 +5,16 @@
   "author": "Arnaud Barré (https://github.com/ArnaudBarre)",
   "license": "MIT",
   "scripts": {
-    "start": "scripts/bundle.ts --dev",
+    "dev": "scripts/bundle.ts --dev",
     "build": "scripts/bundle.ts",
-    "test": "tests/run-tests.ts",
+    "test": "tests/run-tests.ts --update-snapshots",
+    "test-ci": "tests/run-tests.ts",
     "tsc": "tsc",
     "lint": "bun run lint-ci --fix --cache",
     "lint-ci": "eslint src scripts --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "prettier": "bun run prettier-ci --write",
     "prettier-ci": "prettier --ignore-path .gitignore --check '**/*.{js,ts,json,md}'",
-    "ci": "bun run test && bun lint-ci && bun prettier-ci && bun run build"
+    "ci": "tsc && bun test-ci && bun lint-ci && bun prettier-ci && bun run build"
   },
   "prettier": {
     "trailingComma": "all",

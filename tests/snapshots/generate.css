@@ -1,4 +1,4 @@
-/* simple: m-4 p-4  */
+/* simple: m-4 p-4 */
 .m-4 {
   margin: 1rem;
 }
@@ -14,7 +14,11 @@
   padding: 1rem;
 }
 
-/* colors: text-slate-200 bg-orange-300 */
+/* colors: text-slate-200 bg-orange-300 border-blue-100 */
+.border-blue-100 {
+  --tw-border-opacity: 1;
+  border-color: rgb(219 234 254 / var(--tw-border-opacity));
+}
 .bg-orange-300 {
   --tw-bg-opacity: 1;
   background-color: rgb(253 186 116 / var(--tw-bg-opacity));
@@ -22,6 +26,48 @@
 .text-slate-200 {
   --tw-text-opacity: 1;
   color: rgb(226 232 240 / var(--tw-text-opacity));
+}
+
+/* font-size: text-sm text-xl */
+.text-sm {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+.text-xl {
+  font-size: 30px;
+}
+
+/* hidden: hidden */
+.hidden {
+  display: none;
+}
+
+/* font-sans: font-sans */
+.font-sans {
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+/* transform-gpu: transform-gpu */
+.transform-gpu {
+  transform: translate3d(var(--tw-translate-x), var(--tw-translate-y), 0) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
+/* border-default: border */
+.border {
+  border-width: 1px;
+}
+
+/* inset: inset-0 */
+.inset-0 {
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  left: 0px;
+}
+
+/* negative values plugins: -m-0 -m-auto -m-4 */
+.-m-4 {
+  margin: -1rem;
 }
 
 /* screen: md:p-4 p-2 md:p-6 */
@@ -36,6 +82,67 @@
   .md\:p-6 {
     padding: 1.5rem;
   }
+}
+
+/* omit-hyphen plugins: px-2 mt-6 scroll-p-2 scroll-pb-4 scroll-my-6 */
+.scroll-my-6 {
+  scroll-margin-top: 1.5rem;
+  scroll-margin-bottom: 1.5rem;
+}
+.scroll-p-2 {
+  scroll-padding: 0.5rem;
+}
+.scroll-pb-4 {
+  scroll-padding-bottom: 1rem;
+}
+.mt-6 {
+  margin-top: 1.5rem;
+}
+.px-2 {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+/* direction mandatory plugins: space-2 space-y-4 */
+.space-y-4 > * + * {
+  margin-top: 1rem;
+}
+
+/* with-default: rotate-12 */
+*, ::before, ::after {
+  --tw-translate-x: 0;
+  --tw-translate-y: 0;
+  --tw-rotate: 0;
+  --tw-skew-x: 0;
+  --tw-skew-y: 0;
+  --tw-scale-x: 1;
+  --tw-scale-y: 1;
+}
+
+.rotate-12 {
+  --tw-rotate: 12deg;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
+/* with-keyframes: animate-spin */
+@keyframes spin {
+  to { transform: rotate(360deg) }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* gradients: from-orange-200 via-purple-400 to-red-600 */
+.from-orange-200 {
+  --tw-gradient-from: #fed7aa;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgb(254 215 170 / 0));
+}
+.via-purple-400 {
+  --tw-gradient-stops: var(--tw-gradient-from), #c084fc, var(--tw-gradient-to, rgb(192 132 252 / 0));
+}
+.to-red-600 {
+  --tw-gradient-to: #dc2626;
 }
 
 /* container: container md:p-6 */
@@ -84,6 +191,46 @@
   }
 }
 
+/* container-center-with-fixed-padding: container */
+.container {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+@media (min-width: 768px) {
+  .container { max-width: 768px; }
+}
+
+/* container-with-padding-per-screen: container */
+.container {
+  width: 100%;
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+@media (min-width: 640px) {
+  .container { max-width: 640px; }
+}
+
+@media (min-width: 768px) {
+  .container { max-width: 768px; padding-left: 20px; padding-right: 20px; }
+}
+
+@media (min-width: 1024px) {
+  .container { max-width: 1024px; padding-left: 30px; padding-right: 30px; }
+}
+
+@media (min-width: 1280px) {
+  .container { max-width: 1280px; }
+}
+
+@media (min-width: 1536px) {
+  .container { max-width: 1536px; padding-left: 60px; padding-right: 60px; }
+}
+
 /* variants: hover:p-4 md:print:landscape:first:p-8 */
 .hover\:p-4:hover {
   padding: 1rem;
@@ -100,6 +247,18 @@
 /* disable-plugin: p-4 m-4 */
 .m-4 {
   margin: 1rem;
+}
+
+/* disable-opacity: text-slate-200 bg-orange-300 border-blue-100 */
+.border-blue-100 {
+  border-color: #dbeafe;
+}
+.bg-orange-300 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(253 186 116 / var(--tw-bg-opacity));
+}
+.text-slate-200 {
+  color: #e2e8f0;
 }
 
 /* custom-config: p-4 p-6 m-4 */

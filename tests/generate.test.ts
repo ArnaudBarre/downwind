@@ -7,10 +7,26 @@ import { UserConfig } from "../src/types";
 import { shouldUpdateSnapshots } from "./test-utils";
 
 const cases: [name: string, content: string, config?: UserConfig][] = [
-  ["simple", "m-4 p-4 "],
+  ["simple", "m-4 p-4"],
   ["order-invariant", "p-4 m-4"],
-  ["colors", "text-slate-200 bg-orange-300"],
+  ["colors", "text-slate-200 bg-orange-300 border-blue-100"],
+  [
+    "font-size",
+    "text-sm text-xl",
+    { theme: { extend: { fontSize: { xl: "30px" } } } },
+  ],
+  ["hidden", "hidden"],
+  ["font-sans", "font-sans"],
+  ["transform-gpu", "transform-gpu"],
+  ["border-default", "border"],
+  ["inset", "inset-0"],
+  ["negative values plugins", "-m-0 -m-auto -m-4"],
   ["screen", "md:p-4 p-2 md:p-6"],
+  ["omit-hyphen plugins", "px-2 mt-6 scroll-p-2 scroll-pb-4 scroll-my-6"],
+  ["direction mandatory plugins", "space-2 space-y-4"],
+  ["with-default", "rotate-12"],
+  ["with-keyframes", "animate-spin"],
+  ["gradients", "from-orange-200 via-purple-400 to-red-600"],
   ["container", "container md:p-6"],
   [
     "container-with-screen-max",
@@ -21,8 +37,39 @@ const cases: [name: string, content: string, config?: UserConfig][] = [
       },
     },
   ],
+  [
+    "container-center-with-fixed-padding",
+    "container",
+    {
+      theme: {
+        screens: { md: "768px" },
+        container: { center: true, padding: "15px" },
+      },
+    },
+  ],
+  [
+    "container-with-padding-per-screen",
+    "container",
+    {
+      theme: {
+        container: {
+          padding: {
+            "DEFAULT": "15px",
+            "md": "20px",
+            "lg": "30px",
+            "2xl": "60px",
+          },
+        },
+      },
+    },
+  ],
   ["variants", "hover:p-4 md:print:landscape:first:p-8"],
   ["disable-plugin", "p-4 m-4", { corePlugins: { padding: false } }],
+  [
+    "disable-opacity",
+    "text-slate-200 bg-orange-300 border-blue-100",
+    { corePlugins: { textOpacity: false, borderOpacity: false } },
+  ],
   ["custom-config", "p-4 p-6 m-4", { theme: { padding: { 4: "4px" } } }],
   [
     "extend-config",

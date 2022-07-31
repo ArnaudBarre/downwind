@@ -191,7 +191,7 @@ export const getCorePlugins = ({
     ],
     { supportsNegativeValues: true, addDefault: "transform" },
   ),
-  // Non-compliant: Doesn't ship default useless transform(-cpu)
+  // Non-compliant: Doesn't ship default useless transform[-cpu]
   transform: [
     [
       "transform-gpu",
@@ -377,7 +377,7 @@ export const getCorePlugins = ({
       ],
     ],
   ],
-  // Non-compliant: Adding display flex  it will always be required
+  // Non-compliant: Adding display flex when it will always be required
   flexWrap: [
     [
       "flex-wrap",

@@ -18,7 +18,7 @@ import { getVariants } from "./variants";
 export const VERSION = __VERSION__;
 export { codegen } from "./codegen";
 export { cssModuleToJS } from "./utils/modules";
-export { esbuildPlugins } from "./esbuildPlugins";
+export { esbuildPlugin } from "./esbuildPlugin";
 
 export const initDownwind: typeof initDownwindDeclaration = async (
   targets?: TransformOptions["targets"],

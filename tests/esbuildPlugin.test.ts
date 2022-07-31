@@ -1,20 +1,20 @@
 import { readFileSync, rmSync } from "fs";
 import { build, BuildOptions } from "esbuild";
 
-import { esbuildPlugins } from "../src/esbuildPlugins";
+import { esbuildPlugin } from "../src/esbuildPlugin";
 import { snapshotTest } from "./test-utils";
 
-const esbuildPluginsTest = (
+const esbuildPluginTest = (
   name: string,
   input: string,
   opts?: BuildOptions,
 ) => {
-  snapshotTest(`esbuildPlugins-${name}`, async () => {
+  snapshotTest(`esbuildPlugin-${name}`, async () => {
     rmSync("./tests/build", { recursive: true, force: true });
     const result = await build({
       bundle: true,
       entryPoints: [`./tests/esbuild-inputs/${input}.ts`],
-      plugins: esbuildPlugins(),
+      plugins: [esbuildPlugin()],
       outdir: "./tests/build",
       ...opts,
     });
@@ -28,7 +28,7 @@ const esbuildPluginsTest = (
   });
 };
 
-esbuildPluginsTest("simple", "simple");
-esbuildPluginsTest("with-base", "with-base");
-esbuildPluginsTest("simple-minify", "simple", { minify: true });
-esbuildPluginsTest("simple-no-write", "simple", { write: false });
+esbuildPluginTest("simple", "simple");
+esbuildPluginTest("with-base", "with-base");
+esbuildPluginTest("simple-minify", "simple", { minify: true });
+esbuildPluginTest("simple-no-write", "simple", { write: false });

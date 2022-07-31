@@ -19,7 +19,9 @@ export type DownwindConfig = DefineConfig<UserConfig>;
  */
 export declare const initDownwind: (
   targets?: TransformOptions["targets"],
-) => Promise<{
+) => Promise<Downwind>;
+
+export type Downwind = {
   getBase: () => string;
   transform: <AnalyzeDependencies extends boolean>(
     path: string,
@@ -31,15 +33,15 @@ export declare const initDownwind: (
   };
   scan: (path: string, content?: string) => boolean /* hasNew */;
   generate: () => string;
-}>;
+};
 
 export declare const codegen: (opts: {
   omitContent: boolean;
 }) => Promise<string>;
 
-export declare const esbuildPlugins: (
+export declare const esbuildPlugin: (
   targets?: TransformOptions["targets"],
-) => Plugin[];
+) => Plugin;
 
 /**
  * Utils

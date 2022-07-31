@@ -11,7 +11,7 @@
     "test-ci": "tests/run-tests.ts",
     "tsc": "tsc",
     "lint": "bun run lint-ci --fix --cache",
-    "lint-ci": "eslint src scripts --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint-ci": "eslint src scripts tests --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "prettier": "bun run prettier-ci --write",
     "prettier-ci": "prettier --ignore-path .gitignore --check '**/*.{js,ts,json,md}'",
     "ci": "tsc && bun test-ci && bun lint-ci && bun prettier-ci && bun run build"

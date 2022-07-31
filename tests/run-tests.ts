@@ -12,4 +12,4 @@ declare global {
 /* eslint-disable @typescript-eslint/no-require-imports */
 require("./generate.test");
 require("./codegen.test");
-require("./esbuildPlugins.test");
+require("./esbuildPlugin.test");

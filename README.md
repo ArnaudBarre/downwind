@@ -9,14 +9,14 @@ Inspired by [unocss](https://github.com/unocss/unocss).
 Here is an example when supporting Safari 13 as a minimum target:
 
 ```ts
-import { esbuildPlugins as downwind } from "@arnaud-barre/downwind";
+import { esbuildPlugin as downwind } from "@arnaud-barre/downwind";
 import { build } from "esbuild";
 
 await build({
   bundle: true,
   // entryPoints, sourcemap, minify, outdir, ...
   target: ["safari13"],
-  plugins: [...downwind({ safari: 13 << 16 })],
+  plugins: [downwind({ safari: 13 << 16 })],
 });
 ```
 

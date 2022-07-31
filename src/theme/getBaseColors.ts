@@ -1,7 +1,7 @@
 import { DownwindTheme } from "../types";
 
 // https://github.com/tailwindlabs/tailwindcss/blob/master/src/public/colors.js
-export const baseColors: DownwindTheme["colors"] = {
+export const getBaseColors = (): DownwindTheme["colors"] => ({
   inherit: "inherit",
   current: "currentColor",
   transparent: "transparent",
@@ -271,4 +271,4 @@ export const baseColors: DownwindTheme["colors"] = {
     800: "#9f1239",
     900: "#881337",
   },
-};
+});

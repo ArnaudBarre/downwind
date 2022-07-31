@@ -1,4 +1,4 @@
-export const baseFonts = {
+export const getBaseFonts = () => ({
   sans: [
     "ui-sans-serif",
     "system-ui",
@@ -33,4 +33,4 @@ export const baseFonts = {
     '"Courier New"',
     "monospace",
   ].join(", "),
-};
+});

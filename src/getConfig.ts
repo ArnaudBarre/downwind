@@ -1,6 +1,6 @@
 import { loadConfig } from "@arnaud-barre/config-loader";
 
-import { baseTheme } from "./theme/baseTheme";
+import { getBaseTheme } from "./theme/getBaseTheme";
 import {
   DownwindTheme,
   CorePlugin,
@@ -22,12 +22,22 @@ export const getConfig = async () => {
   const config =
     global.TEST_CONFIG ?? (await loadConfig<UserConfig>("downwind"));
   const theme = ((): DownwindTheme => {
+    const baseTheme = getBaseTheme();
     if (!config?.theme) return baseTheme;
     const { extend, ...userTheme } = config.theme;
     if (extend) {
       for (const key in extend) {
+        const ext = extend[key as ThemeKey];
+        if (!ext) continue;
+        const current = baseTheme[key as ThemeKey];
         // @ts-ignore
-        if (extend[key]) baseTheme[key] = { ...baseTheme[key], ...extend[key] };
+        baseTheme[key] =
+          typeof current === "object" && typeof ext === "object"
+            ? { ...current, ...ext }
+            : (cb: ThemeCallback) => ({
+                ...(typeof current === "object" ? current : current(cb)),
+                ...(typeof ext === "object" ? ext : ext(cb)),
+              });
       }
     }
     return Object.assign(baseTheme, userTheme);

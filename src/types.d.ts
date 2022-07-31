@@ -29,7 +29,7 @@ export declare const initDownwind: (
     exports: CSSModuleExports | undefined;
     dependencies: AnalyzeDependencies extends true ? Dependency[] : never;
   };
-  scan: (path: string) => boolean;
+  scan: (path: string, content?: string) => boolean /* hasNew */;
   generate: () => string;
 }>;
 

@@ -1,0 +1,149 @@
+/* simple: m-4 p-4  */
+.m-4 {
+  margin: 1rem;
+}
+.p-4 {
+  padding: 1rem;
+}
+
+/* order-invariant: p-4 m-4 */
+.m-4 {
+  margin: 1rem;
+}
+.p-4 {
+  padding: 1rem;
+}
+
+/* colors: text-slate-200 bg-orange-300 */
+.bg-orange-300 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(253 186 116 / var(--tw-bg-opacity));
+}
+.text-slate-200 {
+  --tw-text-opacity: 1;
+  color: rgb(226 232 240 / var(--tw-text-opacity));
+}
+
+/* screen: md:p-4 p-2 md:p-6 */
+.p-2 {
+  padding: 0.5rem;
+}
+
+@media (min-width: 768px) {
+  .md\:p-4 {
+    padding: 1rem;
+  }
+  .md\:p-6 {
+    padding: 1.5rem;
+  }
+}
+
+/* container: container md:p-6 */
+.container {
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .container { max-width: 640px; }
+}
+
+@media (min-width: 768px) {
+  .container { max-width: 768px; }
+  .md\:p-6 {
+    padding: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container { max-width: 1024px; }
+}
+
+@media (min-width: 1280px) {
+  .container { max-width: 1280px; }
+}
+
+@media (min-width: 1536px) {
+  .container { max-width: 1536px; }
+}
+
+/* container-with-screen-max: container tablet:p-4 */
+.container {
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .container { max-width: 640px; }
+}
+
+@media (min-width: 768px) {
+  .container { max-width: 768px; }
+}
+@media (min-width: 768px) and (max-width: 1440px) {
+  .tablet\:p-4 {
+    padding: 1rem;
+  }
+}
+
+/* variants: hover:p-4 md:print:landscape:first:p-8 */
+.hover\:p-4:hover {
+  padding: 1rem;
+}
+
+@media (min-width: 768px) {
+  @media print and (orientation: landscape) {
+    .md\:print\:landscape\:first\:p-8:first-child {
+      padding: 2rem;
+    }
+  }
+}
+
+/* disable-plugin: p-4 m-4 */
+.m-4 {
+  margin: 1rem;
+}
+
+/* custom-config: p-4 p-6 m-4 */
+.m-4 {
+  margin: 1rem;
+}
+.p-4 {
+  padding: 4px;
+}
+
+/* extend-config: p-4 p-6 m-4 */
+.m-4 {
+  margin: 1rem;
+}
+.p-4 {
+  padding: 4px;
+}
+.p-6 {
+  padding: 1.5rem;
+}
+
+/* static-plugin: flex-center m-4 */
+.m-4 {
+  margin: 1rem;
+}
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* complex-plugin: m-4 flex-gap-x-4 flex-gap-y-2 flex-gap-6 */
+.flex-gap-6 > * {
+  margin: calc(1.5rem / 2);
+}
+.flex-gap-x-4 > * {
+  margin-left: calc(1rem / 2);
+  margin-right: calc(1rem / 2);
+}
+.flex-gap-y-2 > * {
+  margin-top: calc(0.5rem / 2);
+  margin-bottom: calc(0.5rem / 2);
+}
+.m-4 {
+  margin: 1rem;
+}
+

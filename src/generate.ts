@@ -16,22 +16,38 @@ export const generate = ({
   defaults: Defaults;
   allMatches: Map<string, RuleMatch[]>;
 }) => {
-  let addContainer = false;
+  let useContainer = false;
   const keyframes = new Set<string>();
   const usedDefaults = new Set<Default>();
   let output = "";
   let utilsOutput = "";
   allMatches.forEach((matches, screen) => {
-    if (!matches.length) return;
+    if (!matches.length && !useContainer) return;
+    const screenIndent = screen ? "  " : "";
     if (screen) {
+      const { min, max } = config.theme.screens[screen]!;
+      if (useContainer && min && max !== undefined) {
+        // If max is defined, we need to use a separate media query
+        const declaration = printScreenContainer(config, screen, min);
+        utilsOutput += `\n@media (min-width: ${min}) {\n${declaration}\n}`;
+        // Avoid empty "default" media query
+        if (!matches.length) return;
+      }
       utilsOutput += `\n@media ${variantsMap.get(screen)!.media!} {\n`;
+      if (useContainer && min && max === undefined) {
+        const declaration = printScreenContainer(config, screen, min);
+        utilsOutput += `${declaration}\n`;
+      }
     }
     for (const match of matches.sort(
       (a, b) => a.ruleEntry.order - b.ruleEntry.order,
     )) {
       const meta = getRuleMeta(match.ruleEntry.rule);
       if (meta?.addContainer) {
-        addContainer = true;
+        if (!screen) {
+          useContainer = true;
+          utilsOutput += printContainerClass(config.theme.container);
+        }
         continue;
       }
       if (meta?.addDefault) usedDefaults.add(meta.addDefault);
@@ -48,13 +64,20 @@ export const generate = ({
         if (variant.selectorRewrite) {
           selector = variant.selectorRewrite(selector);
         } else {
-          if (mediaWrapper) mediaWrapper += ` and ${variant.media}`;
-          else mediaWrapper = variant.media;
+          mediaWrapper = mediaWrapper
+            ? `${variant.media} and ${mediaWrapper}`
+            : variant.media;
         }
       }
-      if (mediaWrapper) utilsOutput += `@media ${mediaWrapper} {\n`;
-      utilsOutput += printBlock(`.${selector}`, toCSSEntries(match.ruleEntry));
-      if (mediaWrapper) utilsOutput += "}\n";
+      if (mediaWrapper) {
+        utilsOutput += `${screenIndent}@media ${mediaWrapper} {\n`;
+      }
+      utilsOutput += printBlock(
+        `.${selector}`,
+        toCSSEntries(match.ruleEntry),
+        mediaWrapper ? `${screenIndent}  ` : screenIndent,
+      );
+      if (mediaWrapper) utilsOutput += `${screenIndent}}\n`;
     }
     if (screen) utilsOutput += "}\n";
   });
@@ -70,25 +93,19 @@ export const generate = ({
     output += `@keyframes ${name} {\n  ${config.theme.keyframes[name]!}\n}\n`;
   });
   if (keyframes.size) output += "\n";
-  // Issue with TS flow control
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-  if (addContainer) output += printContainer(config);
 
   return output + utilsOutput;
 };
 
-const printContainer = (config: ResolvedConfig): string => {
+const printScreenContainer = (
+  config: ResolvedConfig,
+  name: string,
+  min: string,
+): string => {
   const paddingConfig = config.theme.container.padding;
-  let output = `${printContainerClass(config.theme.container)}\n`;
-  for (const name in config.theme.screens) {
-    const { min } = config.theme.screens[name]!;
-    if (!min) continue;
-    const padding =
-      typeof paddingConfig === "string" ? undefined : paddingConfig?.[name];
-    output += `@media (min-width: ${min}) {
-  .container { max-width: ${min}; ${
-      padding ? `padding-left: ${padding}; padding-right: ${padding}; ` : ""
-    }}\n}\n`;
-  }
-  return `${output}\n`;
+  const padding =
+    typeof paddingConfig === "string" ? undefined : paddingConfig?.[name];
+  return `  .container { max-width: ${min}; ${
+    padding ? `padding-left: ${padding}; padding-right: ${padding}; ` : ""
+  }}`;
 };

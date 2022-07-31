@@ -10,5 +10,6 @@ declare global {
 (globalThis as any).__VERSION__ = "test";
 
 /* eslint-disable @typescript-eslint/no-require-imports */
+require("./generate.test");
 require("./codegen.test");
 require("./esbuildPlugins.test");

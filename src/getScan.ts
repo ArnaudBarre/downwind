@@ -34,8 +34,10 @@ export const getScan = ({
     return matches;
   };
 
-  return (path: string): boolean => {
-    const code = readFileSync(path, "utf-8");
+  return (
+    path: string,
+    code = readFileSync(path, "utf-8"),
+  ): boolean /* hasNew */ => {
     const shouldScan = run(() => {
       if (path.endsWith("x")) return true;
       return code.includes("@css-scan");

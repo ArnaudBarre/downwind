@@ -1,10 +1,10 @@
 import { DownwindTheme } from "../types";
 import { mapObject } from "../utils/helpers";
-import { baseColors } from "./baseColors";
-import { baseFonts } from "./baseFonts";
+import { getBaseColors } from "./getBaseColors";
+import { getBaseFonts } from "./getBaseFonts";
 
 // https://github.com/tailwindlabs/tailwindcss/blob/master/stubs/defaultConfig.stub.js
-export const baseTheme: DownwindTheme = {
+export const getBaseTheme = (): DownwindTheme => ({
   screens: {
     "sm": "640px",
     "md": "768px",
@@ -12,7 +12,7 @@ export const baseTheme: DownwindTheme = {
     "xl": "1280px",
     "2xl": "1536px",
   },
-  colors: baseColors,
+  colors: getBaseColors(),
   columns: {
     "auto": "auto",
     1: "1",
@@ -281,7 +281,7 @@ export const baseTheme: DownwindTheme = {
     0: "0",
     DEFAULT: "1",
   },
-  fontFamily: baseFonts,
+  fontFamily: getBaseFonts(),
   fontSize: {
     "xs": ["0.75rem", "1rem"],
     "sm": ["0.875rem", "1.25rem"],
@@ -834,4 +834,4 @@ export const baseTheme: DownwindTheme = {
     40: "40",
     50: "50",
   },
-};
+});

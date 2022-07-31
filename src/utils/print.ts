@@ -3,12 +3,16 @@ import { Container, CSSEntries } from "../types";
 export const escapeSelector = (selector: string) =>
   selector.replace(/[.:/[\]]/g, (c) => `\\${c}`);
 
-export const printBlock = (selector: string, entries: CSSEntries) => {
-  let output = `${selector} {\n`;
+export const printBlock = (
+  selector: string,
+  entries: CSSEntries,
+  indent = "",
+) => {
+  let output = `${indent}${selector} {\n`;
   for (const entry of entries) {
-    output += `  ${entry[0]}: ${entry[1]};\n`;
+    output += `${indent}  ${entry[0]}: ${entry[1]};\n`;
   }
-  output += "}\n";
+  output += `${indent}}\n`;
   return output;
 };
 

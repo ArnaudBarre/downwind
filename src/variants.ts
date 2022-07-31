@@ -7,7 +7,6 @@ export type Variant =
   | { selectorRewrite?: never; media: string; screen?: string };
 
 export const getVariants = (config: ResolvedConfig) => {
-  const start = performance.now();
   const variantsMap: VariantsMap = new Map();
 
   for (const screen in config.theme.screens) {
@@ -15,7 +14,7 @@ export const getVariants = (config: ResolvedConfig) => {
     if (values.min) {
       if (values.max) {
         variantsMap.set(screen, {
-          media: `(min-width: ${values.min} and max-width: ${values.max})`,
+          media: `(min-width: ${values.min}) and (max-width: ${values.max})`,
           screen,
         });
       } else {
@@ -116,10 +115,5 @@ export const getVariants = (config: ResolvedConfig) => {
     variantsMap.set(prefix, { media });
   });
 
-  console.debug(
-    `${variantsMap.size} variants added in ${(
-      performance.now() - start
-    ).toFixed(2)}ms`,
-  );
   return variantsMap;
 };

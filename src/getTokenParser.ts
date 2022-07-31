@@ -56,7 +56,6 @@ export const getTokenParser = ({
 };
 
 export const getRulesEntries = (rules: Rule[]): Map<string, RuleEntry> => {
-  const startRulesEntries = performance.now();
   const rulesEntries = new Map<string, RuleEntry>();
   let order = 0;
   const allowNegativeRE = /^[1-9]|^0\./;
@@ -130,16 +129,10 @@ export const getRulesEntries = (rules: Rule[]): Map<string, RuleEntry> => {
     console.warn(`Collision happened for ${order - rulesEntries.size} rule(s)`);
   }
 
-  console.debug(
-    `${rulesEntries.size} rules entries created in ${(
-      performance.now() - startRulesEntries
-    ).toFixed(2)}ms`,
-  );
   return rulesEntries;
 };
 
 export const getRules = (config: ResolvedConfig): Rule[] => {
-  const start = performance.now();
   const corePlugins = getCorePlugins(config);
   const coreRules: Rule[] = [];
   const isRules = (v: RuleOrRules): v is Rule[] => Array.isArray(v[0]);
@@ -153,9 +146,7 @@ export const getRules = (config: ResolvedConfig): Rule[] => {
     config.plugins,
     (r) => getRuleMeta(r)?.components ?? false,
   );
-  const rules = components.concat(coreRules, utils);
-  console.debug(`Loaded rules: ${(performance.now() - start).toFixed(2)}ms`);
-  return rules;
+  return components.concat(coreRules, utils);
 };
 
 export const toCSSEntries = (ruleEntry: RuleEntry): CSSEntries => {

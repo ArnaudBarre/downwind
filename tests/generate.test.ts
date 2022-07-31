@@ -64,6 +64,7 @@ const cases: [name: string, content: string, config?: UserConfig][] = [
     },
   ],
   ["variants", "hover:p-4 md:print:landscape:first:p-8"],
+  ["arbitrary-values", "inset-[-10px] pt-[100px] text-[#ddd] text-[10px]"],
   ["disable-plugin", "p-4 m-4", { corePlugins: { padding: false } }],
   [
     "disable-opacity",
@@ -118,7 +119,7 @@ const cases: [name: string, content: string, config?: UserConfig][] = [
             }
             return [["margin", half]];
           },
-          { components: true, selectorRewrite: (v) => `${v} > *` },
+          { injectFirst: true, selectorRewrite: (v) => `${v} > *` },
         ],
       ],
     },

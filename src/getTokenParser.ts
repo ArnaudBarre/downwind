@@ -9,6 +9,7 @@ import {
   ThemeRule,
   ThemeRuleMeta,
 } from "./types";
+import { isColor } from "./utils/colors";
 import { split } from "./utils/helpers";
 import { Variant, VariantsMap } from "./variants";
 
@@ -18,14 +19,24 @@ export type RuleMatch = {
   variants: Variant[];
   screen: string;
 };
-export type RuleEntry = {
+type RuleEntry = {
   rule: Rule;
-  key: string;
+  key: string; // "" for static rules, the theme key for theme rules or the actual values for arbitrary entries
   direction: string;
   negative: boolean;
   order: number;
+  isArbitrary: boolean;
+};
+type ArbitraryEntry = {
+  rule: Rule;
+  direction: string;
+  validation: "color" | undefined;
+  order: number;
 };
 export type TokenParser = (token: string) => RuleMatch | undefined;
+
+const allowNegativeRE = /^[1-9]|^0\./;
+const arbitraryValueRE = /-\[.*]$/;
 
 export const getTokenParser = ({
   config,
@@ -34,7 +45,7 @@ export const getTokenParser = ({
   config: ResolvedConfig;
   variantsMap: VariantsMap;
 }): TokenParser => {
-  const rulesEntries = getRulesEntries(getRules(config));
+  const { rulesEntries, arbitraryEntries } = getRulesEntries(getRules(config));
   return (token) => {
     const initialToken = token;
     let index: number;
@@ -48,17 +59,73 @@ export const getTokenParser = ({
       else variants.push(variant);
       token = token.slice(index + 1);
     }
-    const ruleEntry = rulesEntries.get(token);
+    let ruleEntry = rulesEntries.get(token);
+    if (!ruleEntry) {
+      const start = token.indexOf("[");
+      if (start !== -1 && arbitraryValueRE.test(token)) {
+        const prefix = token.slice(0, start - 1);
+        const entries = arbitraryEntries.get(prefix);
+        if (entries) {
+          const value = token.slice(start + 1, -1);
+          const entry =
+            entries.length > 1
+              ? entries.find((e) =>
+                  e.validation === "color" ? isColor(value) : true,
+                )!
+              : entries[0];
+          ruleEntry = {
+            rule: entry.rule,
+            key: value,
+            direction: entry.direction,
+            negative: false,
+            order: entry.order,
+            isArbitrary: true,
+          };
+        }
+      }
+    }
     return ruleEntry
       ? { token: initialToken, ruleEntry, variants, screen }
       : undefined;
   };
 };
 
-export const getRulesEntries = (rules: Rule[]): Map<string, RuleEntry> => {
+export const getRulesEntries = (rules: Rule[]) => {
   const rulesEntries = new Map<string, RuleEntry>();
+  const arbitraryEntries = new Map<string, ArbitraryEntry[]>();
   let order = 0;
-  const allowNegativeRE = /^[1-9]|^0\./;
+  let nbArbitraryRules = 0;
+
+  const addThemeEntry = (
+    rule: Rule,
+    prefix: string,
+    key: string,
+    direction: string,
+    negative: boolean,
+    meta: ThemeRuleMeta | undefined,
+  ) => {
+    if (key === "DEFAULT") {
+      if (meta?.filterDefault) return;
+      rulesEntries.set(prefix, {
+        rule,
+        key,
+        direction,
+        negative,
+        order: order++,
+        isArbitrary: false,
+      });
+    } else {
+      rulesEntries.set(`${prefix}-${key}`, {
+        rule,
+        key,
+        direction,
+        negative,
+        order: order++,
+        isArbitrary: false,
+      });
+    }
+  };
+
   const addTheme = (
     rule: Rule,
     prefix: string,
@@ -66,41 +133,28 @@ export const getRulesEntries = (rules: Rule[]): Map<string, RuleEntry> => {
     direction: string,
     meta: ThemeRuleMeta | undefined,
   ) => {
-    const addThemeEntry = (
-      fullPrefix: string,
-      key: string,
-      negative: boolean,
-    ) => {
-      if (key === "DEFAULT") {
-        if (meta?.filterDefault) return;
-        rulesEntries.set(fullPrefix, {
-          rule,
-          key,
-          direction,
-          negative,
-          order: order++,
-        });
-      } else {
-        rulesEntries.set(`${fullPrefix}-${key}`, {
-          rule,
-          key,
-          direction,
-          negative,
-          order: order++,
-        });
-      }
-    };
-
     if (meta?.supportsNegativeValues) {
       const negativePrefix = `-${prefix}`;
       for (const themeKey in themeMap) {
         if (allowNegativeRE.test(themeMap[themeKey] as string)) {
-          addThemeEntry(negativePrefix, themeKey, true);
+          addThemeEntry(rule, negativePrefix, themeKey, direction, true, meta);
         }
       }
     }
     for (const themeKey in themeMap) {
-      addThemeEntry(prefix, themeKey, false);
+      addThemeEntry(rule, prefix, themeKey, direction, false, meta);
+    }
+
+    const validation = meta?.arbitrary;
+    if (validation !== null) {
+      const entry = { rule, direction, validation, order: order++ };
+      nbArbitraryRules++;
+      const current = arbitraryEntries.get(prefix);
+      if (current) {
+        validation === "color" ? current.unshift(entry) : current.push(entry);
+      } else {
+        arbitraryEntries.set(prefix, [entry]);
+      }
     }
   };
 
@@ -121,15 +175,35 @@ export const getRulesEntries = (rules: Rule[]): Map<string, RuleEntry> => {
         direction: "",
         negative: false,
         order: order++,
+        isArbitrary: false,
       });
     }
   }
 
-  if (rulesEntries.size !== order) {
-    console.warn(`Collision happened for ${order - rulesEntries.size} rule(s)`);
+  const expectedNbRulesEntries = order - nbArbitraryRules;
+  if (rulesEntries.size !== expectedNbRulesEntries) {
+    console.warn(
+      `Collision happened for ${
+        expectedNbRulesEntries - rulesEntries.size
+      } rule(s)`,
+    );
   }
 
-  return rulesEntries;
+  for (const [prefix, entries] of arbitraryEntries.entries()) {
+    if (entries.length === 1) continue;
+    if (entries.length > 2) {
+      console.warn(
+        `Unsupported: ${entries.length} rules are using arbitrary values with the prefix "${prefix}"`,
+      );
+    }
+    if (entries[0].validation !== "color") {
+      console.warn(
+        `Unsupported: 2 rules are using arbitrary values with the prefix "${prefix}" but none is scoped to "color"`,
+      );
+    }
+  }
+
+  return { rulesEntries, arbitraryEntries };
 };
 
 export const getRules = (config: ResolvedConfig): Rule[] => {
@@ -142,25 +216,29 @@ export const getRules = (config: ResolvedConfig): Rule[] => {
       coreRules.push(...(isRules(value) ? value : [value]));
     }
   }
-  const [components, utils] = split(
+  const [before, after] = split(
     config.plugins,
-    (r) => getRuleMeta(r)?.components ?? false,
+    (r) => getRuleMeta(r)?.injectFirst ?? false,
   );
-  return components.concat(coreRules, utils);
+  return before.concat(coreRules, after);
 };
 
 export const toCSSEntries = (ruleEntry: RuleEntry): CSSEntries => {
   const rule = ruleEntry.rule;
   if (isThemeRule(rule)) {
     return rule[2](
-      ruleEntry.negative
+      ruleEntry.isArbitrary
+        ? ruleEntry.key
+        : ruleEntry.negative
         ? `-${(rule[1] as Record<string, string>)[ruleEntry.key]}`
         : rule[1][ruleEntry.key]!,
     );
   } else if (isDirectionRule(rule)) {
     return rule[3](
       ruleEntry.direction,
-      ruleEntry.negative
+      ruleEntry.isArbitrary
+        ? ruleEntry.key
+        : ruleEntry.negative
         ? `-${rule[2][ruleEntry.key]!}`
         : rule[2][ruleEntry.key]!,
     );

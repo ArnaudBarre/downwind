@@ -11,7 +11,7 @@ import { escapeSelector, printBlock, printContainerClass } from "./utils/print";
 export const codegen: typeof codegenDeclaration = async ({ omitContent }) => {
   const config = await getConfig();
 
-  const rulesEntries = getRulesEntries(getRules(config));
+  const { rulesEntries } = getRulesEntries(getRules(config));
 
   return omitContent
     ? Array.from(rulesEntries.keys())

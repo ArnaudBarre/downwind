@@ -22,8 +22,8 @@ export const getScan = ({
       .filter((t) => validSelectorRE.test(t) && !blockList.has(t));
     const localMatches = new Set<string>();
     for (const token of tokens) {
-      if (localMatches.has(token) || blockList.has(token)) continue;
-      const match = tokenParser(token);
+      if (blockList.has(token) || localMatches.has(token)) continue;
+      const match = tokenParser(token); // TODO: Add tokenParser cache
       if (match === undefined) {
         blockList.add(token);
       } else {

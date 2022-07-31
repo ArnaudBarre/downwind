@@ -20,10 +20,29 @@ await build({
 });
 ```
 
+## Differences
+
+### Components
+
+Downwind doesn't have the notion of components, but custom plugins can be injected before core plugins by using `injectFirst: true`.
+
+Shortcuts from [Windi CSS](https://windicss.org/features/shortcuts.html#shortcuts) solves most the needs and will be implemented.
+
+### Arbitrary values
+
+The implementation would work most of the time, but some shortcuts have been made to keep the implementation lean and fast:
+
+- Arbitrary alpha is not supported (yet)
+- backgroundImage, backgroundPosition and fontFamily are not supported
+- For prefix with collision (divide, border, bg, stroke, text, decoration, outline, ring, ring-offset), if the value doesn't match a CSS color (hex, rgba?, hsla?) it's interpreted as the "size" version. Using data types is not supported
+- Underscore are always mapped to space
+
+When implemented, [arbitrary properties](https://tailwindcss.com/docs/adding-custom-styles#arbitrary-properties) could be use to bypass the rare edge cases.
+
 ## TODO
 
-- arbitrary values
 - vite plugin
 - variants in css files
 - shortcuts
 - lighter ring, transform, filter, font-variant-numeric
+- arbitrary properties: https://tailwindcss.com/docs/adding-custom-styles#arbitrary-properties

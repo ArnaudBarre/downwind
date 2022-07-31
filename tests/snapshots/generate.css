@@ -244,6 +244,24 @@
   }
 }
 
+/* arbitrary-values: inset-[-10px] pt-[100px] text-[#ddd] text-[10px] */
+.inset-\[-10px\] {
+  top: -10px;
+  right: -10px;
+  bottom: -10px;
+  left: -10px;
+}
+.pt-\[100px\] {
+  padding-top: 100px;
+}
+.text-\[10px\] {
+  font-size: 10px;
+}
+.text-\[#ddd\] {
+  --tw-text-opacity: 1;
+  color: rgb(221 221 221 / var(--tw-text-opacity));
+}
+
 /* disable-plugin: p-4 m-4 */
 .m-4 {
   margin: 1rem;

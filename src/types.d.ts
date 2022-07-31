@@ -65,15 +65,38 @@ export type DirectionThemeRule = [
   (ThemeRuleMeta & { omitHyphen?: boolean; mandatory?: boolean })?,
 ];
 export type RuleMeta = {
+  /**
+   * Can be used to target children: (v) => `${v} > * + *`
+   */
   selectorRewrite?: SelectorRewrite;
+  /**
+   * Set to true to inject this plugin before the core plugins.
+   */
+  injectFirst?: boolean;
+  /**
+   * Inject some CSS variables on `*`. Needed for some rules like transform or filter.
+   */
   addDefault?: Default;
+  /**
+   * @internal
+   */
   addContainer?: boolean;
   addKeyframes?: boolean;
-  components?: boolean; // For user plugins
 };
 export type ThemeRuleMeta = RuleMeta & {
+  /**
+   * Also generate negative entries if the key is a number (like -p-4).
+   */
   supportsNegativeValues?: boolean;
+  /**
+   * Don't generate the class for the DEFAULT key.
+   * Used when the DEFAULT value is used in the base styles or in another rule.
+   */
   filterDefault?: boolean;
+  /**
+   * Use null to disable arbitrary values, undefined to allow any value.
+   */
+  arbitrary?: "color" | null;
 };
 export type SelectorRewrite = (value: string) => string;
 export type CSSEntries = CSSEntry[];

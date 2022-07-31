@@ -6,6 +6,7 @@ import {
   DirectionThemeRule,
   Rule,
   SelectorRewrite,
+  StaticRule,
   ThemeRule,
   ThemeRuleMeta,
 } from "./types";
@@ -501,7 +502,7 @@ export const getCorePlugins = ({
         variable: "--tw-divide-opacity",
         enabled: corePlugins.divideOpacity !== false,
       }),
-    { selectorRewrite: childSelectorRewrite },
+    { selectorRewrite: childSelectorRewrite, arbitrary: "color" },
   ),
   divideOpacity: themeRule(
     "divide",
@@ -581,6 +582,7 @@ export const getCorePlugins = ({
     standardDirections,
     theme.borderWidth,
     (d) => borderWidthDirectionMap[d],
+    { arbitrary: "color" },
   ),
   borderStyle: enumRule("border-", "border-style", [
     "solid",
@@ -608,20 +610,26 @@ export const getCorePlugins = ({
     theme.borderOpacity,
     "--tw-border-opacity",
   ),
-  backgroundColor: themeRule("bg", theme.backgroundColor, (value) =>
-    withAlphaVariable({
-      properties: ["background-color"],
-      color: value,
-      variable: "--tw-bg-opacity",
-      enabled: corePlugins.backgroundOpacity !== false,
-    }),
+  backgroundColor: themeRule(
+    "bg",
+    theme.backgroundColor,
+    (value) =>
+      withAlphaVariable({
+        properties: ["background-color"],
+        color: value,
+        variable: "--tw-bg-opacity",
+        enabled: corePlugins.backgroundOpacity !== false,
+      }),
+    { arbitrary: "color" },
   ),
   backgroundOpacity: themeRule(
     "bg-opacity",
     theme.backgroundOpacity,
     "--tw-bg-opacity",
   ),
-  backgroundImage: themeRule("bg-", theme.backgroundImage, "background-image"),
+  backgroundImage: themeRule("bg", theme.backgroundImage, "background-image", {
+    arbitrary: null,
+  }),
   gradientColorStops: [
     themeRule("from", theme.gradientColorStops, (value) => [
       ["--tw-gradient-from", value],
@@ -663,6 +671,7 @@ export const getCorePlugins = ({
     "bg",
     theme.backgroundPosition,
     "background-position",
+    { arbitrary: null },
   ),
   backgroundRepeat: [
     ...enumRule("bg-", "background-repeat", [
@@ -680,7 +689,7 @@ export const getCorePlugins = ({
     (v) => `${v}-box`,
   ),
   fill: themeRule("fill", theme.fill, "fill"),
-  stroke: themeRule("stroke", theme.stroke, "stroke"),
+  stroke: themeRule("stroke", theme.stroke, "stroke", { arbitrary: "color" }),
   strokeWidth: themeRule("stroke", theme.strokeWidth, "stroke-width"),
   objectFit: enumRule("object-", "object-fit", [
     "contain",
@@ -708,7 +717,9 @@ export const getCorePlugins = ({
   }),
   // Non-compliant: uses theme
   verticalAlign: themeRule("align", theme.verticalAlign, "vertical-align"),
-  fontFamily: themeRule("font", theme.fontFamily, "font-family"),
+  fontFamily: themeRule("font", theme.fontFamily, "font-family", {
+    arbitrary: null,
+  }),
   // Non-compliant: Doesn't handle { lineHeight, letterSpacing } format
   fontSize: complexThemeRule("text", theme.fontSize, (value) => {
     if (Array.isArray(value)) {
@@ -759,13 +770,17 @@ export const getCorePlugins = ({
   letterSpacing: themeRule("tracking", theme.letterSpacing, "letter-spacing", {
     supportsNegativeValues: true,
   }),
-  textColor: themeRule("text", theme.textColor, (value) =>
-    withAlphaVariable({
-      properties: ["color"],
-      color: value,
-      variable: "--tw-text-opacity",
-      enabled: corePlugins.textOpacity !== false,
-    }),
+  textColor: themeRule(
+    "text",
+    theme.textColor,
+    (value) =>
+      withAlphaVariable({
+        properties: ["color"],
+        color: value,
+        variable: "--tw-text-opacity",
+        enabled: corePlugins.textOpacity !== false,
+      }),
+    { arbitrary: "color" },
   ),
   textOpacity: themeRule(
     "text-opacity",
@@ -782,6 +797,7 @@ export const getCorePlugins = ({
     "decoration",
     theme.textDecorationColor,
     "text-decoration-color",
+    { arbitrary: "color" },
   ),
   textDecorationStyle: enumRule("decoration-", "text-decoration-style", [
     "solid",
@@ -867,7 +883,9 @@ export const getCorePlugins = ({
     theme.outlineOffset,
     "outline-offset",
   ),
-  outlineColor: themeRule("outline", theme.outlineColor, "outline-color"),
+  outlineColor: themeRule("outline", theme.outlineColor, "outline-color", {
+    arbitrary: "color",
+  }),
   ringWidth: [
     themeRule(
       "ring",
@@ -897,7 +915,7 @@ export const getCorePlugins = ({
         variable: "--tw-ring-opacity",
         enabled: corePlugins.ringOpacity !== false,
       }),
-    { filterDefault: true },
+    { filterDefault: true, arbitrary: "color" },
   ),
   ringOpacity: themeRule(
     "ring-opacity",
@@ -914,6 +932,7 @@ export const getCorePlugins = ({
     "ring-offset",
     theme.ringOffsetColor,
     "--tw-ring-offset-color",
+    { arbitrary: "color" },
   ),
   blur: filterRule("blur", theme.blur),
   brightness: filterRule("brightness", theme.brightness),
@@ -1066,7 +1085,7 @@ const enumRule = (
   values: string[],
   transformValue: (value: string) => string = (v) => v,
   selectorRewrite: SelectorRewrite | undefined = undefined,
-): Rule[] =>
+): StaticRule[] =>
   values.map((v) => [
     `${prefix}${v}`,
     [[property, transformValue(v)]],

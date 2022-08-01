@@ -13,7 +13,7 @@
     "lint": "bun run lint-ci --fix --cache",
     "lint-ci": "eslint src scripts tests --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "prettier": "bun run prettier-ci --write",
-    "prettier-ci": "prettier --ignore-path .gitignore --check '**/*.{js,ts,json,md}'",
+    "prettier-ci": "prettier --ignore-path .gitignore --check '**/*.{js,ts,tsx,html,css,json,md}'",
     "ci": "tsc && bun test-ci && bun lint-ci && bun prettier-ci && bun run build"
   },
   "prettier": {
@@ -28,15 +28,16 @@
   },
   "dependencies": {
     "@arnaud-barre/config-loader": "^0.2.1",
-    "@parcel/css": "^1.11.2"
+    "@parcel/css": "^1.12.0"
   },
   "devDependencies": {
-    "@arnaud-barre/eslint-config": "^1.0.9",
+    "@arnaud-barre/eslint-config": "^1.0.10",
     "@ianvs/prettier-plugin-sort-imports": "^3.4.2",
     "@nabla/tnode": "^0.6.0",
-    "@types/node": "^18.0.3",
-    "eslint": "^8.17.0",
+    "@types/node": "^18.6.3",
+    "eslint": "^8.20.0",
     "prettier": "^2.7.1",
-    "typescript": "^4.7.4"
+    "typescript": "^4.7.4",
+    "vite": "^3.0.4"
   }
 }

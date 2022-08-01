@@ -13,3 +13,4 @@ declare global {
 require("./generate.test");
 require("./codegen.test");
 require("./esbuildPlugin.test");
+require("./vitePlugin.test");

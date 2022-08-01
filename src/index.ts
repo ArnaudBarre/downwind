@@ -1,3 +1,4 @@
+import { readFileSync } from "fs";
 import {
   CSSModuleExports,
   Dependency,
@@ -19,6 +20,7 @@ export const VERSION = __VERSION__;
 export { codegen } from "./codegen";
 export { cssModuleToJS } from "./utils/modules";
 export { esbuildPlugin } from "./esbuildPlugin";
+export { vitePlugin } from "./vitePlugin";
 
 export const initDownwind: typeof initDownwindDeclaration = async (
   targets?: TransformOptions["targets"],
@@ -34,15 +36,19 @@ export const initDownwind: typeof initDownwindDeclaration = async (
     ),
   ]);
 
+  const pt = (content: string) =>
+    preTransform({ content, tokenParser, variantsMap });
+
   return {
     getBase: () => getBase(config.theme),
+    preTransform: pt,
     transform: <AnalyzeDependencies extends boolean>(
       path: string,
       opts?: { analyzeDependencies: AnalyzeDependencies },
     ) => {
       const result = transform({
         filename: path,
-        code: Buffer.from(preTransform({ path, tokenParser, variantsMap })),
+        code: Buffer.from(pt(readFileSync(path, "utf-8"))),
         analyzeDependencies: opts?.analyzeDependencies,
         cssModules: path.endsWith(".module.css"),
         drafts: { nesting: true },

@@ -1,5 +1,3 @@
-import { readFileSync } from "fs";
-
 import { getRuleMeta, toCSSEntries, TokenParser } from "./getTokenParser";
 import { VariantsMap } from "./variants";
 
@@ -7,15 +5,14 @@ const applyRE = /\s@apply ([^;}\n]+)[;}\n]/g;
 const screenRE = /@screen ([^{]+){/g;
 
 export const preTransform = ({
-  path,
+  content,
   tokenParser,
   variantsMap,
 }: {
-  path: string;
+  content: string;
   tokenParser: TokenParser;
   variantsMap: VariantsMap;
 }) => {
-  let content = readFileSync(path, "utf-8");
   const hasApply = content.includes("@apply ");
   if (hasApply) {
     content = content.replace(applyRE, (substring, utils: string) => {
@@ -41,10 +38,10 @@ export const preTransform = ({
           );
         }
         for (const cssEntry of toCSSEntries(match.ruleEntry)) {
-          output += `${cssEntry[0]}:${cssEntry[1]};`;
+          output += `${cssEntry[0]}: ${cssEntry[1]}; `;
         }
       }
-      return `${substring[0]}${output.slice(0, -1)}${substring.at(-1)!}`;
+      return `${substring[0]}${output.slice(0, -2)}${substring.at(-1)!}`;
     });
   }
 

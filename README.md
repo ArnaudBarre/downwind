@@ -4,6 +4,22 @@ A PostCSS-less implementation of Tailwind based on [@parcel/css](https://github.
 
 Inspired by [unocss](https://github.com/unocss/unocss).
 
+## Usage with [vite](https://vitejs.dev/)
+
+Here is an example when supporting Safari 13 as a minimum target:
+
+```ts
+import { vitePlugin as downwind } from "@arnaud-barre/downwind";
+import { defineConfig } from "vite";
+
+export default defineConfig({
+  plugins: [downwind({ safari: 13 << 16 })],
+  build: { target: ["safari13"] },
+});
+```
+
+Add `import "virtual:@downwind/base.css";` and `import "virtual:@downwind/utils.css";` to your code.
+
 ## Usage with [esbuild](https://github.com/evanw/esbuild)
 
 Here is an example when supporting Safari 13 as a minimum target:
@@ -19,6 +35,8 @@ await build({
   plugins: [downwind({ safari: 13 << 16 })],
 });
 ```
+
+Add `import "virtual:@downwind/base.css";` and `import "virtual:@downwind/utils.css";` to your code.
 
 ## Differences
 
@@ -41,7 +59,6 @@ When implemented, [arbitrary properties](https://tailwindcss.com/docs/adding-cus
 
 ## TODO
 
-- vite plugin
 - variants in css files
 - shortcuts
 - lighter ring, transform, filter, font-variant-numeric

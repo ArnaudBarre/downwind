@@ -20,12 +20,33 @@ export const esbuildPlugin: typeof esbuildPluginDeclaration = (targets) => {
   return {
     name: "downwind",
     setup: (build) => {
+      useMinify = build.initialOptions.minify ?? false;
+      const useWrite = build.initialOptions.write ?? true;
+      if (useWrite) build.initialOptions.metafile = true;
+
       build.onStart(() => initPromise);
+
+      // Virtual entries
+      build.onResolve({ filter: /^virtual:@downwind\// }, (args) => ({
+        path: args.path.slice(18),
+        namespace: "downwind-virtual",
+      }));
+      build.onLoad({ filter: /./, namespace: "downwind-virtual" }, (args) => {
+        switch (args.path) {
+          case "base.css":
+            return { contents: downwind.getBase(), loader: "css" };
+          case "utils.css":
+            hasCSSUtils = true;
+            return { contents: getPlaceholder(), loader: "css" };
+          default:
+            throw new Error(`Unexpected virtual entry: @downwind/${args.path}`);
+        }
+      });
 
       // CSS Files
       build.onResolve({ filter: /^transpiled:/ }, ({ path }) => ({
         path: path.slice(11),
-        namespace: "downwind=css-transpiled",
+        namespace: "downwind-css-transpiled",
       }));
       build.onLoad(
         { filter: /./, namespace: "downwind-css-transpiled" },
@@ -40,29 +61,7 @@ export const esbuildPlugin: typeof esbuildPluginDeclaration = (targets) => {
         };
       });
 
-      // Virtual entries
-      useMinify = build.initialOptions.minify ?? false;
-
-      build.onResolve({ filter: /^virtual:@downwind\// }, (args) => ({
-        path: args.path.slice(18),
-        namespace: "downwind-virtual",
-      }));
-      build.onLoad({ filter: /./, namespace: "downwind-virtual" }, (args) => {
-        switch (args.path) {
-          case "base":
-            return { contents: downwind.getBase(), loader: "css" };
-          case "utils":
-            hasCSSUtils = true;
-            return { contents: getPlaceholder(), loader: "css" };
-          default:
-            throw new Error(`Unexpected virtual entry: @downwind/${args.path}`);
-        }
-      });
-
       // CSS scan
-      const useWrite = build.initialOptions.write ?? true;
-      if (useWrite) build.initialOptions.metafile = true;
-
       build.onLoad({ filter: /\.[jt]sx?$/u }, ({ path }) => {
         // https://github.com/evanw/esbuild/issues/1222
         if (path.includes("/node_modules/")) return;

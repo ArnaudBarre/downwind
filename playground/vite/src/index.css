@@ -1,0 +1,7 @@
+html {
+  @apply h-full overflow-hidden flex-col;
+  @apply text-lg text-slate-700;
+}
+body {
+  @apply m-0;
+}

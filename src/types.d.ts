@@ -18,8 +18,9 @@ export type DownwindConfig = DefineConfig<UserConfig>;
 /**
  * API
  */
+type ParcelTargets = NonNullable<TransformOptions["targets"]>;
 export declare const initDownwind: (
-  targets?: TransformOptions["targets"],
+  targets?: ParcelTargets,
 ) => Promise<Downwind>;
 
 export type Downwind = {
@@ -41,13 +42,13 @@ export declare const codegen: (opts: {
   omitContent: boolean;
 }) => Promise<string>;
 
-export declare const vitePlugin: (
-  targets?: TransformOptions["targets"],
-) => Promise<VitePlugin[]>;
+export declare const vitePlugin: () => VitePlugin[];
 
-export declare const esbuildPlugin: (
-  targets?: TransformOptions["targets"],
-) => ESBuildPlugin;
+export declare const esbuildPlugin: () => ESBuildPlugin;
+
+export declare const convertTargets: (
+  esbuildTarget: string | string[] | undefined | false,
+) => ParcelTargets | undefined;
 
 /**
  * Utils

@@ -1,19 +1,25 @@
 import { createHash } from "crypto";
 import { transform as parcelTransform } from "@parcel/css";
-import { ViteDevServer, Plugin } from "vite";
+import { Targets } from "@parcel/css/node/targets";
+import { ViteDevServer, Plugin, ResolvedConfig } from "vite";
 
 import { initDownwind } from "./index";
-import { vitePlugin as vitePluginDeclaration } from "./types";
+import { Downwind, vitePlugin as vitePluginDeclaration } from "./types";
+import { convertTargets } from "./utils/convertTargets";
 
 const scanRE = /\.[jt]sx?$/;
 const cssRE = /\.css(\?.+)?$/;
 
-export const vitePlugin: typeof vitePluginDeclaration = async (
-  targets,
-): Promise<Plugin[]> => {
-  const downwind = await initDownwind(targets);
+export const vitePlugin: typeof vitePluginDeclaration = (): Plugin[] => {
+  let downwind: Downwind;
+  let targets: Targets | undefined;
 
   // Common
+  const configResolved = async (config: ResolvedConfig) => {
+    targets = convertTargets(config.build.cssTarget);
+    downwind = await initDownwind(targets);
+  };
+
   let hasBase = false;
   let hasUtils = false;
   const baseVirtual = "virtual:@downwind/base.css";
@@ -38,7 +44,7 @@ export const vitePlugin: typeof vitePluginDeclaration = async (
   let lastServed = 0;
   const sendUpdate = () => {
     server.moduleGraph.invalidateModule(
-      server.moduleGraph.getModuleById(`/${utilsVirtual}`)!,
+      server.moduleGraph.getModuleById(utilsModuleId)!,
     );
     lastUpdate = Date.now();
     server.ws.send({
@@ -46,8 +52,8 @@ export const vitePlugin: typeof vitePluginDeclaration = async (
       updates: [
         {
           type: "js-update",
-          path: `/${utilsVirtual}`,
-          acceptedPath: `/${utilsVirtual}`,
+          path: utilsModuleId,
+          acceptedPath: utilsModuleId,
           timestamp: Date.now(),
         },
       ],
@@ -65,6 +71,7 @@ export const vitePlugin: typeof vitePluginDeclaration = async (
       name: "downwind:dev",
       apply: "serve",
       enforce: "pre",
+      configResolved,
       configureServer(_server) {
         server = _server;
         server.ws.on(hmrEvent, (servedTime: number) => {
@@ -103,7 +110,8 @@ export const vitePlugin: typeof vitePluginDeclaration = async (
       name: "downwind:build",
       apply: "build",
       enforce: "pre",
-      configResolved(config) {
+      async configResolved(config) {
+        await configResolved(config);
         minify = config.build.minify !== false;
         cssPostPlugin = config.plugins.find((i) => i.name === "vite:css-post");
       },

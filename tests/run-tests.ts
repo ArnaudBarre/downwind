@@ -12,6 +12,7 @@ declare global {
 /* eslint-disable @typescript-eslint/no-require-imports */
 require("./generate.test");
 require("./preTransform.test");
+require("./convertTargets.test");
 require("./codegen.test");
 require("./esbuildPlugin.test");
 require("./vitePlugin.test");

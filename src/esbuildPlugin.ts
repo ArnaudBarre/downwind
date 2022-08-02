@@ -4,10 +4,12 @@ import { transform as parcelTransform } from "@parcel/css";
 
 import { cssModuleToJS, initDownwind } from "./index";
 import { esbuildPlugin as esbuildPluginDeclaration } from "./types";
+import { convertTargets } from "./utils/convertTargets";
 
-export const esbuildPlugin: typeof esbuildPluginDeclaration = (targets) => ({
+export const esbuildPlugin: typeof esbuildPluginDeclaration = () => ({
   name: "downwind",
   setup: async (build) => {
+    const targets = convertTargets(build.initialOptions.target);
     const downwind = await initDownwind(targets);
     const cssModulesMap: Record<string, string> = {};
     let hasBase = false;

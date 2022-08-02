@@ -59,8 +59,9 @@ When implemented, [arbitrary properties](https://tailwindcss.com/docs/adding-cus
 
 ## TODO
 
-- variants in css files
+- use target from esbuild
 - shortcuts
 - vite dev warn
 - lighter ring, transform, filter, font-variant-numeric
+- preTransform utils that requires keyframes or default
 - arbitrary properties: https://tailwindcss.com/docs/adding-custom-styles#arbitrary-properties

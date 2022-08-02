@@ -1,7 +1,8 @@
 import { getRuleMeta, toCSSEntries, TokenParser } from "./getTokenParser";
+import { applyVariants } from "./utils/print";
 import { VariantsMap } from "./variants";
 
-const applyRE = /\s@apply ([^;}\n]+)[;}\n]/g;
+const applyRE = /[{\s]@apply ([^;}\n]+)([;}\n])/g;
 const screenRE = /@screen ([^{]+){/g;
 
 export const preTransform = ({
@@ -15,34 +16,48 @@ export const preTransform = ({
 }) => {
   const hasApply = content.includes("@apply ");
   if (hasApply) {
-    content = content.replace(applyRE, (substring, utils: string) => {
-      let output = "";
-      for (const token of utils.split(" ")) {
-        if (!token) continue;
-        const match = tokenParser(token);
-        if (match === undefined) {
-          throw new DownwindError(`No rules matching "${token}"`, substring);
-        }
-        const meta = getRuleMeta(match.ruleEntry.rule);
-        if (
-          match.screen || // TODO: Find a way to make it working
-          match.variants.length || // TODO: Use nesting if not media query
-          meta?.selectorRewrite || // TODO: Use nesting
-          meta?.addDefault || // TODO: Maybe it works if added in main
-          meta?.addKeyframes || // TODO: Maybe it works if added in main
-          meta?.addContainer
-        ) {
-          throw new DownwindError(
-            `Complex utils like "${token}" are not supported. You can use @screen for media variants.`,
-            substring,
+    content = content.replace(
+      applyRE,
+      (substring, utils: string, endChar: string) => {
+        const output = [];
+        for (const token of utils.split(" ")) {
+          if (!token) continue;
+          const match = tokenParser(token);
+          if (match === undefined) {
+            throw new DownwindError(`No rules matching "${token}"`, substring);
+          }
+          const meta = getRuleMeta(match.ruleEntry.rule);
+          let hasMedia = !!match.screen;
+          const selector = applyVariants("&", match, meta, () => {
+            hasMedia = true;
+          });
+          if (
+            hasMedia ||
+            !selector.startsWith("&") ||
+            meta?.addDefault || // TODO: Maybe it works if added in main
+            meta?.addKeyframes || // TODO: Maybe it works if added in main
+            meta?.addContainer
+          ) {
+            throw new DownwindError(
+              `Complex utils like "${token}" are not supported.${
+                hasMedia ? " You can use @screen for media variants." : ""
+              }`,
+              substring,
+            );
+          }
+          const tokenOutput = toCSSEntries(match.ruleEntry)
+            .map((cssEntry) => `${cssEntry[0]}: ${cssEntry[1]};`)
+            .join(" ");
+
+          output.push(
+            selector === "&" ? tokenOutput : `${selector} { ${tokenOutput} }`,
           );
         }
-        for (const cssEntry of toCSSEntries(match.ruleEntry)) {
-          output += `${cssEntry[0]}: ${cssEntry[1]}; `;
-        }
-      }
-      return `${substring[0]}${output.slice(0, -2)}${substring.at(-1)!}`;
-    });
+        return `${substring[0]}${output.join("\n  ")}${
+          endChar === ";" ? "" : endChar
+        }`;
+      },
+    );
   }
 
   const hasScreen = content.includes("@screen ");

@@ -1,4 +1,5 @@
-import { Container, CSSEntries } from "../types";
+import { RuleMatch } from "../getTokenParser";
+import { Container, CSSEntries, RuleMeta } from "../types";
 
 export const escapeSelector = (selector: string) =>
   selector.replace(/[.:/[\]]/g, (c) => `\\${c}`);
@@ -33,4 +34,22 @@ export const printContainerClass = (config: Container) => {
   }
 
   return printBlock(".container", entries);
+};
+
+export const applyVariants = (
+  selector: string,
+  match: RuleMatch,
+  meta: RuleMeta | undefined,
+  mediaScreen: (media: string) => void,
+) => {
+  for (let i = match.variants.length - 1; i >= 0; i--) {
+    const variant = match.variants[i];
+    if (variant.selectorRewrite) {
+      selector = variant.selectorRewrite(selector);
+    } else {
+      mediaScreen(variant.media);
+    }
+  }
+  if (meta?.selectorRewrite) selector = meta.selectorRewrite(selector);
+  return selector;
 };

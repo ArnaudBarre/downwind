@@ -10,7 +10,7 @@ import {
   ThemeCallback,
   ThemeKey,
 } from "./types";
-import { mapObjectValue } from "./utils/helpers";
+import { mapObjectValue, run } from "./utils/helpers";
 
 export type ResolvedConfig = {
   theme: ResolvedTheme;
@@ -21,7 +21,7 @@ export type ResolvedConfig = {
 export const getConfig = async () => {
   const config =
     global.TEST_CONFIG ?? (await loadConfig<UserConfig>("downwind"));
-  const theme = ((): DownwindTheme => {
+  const theme = run((): DownwindTheme => {
     const baseTheme = getBaseTheme();
     if (!config?.theme) return baseTheme;
     const { extend, ...userTheme } = config.theme;
@@ -41,7 +41,7 @@ export const getConfig = async () => {
       }
     }
     return Object.assign(baseTheme, userTheme);
-  })();
+  });
   theme.colors = Object.fromEntries(
     Object.entries(theme.colors).flatMap(([key, stringOrMap]) =>
       typeof stringOrMap === "string"

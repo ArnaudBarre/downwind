@@ -1,0 +1,22 @@
+
+.class1 {
+  margin: 1rem;
+  padding-left: 1rem; padding-right: 1rem;
+}
+
+@media (orientation: landscape) {
+  .class2 {
+    padding-left: 1rem; padding-right: 1rem;
+  margin: 1rem;
+  }
+}
+
+.class3 {&:hover { padding: 1rem; }
+  &:first-child { padding: 2rem; }}
+
+@media (min-width: 768px) {
+  .class4 {
+    top: 1rem;
+  &:last-child > * + * { margin-top: 2.5rem; }
+  }
+}

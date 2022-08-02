@@ -2,7 +2,12 @@ import { ResolvedConfig } from "./getConfig";
 import { Defaults } from "./getDefaults";
 import { getRuleMeta, RuleMatch, toCSSEntries } from "./getTokenParser";
 import { Default } from "./types";
-import { escapeSelector, printBlock, printContainerClass } from "./utils/print";
+import {
+  applyVariants,
+  escapeSelector,
+  printBlock,
+  printContainerClass,
+} from "./utils/print";
 import { VariantsMap } from "./variants";
 
 export const generate = ({
@@ -58,17 +63,9 @@ export const generate = ({
       }
       let mediaWrapper: string | undefined;
       let selector = escapeSelector(match.token);
-      if (meta?.selectorRewrite) selector = meta.selectorRewrite(selector);
-      for (let i = match.variants.length - 1; i >= 0; i--) {
-        const variant = match.variants[i];
-        if (variant.selectorRewrite) {
-          selector = variant.selectorRewrite(selector);
-        } else {
-          mediaWrapper = mediaWrapper
-            ? `${variant.media} and ${mediaWrapper}`
-            : variant.media;
-        }
-      }
+      selector = applyVariants(selector, match, meta, (media) => {
+        mediaWrapper = mediaWrapper ? `${media} and ${mediaWrapper}` : media;
+      });
       if (mediaWrapper) {
         utilsOutput += `${screenIndent}@media ${mediaWrapper} {\n`;
       }

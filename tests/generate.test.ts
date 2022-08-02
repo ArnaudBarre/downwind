@@ -4,6 +4,7 @@ import test from "node:test";
 
 import { initDownwind } from "../src";
 import { UserConfig } from "../src/types";
+import { run } from "../src/utils/helpers";
 import { shouldUpdateSnapshots } from "./test-utils";
 
 const cases: [name: string, content: string, config?: UserConfig][] = [
@@ -133,7 +134,7 @@ const snapshots = Object.fromEntries(
     .map((v) => [v.slice(0, v.indexOf(":")), `/* ${v}`]),
 );
 
-(async () => {
+run(async () => {
   let newSnapshot = "";
   for (const [name, content, config = {}] of cases) {
     globalThis.TEST_CONFIG = config;
@@ -150,4 +151,4 @@ const snapshots = Object.fromEntries(
   if (shouldUpdateSnapshots) {
     writeFileSync("./tests/snapshots/generate.css", newSnapshot);
   }
-})();
+});

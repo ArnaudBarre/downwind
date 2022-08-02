@@ -34,3 +34,4 @@ const esbuildPluginTest = (name: string, opts?: BuildOptions) => {
 esbuildPluginTest("simple");
 esbuildPluginTest("minify", { minify: true });
 esbuildPluginTest("no-write", { write: false });
+esbuildPluginTest("hash", { entryNames: "[dir]/[name]-[hash]" });

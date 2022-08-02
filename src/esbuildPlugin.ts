@@ -1,3 +1,4 @@
+import { createHash } from "crypto";
 import { readFileSync, rmSync, writeFileSync } from "fs";
 import { transform as parcelTransform } from "@parcel/css";
 
@@ -12,6 +13,8 @@ export const esbuildPlugin: typeof esbuildPluginDeclaration = (targets) => ({
     let hasBase = false;
     let hasUtils = false;
 
+    const useHash =
+      build.initialOptions.entryNames?.includes("[hash]") ?? false;
     const useMinify = build.initialOptions.minify ?? false;
     const useWrite = build.initialOptions.write ?? true;
     if (useWrite) build.initialOptions.metafile = true;
@@ -89,29 +92,49 @@ export const esbuildPlugin: typeof esbuildPluginDeclaration = (targets) => ({
           getPlaceholder(),
           downwind.generate(),
         );
-        return parcelTransform({
+        const output = parcelTransform({
           filename: cssPath,
           code: Buffer.from(withUtils),
           minify: useMinify,
           targets,
         }).code;
+        if (!useHash) return { output, path: cssPath };
+        const hexHash = createHash("sha256")
+          .update(output)
+          .digest("hex")
+          .slice(0, 10);
+        const hash = Number.parseInt(hexHash, 16)
+          .toString(26)
+          .toUpperCase()
+          .padStart(8, "0")
+          .slice(0, 8);
+        return { output, path: cssPath.replace(/[A-Z\d]{8}/, hash) };
       };
 
       if (useWrite) {
-        const paths = Object.keys(result.metafile!.outputs);
+        const outputs = result.metafile!.outputs;
+        const paths = Object.keys(outputs);
         const cssPath = paths.find((p) => p.endsWith(".css"))!;
         const content = readFileSync(cssPath, "utf-8");
-        writeFileSync(cssPath, transform(cssPath, content));
+        const { output, path } = transform(cssPath, content);
+        writeFileSync(path, output);
+        outputs[path] = { ...outputs[path], bytes: output.byteLength };
+        if (useHash) {
+          rmSync(cssPath);
+          // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+          delete outputs[cssPath];
+        }
         rmSync(`${cssPath}.map`, { force: true });
       } else {
         const cssOutput = result.outputFiles!.find((p) =>
           p.path.endsWith(".css"),
         )!;
-        const transformed = transform(cssOutput.path, cssOutput.text);
-        cssOutput.contents = transformed;
+        const { output, path } = transform(cssOutput.path, cssOutput.text);
+        cssOutput.path = path;
+        cssOutput.contents = output;
         // https://github.com/evanw/esbuild/issues/2423
         Object.defineProperty(cssOutput, "text", {
-          value: transformed.toString(),
+          value: output.toString(),
         });
       }
     });

@@ -59,7 +59,6 @@ When implemented, [arbitrary properties](https://tailwindcss.com/docs/adding-cus
 
 ## TODO
 
-- esbuild update hash
 - variants in css files
 - shortcuts
 - vite dev warn

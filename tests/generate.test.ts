@@ -141,7 +141,7 @@ const snapshots = Object.fromEntries(
     downwind.scan(`${name}.tsx`, content);
     const actual = `/* ${name}: ${content} */\n${downwind.generate()}\n`;
     if (shouldUpdateSnapshots) newSnapshot += actual;
-    test(name, () => {
+    test(name, { concurrency: 1 }, () => {
       if (shouldUpdateSnapshots) return;
       assert.equal(actual, snapshots[name]);
     });

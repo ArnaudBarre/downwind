@@ -10,8 +10,8 @@ export const snapshotTest = (
   name: string,
   getContent: () => string | Promise<string>,
 ) => {
-  test(name, async () => {
-    if (!globalThis.TEST_CONFIG) TEST_CONFIG = {};
+  test(name, { concurrency: 1 }, async () => {
+    globalThis.TEST_CONFIG = undefined;
     const content = await getContent();
     const path = `./tests/snapshots/${name}.css`;
     if (shouldUpdateSnapshots) {

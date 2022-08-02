@@ -59,7 +59,9 @@ When implemented, [arbitrary properties](https://tailwindcss.com/docs/adding-cus
 
 ## TODO
 
+- esbuild update hash
 - variants in css files
 - shortcuts
+- vite dev warn
 - lighter ring, transform, filter, font-variant-numeric
 - arbitrary properties: https://tailwindcss.com/docs/adding-custom-styles#arbitrary-properties

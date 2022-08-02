@@ -6,12 +6,12 @@ import { snapshotTest } from "./test-utils";
 
 const esbuildPluginTest = (name: string, opts?: BuildOptions) => {
   snapshotTest(`esbuildPlugin-${name}`, async () => {
-    rmSync("./tests/build", { recursive: true, force: true });
+    rmSync("./tests/dist", { recursive: true, force: true });
     const result = await build({
       bundle: true,
-      entryPoints: ["./tests/esbuild-inputs/index.ts"],
+      entryPoints: ["./playground/vite/src/main.tsx"],
       plugins: [esbuildPlugin()],
-      outdir: "./tests/build",
+      outdir: "./tests/dist",
       ...opts,
     });
     if (result.warnings.length) {

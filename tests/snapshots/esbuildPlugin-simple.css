@@ -178,25 +178,34 @@ img, video {
 }
 
 html {
+  height: 100%;
+  --tw-text-opacity: 1;
+  color: rgb(51 65 85 / var(--tw-text-opacity));
+  flex-direction: column;
   font-size: 1.125rem;
   line-height: 1.75rem;
-}
-
-.flex-col {
-  flex-direction: column;
   display: flex;
+  overflow: hidden;
 }
 
-.bg-white {
-  --tw-bg-opacity: 1;
-  background-color: rgb(255 255 255 / var(--tw-bg-opacity));
+body {
+  margin: 0;
+}
+
+.od15oG_container {
+  text-align: center;
+  padding: 3rem;
 }
 
 .p-4 {
   padding: 1rem;
 }
 
-._8Bi-6q_container {
-  text-align: center;
-  padding: 3rem;
+.text-xl {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+}
+
+.font-bold {
+  font-weight: 700;
 }

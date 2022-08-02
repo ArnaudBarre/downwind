@@ -262,6 +262,14 @@
   color: rgb(221 221 221 / var(--tw-text-opacity));
 }
 
+/* arbitrary-values-with-spaces: grid grid-cols-[1fr_500px_2fr] */
+.grid {
+  display: grid;
+}
+.grid-cols-\[1fr_500px_2fr\] {
+  grid-template-columns: 1fr 500px 2fr;
+}
+
 /* disable-plugin: p-4 m-4 */
 .m-4 {
   margin: 1rem;

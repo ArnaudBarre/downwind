@@ -75,7 +75,7 @@ export const getTokenParser = ({
               : entries[0];
           ruleEntry = {
             rule: entry.rule,
-            key: value,
+            key: value.replaceAll("_", " "),
             direction: entry.direction,
             negative: false,
             order: entry.order,

@@ -51,7 +51,6 @@ When implemented, [arbitrary properties](https://tailwindcss.com/docs/adding-cus
 
 ## TODO
 
-- fix underscores in arbitrary values
 - shortcuts
 - vite dev warn
 - benchmarks

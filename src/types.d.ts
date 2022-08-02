@@ -46,14 +46,14 @@ export declare const vitePlugin: () => VitePlugin[];
 
 export declare const esbuildPlugin: () => ESBuildPlugin;
 
-export declare const convertTargets: (
-  esbuildTarget: string | string[] | undefined | false,
-) => ParcelTargets | undefined;
-
 /**
  * Utils
  */
 export declare const cssModuleToJS: (cssModule: CSSModuleExports) => string;
+
+export declare const convertTargets: (
+  esbuildTarget: string | string[] | undefined | false,
+) => ParcelTargets | undefined;
 
 /**
  * Rules

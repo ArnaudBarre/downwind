@@ -1,7 +1,7 @@
 import { createHash } from "crypto";
 import { transform as parcelTransform } from "@parcel/css";
 import { Targets } from "@parcel/css/node/targets";
-import { ViteDevServer, Plugin, ResolvedConfig } from "vite";
+import { ViteDevServer, Plugin, ResolvedConfig, Logger } from "vite";
 
 import { initDownwind } from "./index";
 import { Downwind, vitePlugin as vitePluginDeclaration } from "./types";
@@ -22,6 +22,8 @@ export const vitePlugin: typeof vitePluginDeclaration = (): Plugin[] => {
 
   let hasBase = false;
   let hasUtils = false;
+  const notFoundErrorMessage =
+    '[downwind] entry points not found, did you add `import "virtual:@downwind/base.css"` and `import "virtual:@downwind/utils.css"` in your main entry?';
   const baseVirtual = "virtual:@downwind/base.css";
   const baseModuleId = `/${baseVirtual}`;
   const utilsVirtual = "virtual:@downwind/utils.css";
@@ -39,7 +41,9 @@ export const vitePlugin: typeof vitePluginDeclaration = (): Plugin[] => {
 
   // Dev
   let server: ViteDevServer;
+  let logger: Logger;
   const hmrEvent = "downwind:hmr";
+  let hasWarn = false;
   let lastUpdate = Date.now();
   let lastServed = 0;
   const sendUpdate = () => {
@@ -71,12 +75,29 @@ export const vitePlugin: typeof vitePluginDeclaration = (): Plugin[] => {
       name: "downwind:dev",
       apply: "serve",
       enforce: "pre",
-      configResolved,
+      async configResolved(config) {
+        await configResolved(config);
+        logger = config.logger;
+      },
       configureServer(_server) {
         server = _server;
         server.ws.on(hmrEvent, (servedTime: number) => {
           if (servedTime < lastUpdate) sendUpdate();
         });
+      },
+      transformIndexHtml() {
+        if (!hasWarn) {
+          hasWarn = true;
+          setTimeout(() => {
+            if (!hasBase || !hasUtils) {
+              logger.warn(notFoundErrorMessage);
+              server.ws.send({
+                type: "error",
+                err: { message: notFoundErrorMessage, stack: "" },
+              });
+            }
+          }, 20_000);
+        }
       },
       resolveId,
       load(id) {

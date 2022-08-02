@@ -64,7 +64,6 @@ When implemented, [arbitrary properties](https://tailwindcss.com/docs/adding-cus
 
 ## TODO
 
-- vite dev warn
 - benchmarks
 - safelist
 - bundle plugins & codegen separately

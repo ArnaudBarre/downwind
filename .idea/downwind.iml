@@ -3,11 +3,10 @@
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/tests" isTestSource="true" />
-      <excludeFolder url="file://$MODULE_DIR$/dist" />
       <excludeFolder url="file://$MODULE_DIR$/tests/snapshots" />
-      <excludeFolder url="file://$MODULE_DIR$/tests/dist" />
-      <excludeFolder url="file://$MODULE_DIR$/playground/vite/dist" />
+      <excludeFolder url="file://$MODULE_DIR$/bench/source" />
       <excludePattern pattern="bun.lockb" />
+      <excludePattern pattern="dist" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

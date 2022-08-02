@@ -1,5 +1,5 @@
 {
-  "include": ["playground", "scripts", "src", "tests"],
+  "include": ["bench", "playground", "scripts", "src", "tests"],
   "exclude": ["playground/vite"],
   "compilerOptions": {
     "target": "ES2021", // Target node 16

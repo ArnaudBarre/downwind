@@ -64,14 +64,13 @@ When implemented, [arbitrary properties](https://tailwindcss.com/docs/adding-cus
 
 ## TODO
 
-- benchmarks
 - safelist
 - bundle plugins & codegen separately
 - cache for token parser
 - codegen on downwind
+- arbitrary alpha
 - colored box shadow?
 - lighter ring, transform, filter, font-variant-numeric
-- rule merging? https://github.com/unocss/unocss#rules-merging
 - workaround https://github.com/parcel-bundler/parcel-css/issues/246 if not fixed
 - preTransform utils that requires keyframes or default
 - arbitrary properties: https://tailwindcss.com/docs/adding-custom-styles#arbitrary-properties

@@ -257,7 +257,7 @@
 .text-\[10px\] {
   font-size: 10px;
 }
-.text-\[#ddd\] {
+.text-\[\#ddd\] {
   --tw-text-opacity: 1;
   color: rgb(221 221 221 / var(--tw-text-opacity));
 }

@@ -7,6 +7,7 @@ Inspired by [unocss](https://github.com/unocss/unocss).
 ## Usage with [vite](https://vitejs.dev/)
 
 ```ts
+// vite.config.ts
 import { vitePlugin as downwind } from "@arnaud-barre/downwind";
 import { defineConfig } from "vite";
 
@@ -36,7 +37,19 @@ Add `import "virtual:@downwind/base.css";` and `import "virtual:@downwind/utils.
 
 Downwind doesn't have the notion of components, but custom plugins can be injected before core plugins by using `injectFirst: true`.
 
-Shortcuts from [Windi CSS](https://windicss.org/features/shortcuts.html#shortcuts) solves most the needs and will be implemented.
+Shortcuts from [Windi CSS](https://windicss.org/features/shortcuts.html#shortcuts) solves most the needs and can be added to the configuration:
+
+```ts
+// downwind.config.ts
+import { DownwindConfig } from "@arnaud-barre/downwind";
+
+export const config: DownwindConfig = {
+  shortcuts: {
+    "btn": "py-2 px-4 font-semibold rounded-lg shadow-md",
+    "btn-green": "text-white bg-green-500 hover:bg-green-700",
+  },
+};
+```
 
 ### Arbitrary values
 
@@ -51,10 +64,15 @@ When implemented, [arbitrary properties](https://tailwindcss.com/docs/adding-cus
 
 ## TODO
 
-- shortcuts
 - vite dev warn
 - benchmarks
+- safelist
+- bundle plugins & codegen separately
+- cache for token parser
+- codegen on downwind
+- colored box shadow?
 - lighter ring, transform, filter, font-variant-numeric
+- rule merging? https://github.com/unocss/unocss#rules-merging
 - workaround https://github.com/parcel-bundler/parcel-css/issues/246 if not fixed
 - preTransform utils that requires keyframes or default
 - arbitrary properties: https://tailwindcss.com/docs/adding-custom-styles#arbitrary-properties

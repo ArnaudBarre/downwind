@@ -6,7 +6,7 @@ import {
   CorePlugin,
   UserConfig,
   ResolvedTheme,
-  Rule,
+  BaseRule,
   ThemeCallback,
   ThemeKey,
 } from "./types";
@@ -15,7 +15,8 @@ import { mapObjectValue, run } from "./utils/helpers";
 export type ResolvedConfig = {
   theme: ResolvedTheme;
   corePlugins: Partial<Record<CorePlugin, boolean>>;
-  plugins: Rule[];
+  plugins: BaseRule[];
+  shortcuts: Record<string, string>;
 };
 
 export const getConfig = async () => {
@@ -84,6 +85,7 @@ export const getConfig = async () => {
       typeof config?.plugins === "function"
         ? config.plugins(theme as ResolvedTheme)
         : config?.plugins ?? [],
+    shortcuts: config?.shortcuts ?? {},
   };
   return resolvedConfig;
 };

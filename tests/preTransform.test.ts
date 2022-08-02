@@ -18,6 +18,7 @@ snapshotTest("preTransform", async () => {
 
 @screen md {
   .class4 {
+    @apply btn
     @apply top-4 last:space-y-10
   }
 }

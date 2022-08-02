@@ -1,18 +1,22 @@
-import { getCorePlugins, RuleOrRules } from "./corePlugins";
+import { BaseRuleOrBaseRules, getCorePlugins } from "./corePlugins";
 import { ResolvedConfig } from "./getConfig";
 import {
+  BaseRule,
   CorePlugin,
   CSSEntries,
   DirectionThemeRule,
-  Rule,
   RuleMeta,
   ThemeRule,
   ThemeRuleMeta,
 } from "./types";
 import { isColor } from "./utils/colors";
 import { split } from "./utils/helpers";
+import { applyVariants, cssEntriesToLines } from "./utils/print";
 import { Variant, VariantsMap } from "./variants";
 
+type Shortcut = [string, string];
+type Rule = BaseRule | Shortcut;
+type AnyThemeRule = ThemeRule<any> | DirectionThemeRule;
 export type RuleMatch = {
   token: string;
   ruleEntry: RuleEntry;
@@ -21,14 +25,14 @@ export type RuleMatch = {
 };
 type RuleEntry = {
   rule: Rule;
-  key: string; // "" for static rules, the theme key for theme rules or the actual values for arbitrary entries
+  key: string; // "" for static rules & shortcuts, the theme key for theme rules or the actual values for arbitrary entries
   direction: string;
   negative: boolean;
   order: number;
   isArbitrary: boolean;
 };
 type ArbitraryEntry = {
-  rule: Rule;
+  rule: AnyThemeRule;
   direction: string;
   validation: "color" | undefined;
   order: number;
@@ -45,7 +49,7 @@ export const getTokenParser = ({
   config: ResolvedConfig;
   variantsMap: VariantsMap;
 }): TokenParser => {
-  const { rulesEntries, arbitraryEntries } = getRulesEntries(getRules(config));
+  const { rulesEntries, arbitraryEntries } = getRulesEntries(config);
   return (token) => {
     const initialToken = token;
     let index: number;
@@ -90,14 +94,15 @@ export const getTokenParser = ({
   };
 };
 
-export const getRulesEntries = (rules: Rule[]) => {
+export const getRulesEntries = (config: ResolvedConfig) => {
+  const rules = getRules(config);
   const rulesEntries = new Map<string, RuleEntry>();
   const arbitraryEntries = new Map<string, ArbitraryEntry[]>();
   let order = 0;
   let nbArbitraryRules = 0;
 
   const addThemeEntry = (
-    rule: Rule,
+    rule: AnyThemeRule,
     prefix: string,
     key: string,
     direction: string,
@@ -127,7 +132,7 @@ export const getRulesEntries = (rules: Rule[]) => {
   };
 
   const addTheme = (
-    rule: Rule,
+    rule: AnyThemeRule,
     prefix: string,
     themeMap: Record<string, unknown>,
     direction: string,
@@ -169,6 +174,7 @@ export const getRulesEntries = (rules: Rule[]) => {
         addTheme(rule, prefix, rule[2], direction, rule[4]);
       }
     } else {
+      // Static or shortcut
       rulesEntries.set(rule[0], {
         rule,
         key: "",
@@ -206,49 +212,130 @@ export const getRulesEntries = (rules: Rule[]) => {
   return { rulesEntries, arbitraryEntries };
 };
 
-export const getRules = (config: ResolvedConfig): Rule[] => {
+const getRules = (config: ResolvedConfig): Rule[] => {
   const corePlugins = getCorePlugins(config);
-  const coreRules: Rule[] = [];
-  const isRules = (v: RuleOrRules): v is Rule[] => Array.isArray(v[0]);
+  const coreRules: BaseRule[] = [];
+  const isBaseRules = (v: BaseRuleOrBaseRules): v is BaseRule[] =>
+    Array.isArray(v[0]);
   for (const corePlugin in corePlugins) {
     if (config.corePlugins[corePlugin as CorePlugin] !== false) {
       const value = corePlugins[corePlugin as CorePlugin];
-      coreRules.push(...(isRules(value) ? value : [value]));
+      coreRules.push(...(isBaseRules(value) ? value : [value]));
     }
   }
+  const shortcuts: Rule[] = Object.entries(config.shortcuts);
   const [before, after] = split(
     config.plugins,
     (r) => getRuleMeta(r)?.injectFirst ?? false,
   );
-  return before.concat(coreRules, after);
+  return shortcuts.concat(before, coreRules, after);
 };
 
-export const toCSSEntries = (ruleEntry: RuleEntry): CSSEntries => {
+export const toCSS = (
+  ruleEntry: RuleEntry,
+  tokenParser: TokenParser,
+): string[] => {
   const rule = ruleEntry.rule;
-  if (isThemeRule(rule)) {
-    return rule[2](
-      ruleEntry.isArbitrary
-        ? ruleEntry.key
-        : ruleEntry.negative
-        ? `-${(rule[1] as Record<string, string>)[ruleEntry.key]}`
-        : rule[1][ruleEntry.key]!,
-    );
-  } else if (isDirectionRule(rule)) {
-    return rule[3](
-      ruleEntry.direction,
-      ruleEntry.isArbitrary
-        ? ruleEntry.key
-        : ruleEntry.negative
-        ? `-${rule[2][ruleEntry.key]!}`
-        : rule[2][ruleEntry.key]!,
+
+  if (isShortcut(rule)) {
+    return apply({
+      tokens: rule[1],
+      tokenParser,
+      context: `"${rule[0]}": "${rule[1]}"`,
+      from: "SHORTCUT",
+    });
+  }
+
+  const cssEntries: CSSEntries = isThemeRule(rule)
+    ? rule[2](
+        ruleEntry.isArbitrary
+          ? ruleEntry.key
+          : ruleEntry.negative
+          ? `-${(rule[1] as Record<string, string>)[ruleEntry.key]}`
+          : rule[1][ruleEntry.key]!,
+      )
+    : isDirectionRule(rule)
+    ? rule[3](
+        ruleEntry.direction,
+        ruleEntry.isArbitrary
+          ? ruleEntry.key
+          : ruleEntry.negative
+          ? `-${rule[2][ruleEntry.key]!}`
+          : rule[2][ruleEntry.key]!,
+      )
+    : rule[1];
+
+  return cssEntriesToLines(cssEntries);
+};
+
+export const apply = ({
+  tokens,
+  tokenParser,
+  context,
+  from,
+}: {
+  tokens: string;
+  context: string;
+  tokenParser: TokenParser;
+  from: "CSS" | "SHORTCUT";
+}): string[] => {
+  const output = [];
+  for (const token of tokens.split(" ")) {
+    if (!token) continue;
+    const match = tokenParser(token);
+    if (match === undefined) {
+      throw new DownwindError(`No rules matching "${token}"`, context);
+    }
+    const meta = getRuleMeta(match.ruleEntry.rule);
+    let hasMedia = !!match.screen;
+    const selector = applyVariants("&", match, meta, () => {
+      hasMedia = true;
+    });
+    if (
+      hasMedia ||
+      !selector.startsWith("&") ||
+      meta?.addDefault || // TODO: Maybe it works if added in main
+      meta?.addKeyframes || // TODO: Maybe it works if added in main
+      meta?.addContainer
+    ) {
+      throw new DownwindError(
+        `Complex utils like "${token}" are not supported.${
+          hasMedia && from === "CSS"
+            ? " You can use @screen for media variants."
+            : ""
+        }`,
+        context,
+      );
+    }
+    const tokenOutput = toCSS(match.ruleEntry, tokenParser).join(" ");
+    output.push(
+      selector === "&" ? tokenOutput : `${selector} { ${tokenOutput} }`,
     );
   }
-  return rule[1];
+  return output;
 };
 
+export class DownwindError extends Error {
+  context: string;
+
+  constructor(message: string, content: string) {
+    super(message);
+    this.name = this.constructor.name;
+    this.context = content;
+  }
+}
+
 export const getRuleMeta = (rule: Rule): RuleMeta | undefined =>
-  isThemeRule(rule) ? rule[3] : isDirectionRule(rule) ? rule[4] : rule[2];
+  isThemeRule(rule)
+    ? rule[3]
+    : isDirectionRule(rule)
+    ? rule[4]
+    : isShortcut(rule)
+    ? undefined
+    : rule[2];
 const isThemeRule = (rule: Rule): rule is ThemeRule<any> =>
   typeof rule[2] === "function";
 const isDirectionRule = (rule: Rule): rule is DirectionThemeRule =>
   typeof rule[3] === "function";
+const isShortcut = (rule: Rule): rule is Shortcut =>
+  typeof rule[1] === "string";

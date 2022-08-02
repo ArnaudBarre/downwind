@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { build } from "vite";
 
-import { vitePlugin } from "../src";
+import { vitePlugin } from "../src/vitePlugin";
 import { snapshotTest } from "./test-utils";
 
 const root = "playground/vite";

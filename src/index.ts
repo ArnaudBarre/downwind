@@ -63,7 +63,8 @@ export const initDownwind: typeof initDownwindDeclaration = async (
           : never,
       };
     },
-    generate: () => generate({ config, variantsMap, defaults, allMatches }),
+    generate: () =>
+      generate({ config, variantsMap, defaults, tokenParser, allMatches }),
     scan: getScan({ tokenParser, allMatches }),
   };
 };

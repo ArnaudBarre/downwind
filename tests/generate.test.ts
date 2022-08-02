@@ -126,6 +126,16 @@ const cases: [name: string, content: string, config?: UserConfig][] = [
       ],
     },
   ],
+  [
+    "shortcuts",
+    "btn btn-green",
+    {
+      shortcuts: {
+        "btn": "py-2 px-4 font-semibold rounded-lg shadow-md",
+        "btn-green": "text-white bg-green-500 hover:bg-green-700",
+      },
+    },
+  ],
 ];
 
 const snapshots = Object.fromEntries(

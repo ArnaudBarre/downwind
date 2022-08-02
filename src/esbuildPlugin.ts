@@ -17,12 +17,12 @@ export const esbuildPlugin: typeof esbuildPluginDeclaration = () => ({
 
     const useHash =
       build.initialOptions.entryNames?.includes("[hash]") ?? false;
-    const useMinify = build.initialOptions.minify ?? false;
-    const useWrite = build.initialOptions.write ?? true;
-    if (useWrite) build.initialOptions.metafile = true;
+    const minify = build.initialOptions.minify ?? false;
+    const write = build.initialOptions.write ?? true;
+    if (write) build.initialOptions.metafile = true;
 
     const getPlaceholder = () =>
-      useMinify
+      minify
         ? ".__downwind_utils__{padding:0}"
         : ".__downwind_utils__ {\n  padding: 0;\n}";
 
@@ -97,7 +97,8 @@ export const esbuildPlugin: typeof esbuildPluginDeclaration = () => ({
         const output = parcelTransform({
           filename: cssPath,
           code: Buffer.from(withUtils),
-          minify: useMinify,
+          drafts: { nesting: true },
+          minify,
           targets,
         }).code;
         if (!useHash) return { output, path: cssPath };
@@ -113,7 +114,7 @@ export const esbuildPlugin: typeof esbuildPluginDeclaration = () => ({
         return { output, path: cssPath.replace(/[A-Z\d]{8}/, hash) };
       };
 
-      if (useWrite) {
+      if (write) {
         const outputs = result.metafile!.outputs;
         const paths = Object.keys(outputs);
         const cssPath = paths.find((p) => p.endsWith(".css"))!;

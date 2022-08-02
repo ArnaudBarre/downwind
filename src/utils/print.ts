@@ -4,15 +4,9 @@ import { Container, CSSEntries, RuleMeta } from "../types";
 export const escapeSelector = (selector: string) =>
   selector.replace(/[.:/[\]]/g, (c) => `\\${c}`);
 
-export const printBlock = (
-  selector: string,
-  entries: CSSEntries,
-  indent = "",
-) => {
+export const printBlock = (selector: string, lines: string[], indent = "") => {
   let output = `${indent}${selector} {\n`;
-  for (const entry of entries) {
-    output += `${indent}  ${entry[0]}: ${entry[1]};\n`;
-  }
+  for (const line of lines) output += `${indent}  ${line}\n`;
   output += `${indent}}\n`;
   return output;
 };
@@ -33,8 +27,11 @@ export const printContainerClass = (config: Container) => {
     entries.push(["padding-right", defaultPadding]);
   }
 
-  return printBlock(".container", entries);
+  return printBlock(".container", cssEntriesToLines(entries));
 };
+
+export const cssEntriesToLines = (entries: CSSEntries) =>
+  entries.map((entry) => `${entry[0]}: ${entry[1]};`);
 
 export const applyVariants = (
   selector: string,

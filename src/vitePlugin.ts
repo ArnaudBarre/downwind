@@ -167,14 +167,13 @@ export const vitePlugin: typeof vitePluginDeclaration = (): Plugin[] => {
             const newSource = chunk.source
               .replace(hashPlaceholder!, "")
               .replace(placeholder, downwind.generate());
-            chunk.source = minify
-              ? parcelTransform({
-                  filename: path,
-                  code: Buffer.from(newSource),
-                  minify: true,
-                  targets,
-                }).code
-              : newSource;
+            chunk.source = parcelTransform({
+              filename: path,
+              code: Buffer.from(newSource),
+              drafts: { nesting: true },
+              minify,
+              targets,
+            }).code;
           }
         }
       },

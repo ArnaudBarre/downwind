@@ -51,7 +51,7 @@ Promise.all([
       (substring, match) =>
         [
           "DownwindConfig",
-          "Rule",
+          "BaseRule",
           "StaticRule",
           "ThemeRule<T>",
           "DirectionThemeRule",

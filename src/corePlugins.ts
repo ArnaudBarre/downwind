@@ -4,7 +4,7 @@ import {
   CSSEntries,
   CSSEntry,
   DirectionThemeRule,
-  Rule,
+  BaseRule,
   SelectorRewrite,
   StaticRule,
   ThemeRule,
@@ -12,14 +12,14 @@ import {
 } from "./types";
 import { withAlphaValue, withAlphaVariable } from "./utils/colors";
 
-export type RuleOrRules = Rule | Rule[];
+export type BaseRuleOrBaseRules = BaseRule | BaseRule[];
 
 // https://github.com/tailwindlabs/tailwindcss/blob/master/src/corePlugins.js
 export const getCorePlugins = ({
   theme,
   corePlugins,
 }: ResolvedConfig): {
-  [key in CorePlugin]: RuleOrRules;
+  [key in CorePlugin]: BaseRuleOrBaseRules;
 } => ({
   container: ["container", [], { addContainer: true }],
   accessibility: [
@@ -753,7 +753,7 @@ export const getCorePlugins = ({
       ["--tw-numeric-fraction", "diagonal-fractions"],
       ["--tw-numeric-fraction", "stacked-fractions"],
     ].map(
-      ([variable, value]): Rule => [
+      ([variable, value]): BaseRule => [
         value,
         [
           [variable, value],
@@ -1092,7 +1092,7 @@ const enumRule = (
     { selectorRewrite },
   ]);
 
-const touchActionRule = (name: string, variable: string): Rule => [
+const touchActionRule = (name: string, variable: string): BaseRule => [
   `touch-${name}`,
   [
     [variable, name],

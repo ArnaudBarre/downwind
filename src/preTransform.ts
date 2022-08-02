@@ -1,5 +1,4 @@
-import { getRuleMeta, toCSSEntries, TokenParser } from "./getTokenParser";
-import { applyVariants } from "./utils/print";
+import { apply, DownwindError, TokenParser } from "./getTokenParser";
 import { VariantsMap } from "./variants";
 
 const applyRE = /[{\s]@apply ([^;}\n]+)([;}\n])/g;
@@ -18,41 +17,13 @@ export const preTransform = ({
   if (hasApply) {
     content = content.replace(
       applyRE,
-      (substring, utils: string, endChar: string) => {
-        const output = [];
-        for (const token of utils.split(" ")) {
-          if (!token) continue;
-          const match = tokenParser(token);
-          if (match === undefined) {
-            throw new DownwindError(`No rules matching "${token}"`, substring);
-          }
-          const meta = getRuleMeta(match.ruleEntry.rule);
-          let hasMedia = !!match.screen;
-          const selector = applyVariants("&", match, meta, () => {
-            hasMedia = true;
-          });
-          if (
-            hasMedia ||
-            !selector.startsWith("&") ||
-            meta?.addDefault || // TODO: Maybe it works if added in main
-            meta?.addKeyframes || // TODO: Maybe it works if added in main
-            meta?.addContainer
-          ) {
-            throw new DownwindError(
-              `Complex utils like "${token}" are not supported.${
-                hasMedia ? " You can use @screen for media variants." : ""
-              }`,
-              substring,
-            );
-          }
-          const tokenOutput = toCSSEntries(match.ruleEntry)
-            .map((cssEntry) => `${cssEntry[0]}: ${cssEntry[1]};`)
-            .join(" ");
-
-          output.push(
-            selector === "&" ? tokenOutput : `${selector} { ${tokenOutput} }`,
-          );
-        }
+      (substring, tokens: string, endChar: string) => {
+        const output = apply({
+          tokens,
+          tokenParser,
+          context: substring,
+          from: "CSS",
+        });
         return `${substring[0]}${output.join("\n  ")}${
           endChar === ";" ? "" : endChar
         }`;
@@ -80,13 +51,3 @@ export const preTransform = ({
 
   return content;
 };
-
-export class DownwindError extends Error {
-  context: string;
-
-  constructor(message: string, content: string) {
-    super(message);
-    this.name = this.constructor.name;
-    this.context = content;
-  }
-}

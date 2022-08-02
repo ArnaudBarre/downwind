@@ -1,9 +1,10 @@
 import { ResolvedConfig } from "./getConfig";
 import { Defaults } from "./getDefaults";
-import { getRuleMeta, RuleMatch, toCSSEntries } from "./getTokenParser";
+import { getRuleMeta, RuleMatch, toCSS, TokenParser } from "./getTokenParser";
 import { Default } from "./types";
 import {
   applyVariants,
+  cssEntriesToLines,
   escapeSelector,
   printBlock,
   printContainerClass,
@@ -14,11 +15,13 @@ export const generate = ({
   config,
   variantsMap,
   defaults,
+  tokenParser,
   allMatches,
 }: {
   config: ResolvedConfig;
   variantsMap: VariantsMap;
   defaults: Defaults;
+  tokenParser: TokenParser;
   allMatches: Map<string, RuleMatch[]>;
 }) => {
   let useContainer = false;
@@ -71,7 +74,7 @@ export const generate = ({
       }
       utilsOutput += printBlock(
         `.${selector}`,
-        toCSSEntries(match.ruleEntry),
+        toCSS(match.ruleEntry, tokenParser),
         mediaWrapper ? `${screenIndent}  ` : screenIndent,
       );
       if (mediaWrapper) utilsOutput += `${screenIndent}}\n`;
@@ -82,7 +85,7 @@ export const generate = ({
   if (usedDefaults.size) {
     output += printBlock(
       "*, ::before, ::after",
-      [...usedDefaults].flatMap((d) => defaults[d]),
+      cssEntriesToLines([...usedDefaults].flatMap((d) => defaults[d])),
     );
     output += "\n";
   }

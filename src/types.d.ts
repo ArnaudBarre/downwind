@@ -11,7 +11,8 @@ export declare const VERSION: string;
 export type UserConfig = Partial<{
   theme: Partial<DownwindTheme & { extend: Partial<DownwindTheme> }>;
   corePlugins: Partial<Record<CorePlugin, boolean>>;
-  plugins: Rule[] | ((theme: ResolvedTheme) => Rule[]);
+  plugins: BaseRule[] | ((theme: ResolvedTheme) => BaseRule[]);
+  shortcuts: Record<string, string>;
 }>;
 export type DownwindConfig = DefineConfig<UserConfig>;
 
@@ -58,7 +59,7 @@ export declare const convertTargets: (
 /**
  * Rules
  */
-export type Rule = StaticRule | ThemeRule<any> | DirectionThemeRule;
+export type BaseRule = StaticRule | ThemeRule<any> | DirectionThemeRule;
 export type StaticRule = [string, CSSEntries, RuleMeta?];
 export type ThemeRule<T> = [
   string,

@@ -28,7 +28,7 @@ const esbuildPluginTest = (
   });
 };
 
-esbuildPluginTest("simple", "simple");
+esbuildPluginTest("with-css", "with-css");
 esbuildPluginTest("with-base", "with-base");
-esbuildPluginTest("simple-minify", "simple", { minify: true });
-esbuildPluginTest("simple-no-write", "simple", { write: false });
+esbuildPluginTest("with-css-minify", "with-css", { minify: true });
+esbuildPluginTest("with-css-no-write", "with-css", { write: false });

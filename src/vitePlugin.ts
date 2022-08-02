@@ -1,6 +1,6 @@
 import { createHash } from "crypto";
 import { transform as parcelTransform } from "@parcel/css";
-import { ViteDevServer } from "vite";
+import { ViteDevServer, Plugin } from "vite";
 
 import { initDownwind } from "./index";
 import { vitePlugin as vitePluginDeclaration } from "./types";
@@ -8,17 +8,27 @@ import { vitePlugin as vitePluginDeclaration } from "./types";
 const scanRE = /\.[jt]sx?$/;
 const cssRE = /\.css(\?.+)?$/;
 
-export const vitePlugin: typeof vitePluginDeclaration = async (targets) => {
+export const vitePlugin: typeof vitePluginDeclaration = async (
+  targets,
+): Promise<Plugin[]> => {
   const downwind = await initDownwind(targets);
 
   // Common
+  let hasBase = false;
+  let hasUtils = false;
   const baseVirtual = "virtual:@downwind/base.css";
   const baseModuleId = `/${baseVirtual}`;
   const utilsVirtual = "virtual:@downwind/utils.css";
   const utilsModuleId = `/${utilsVirtual}`;
   const resolveId = (id: string) => {
-    if (id === baseVirtual) return baseModuleId;
-    if (id === utilsVirtual) return utilsModuleId;
+    if (id === baseVirtual) {
+      hasBase = true;
+      return baseModuleId;
+    }
+    if (id === utilsVirtual) {
+      hasUtils = true;
+      return utilsModuleId;
+    }
   };
 
   // Dev
@@ -131,6 +141,14 @@ export const vitePlugin: typeof vitePluginDeclaration = async (targets) => {
         return null;
       },
       generateBundle(_, bundle) {
+        if (!hasBase || !hasUtils) {
+          this.error(
+            `Import virtual:@downwind/${
+              hasUtils ? "base.css" : "utils.css"
+            } was not found in the bundle. Downwind can't work without both virtual:@downwind/base.css and virtual:@downwind/utils.css.`,
+          );
+        }
+
         for (const [path, chunk] of Object.entries(bundle)) {
           if (
             path.endsWith(".css") &&

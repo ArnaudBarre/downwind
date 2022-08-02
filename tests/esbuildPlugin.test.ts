@@ -1,23 +1,26 @@
 import { readFileSync, rmSync } from "fs";
-import { build, BuildOptions } from "esbuild";
+import { build, BuildOptions, formatMessagesSync } from "esbuild";
 
 import { esbuildPlugin } from "../src/esbuildPlugin";
 import { snapshotTest } from "./test-utils";
 
-const esbuildPluginTest = (
-  name: string,
-  input: string,
-  opts?: BuildOptions,
-) => {
+const esbuildPluginTest = (name: string, opts?: BuildOptions) => {
   snapshotTest(`esbuildPlugin-${name}`, async () => {
     rmSync("./tests/build", { recursive: true, force: true });
     const result = await build({
       bundle: true,
-      entryPoints: [`./tests/esbuild-inputs/${input}.ts`],
+      entryPoints: ["./tests/esbuild-inputs/index.ts"],
       plugins: [esbuildPlugin()],
       outdir: "./tests/build",
       ...opts,
     });
+    if (result.warnings.length) {
+      formatMessagesSync(result.warnings, {
+        kind: "warning",
+        color: true,
+      }).forEach((m) => console.log(m));
+    }
+
     if (opts?.write === false) {
       return result.outputFiles!.find((p) => p.path.endsWith(".css"))!.text;
     }
@@ -28,7 +31,6 @@ const esbuildPluginTest = (
   });
 };
 
-esbuildPluginTest("with-css", "with-css");
-esbuildPluginTest("with-base", "with-base");
-esbuildPluginTest("with-css-minify", "with-css", { minify: true });
-esbuildPluginTest("with-css-no-write", "with-css", { write: false });
+esbuildPluginTest("simple");
+esbuildPluginTest("minify", { minify: true });
+esbuildPluginTest("no-write", { write: false });

@@ -1,6 +1,8 @@
+import "virtual:@downwind/base.css";
 import "./index.css";
 import "virtual:@downwind/utils.css";
 
+// @ts-ignore
 import styles from "./app.module.css";
 
 // @css-scan

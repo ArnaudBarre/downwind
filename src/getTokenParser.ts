@@ -284,7 +284,7 @@ export const apply = ({
     if (!token) continue;
     const match = tokenParser(token);
     if (match === undefined) {
-      throw new DownwindError(`No rules matching "${token}"`, context);
+      throw new DownwindError(`No rule matching "${token}"`, context);
     }
     const meta = getRuleMeta(match.ruleEntry.rule);
     let hasMedia = !!match.screen;

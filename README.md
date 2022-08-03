@@ -64,7 +64,6 @@ When implemented, [arbitrary properties](https://tailwindcss.com/docs/adding-cus
 
 ## TODO
 
-- safelist
 - bundle plugins & codegen separately
 - cache for token parser
 - codegen on downwind

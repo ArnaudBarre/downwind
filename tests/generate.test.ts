@@ -136,6 +136,11 @@ const cases: [name: string, content: string, config?: UserConfig][] = [
       },
     },
   ],
+  [
+    "safelist",
+    "m-4",
+    { safelist: (theme) => Object.keys(theme.padding).map((v) => `p-${v}`) },
+  ],
 ];
 
 const snapshots = Object.fromEntries(

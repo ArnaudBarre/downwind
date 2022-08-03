@@ -30,15 +30,30 @@ export const initDownwind: typeof initDownwindDeclaration = async (
   const defaults = getDefaults(config);
   const variantsMap = getVariants(config);
   const tokenParser = getTokenParser({ config, variantsMap });
+  const pt = (content: string) =>
+    preTransform({ content, tokenParser, variantsMap });
+
   const allMatches = new Map<string, RuleMatch[]>([
     ["", [] as RuleMatch[]],
     ...Object.keys(config.theme.screens).map(
       (screen): [string, RuleMatch[]] => [screen, []],
     ),
   ]);
+  const allClasses = new Set<string>();
+  const addMatch = (match: RuleMatch): boolean /* isNew */ => {
+    if (allClasses.has(match.token)) return false;
+    allClasses.add(match.token);
+    allMatches.get(match.screen)!.push(match);
+    return true;
+  };
 
-  const pt = (content: string) =>
-    preTransform({ content, tokenParser, variantsMap });
+  for (const token of config.safelist) {
+    const match = tokenParser(token);
+    if (!match) {
+      throw new Error(`downwind: No rule matching "${token}" in safelist`);
+    }
+    addMatch(match);
+  }
 
   return {
     getBase: () => getBase(config.theme),
@@ -65,6 +80,6 @@ export const initDownwind: typeof initDownwindDeclaration = async (
     },
     generate: () =>
       generate({ config, variantsMap, defaults, tokenParser, allMatches }),
-    scan: getScan({ tokenParser, allMatches }),
+    scan: getScan({ tokenParser, addMatch }),
   };
 };

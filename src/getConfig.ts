@@ -17,6 +17,7 @@ export type ResolvedConfig = {
   corePlugins: Partial<Record<CorePlugin, boolean>>;
   plugins: BaseRule[];
   shortcuts: Record<string, string>;
+  safelist: string[];
 };
 
 export const getConfig = async () => {
@@ -86,6 +87,7 @@ export const getConfig = async () => {
         ? config.plugins(theme as ResolvedTheme)
         : config?.plugins ?? [],
     shortcuts: config?.shortcuts ?? {},
+    safelist: config?.safelist?.(theme as ResolvedTheme) ?? [],
   };
   return resolvedConfig;
 };

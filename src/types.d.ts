@@ -13,6 +13,7 @@ export type UserConfig = Partial<{
   corePlugins: Partial<Record<CorePlugin, boolean>>;
   plugins: BaseRule[] | ((theme: ResolvedTheme) => BaseRule[]);
   shortcuts: Record<string, string>;
+  safelist: (theme: ResolvedTheme) => string[];
 }>;
 export type DownwindConfig = DefineConfig<UserConfig>;
 

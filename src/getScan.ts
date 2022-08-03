@@ -5,14 +5,13 @@ import { run } from "./utils/helpers";
 
 export const getScan = ({
   tokenParser,
-  allMatches,
+  addMatch,
 }: {
   tokenParser: TokenParser;
-  allMatches: Map<string, RuleMatch[]>;
+  addMatch: (match: RuleMatch) => boolean; // isNew
 }) => {
   const blockList = new Set<string>();
   const contentMap = new Map<string, Set<string>>();
-  const allClasses = new Set<string>();
 
   const validSelectorRE = /^[a-z0-9.:/_[\]#-]+$/;
   const scanCode = (code: string) => {
@@ -54,12 +53,7 @@ export const getScan = ({
     }
     contentMap.set(path, new Set(matches.map((m) => m.token)));
     let hasNew = false;
-    for (const match of matches) {
-      if (allClasses.has(match.token)) continue;
-      allClasses.add(match.token);
-      allMatches.get(match.screen)!.push(match);
-      hasNew = true;
-    }
+    for (const match of matches) if (addMatch(match)) hasNew = true;
     return hasNew;
   };
 };

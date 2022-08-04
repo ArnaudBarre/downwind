@@ -8,7 +8,7 @@ Inspired by [unocss](https://github.com/unocss/unocss).
 
 ```ts
 // vite.config.ts
-import { vitePlugin as downwind } from "@arnaud-barre/downwind";
+import { downwind } from "@arnaud-barre/downwind/vite";
 import { defineConfig } from "vite";
 
 export default defineConfig({ plugins: [downwind()] });
@@ -19,7 +19,7 @@ Add `import "virtual:@downwind/base.css";` and `import "virtual:@downwind/utils.
 ## Usage with [esbuild](https://github.com/evanw/esbuild)
 
 ```ts
-import { esbuildPlugin as downwind } from "@arnaud-barre/downwind";
+import { downwind } from "@arnaud-barre/downwind/esbuild";
 import { build } from "esbuild";
 
 await build({
@@ -64,7 +64,6 @@ When implemented, [arbitrary properties](https://tailwindcss.com/docs/adding-cus
 
 ## TODO
 
-- bundle plugins & codegen separately
 - cache for token parser
 - codegen on downwind
 - arbitrary alpha

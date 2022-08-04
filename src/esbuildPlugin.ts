@@ -2,11 +2,12 @@ import { createHash } from "crypto";
 import { readFileSync, rmSync, writeFileSync } from "fs";
 import { transform as parcelTransform } from "@parcel/css";
 
-import { cssModuleToJS, initDownwind } from "./index";
-import { esbuildPlugin as esbuildPluginDeclaration } from "./types";
-import { convertTargets } from "./utils/convertTargets";
+import { downwind as declaration } from "./esbuildPlugin.d";
+import { cssModuleToJS, initDownwind, convertTargets } from "./index";
 
-export const esbuildPlugin: typeof esbuildPluginDeclaration = () => ({
+export { esbuildPlugin as downwind };
+
+const esbuildPlugin: typeof declaration = () => ({
   name: "downwind",
   setup: async (build) => {
     const targets = convertTargets(build.initialOptions.target);

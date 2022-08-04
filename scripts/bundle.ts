@@ -20,14 +20,13 @@ const commonOptions: BuildOptions = {
   outdir: "dist",
   platform: "node",
   target: "node16",
-  legalComments: "inline",
   define: { "__VERSION__": `"${version}"`, "global.TEST_CONFIG": "undefined" },
   watch: dev,
 };
 
 Promise.all([
   build({
-    entryPoints: ["src/cli.ts"],
+    entryPoints: ["src/cli.ts", "src/esbuildPlugin.ts", "src/vitePlugin.ts"],
     ...commonOptions,
   }),
   build({
@@ -43,6 +42,26 @@ Promise.all([
 ]).then(() => {
   execSync("cp -r LICENSE README.md dist/");
   copyFileSync("src/base/base.css", "dist/base.css");
+
+  for (const tool of ["esbuild", "vite"]) {
+    copyFileSync(`src/${tool}Plugin.d.ts`, `dist/${tool}.d.ts`);
+    // light custom esm -> cjs
+    writeFileSync(
+      `dist/${tool}.js`,
+      readFileSync(`dist/${tool}Plugin.js`, "utf-8")
+        .replaceAll(
+          /import \{([^}]+)\} from "(.*)";/gu,
+          (_, specifiers: string, from: string) =>
+            `const {${specifiers.replaceAll(
+              " as ",
+              ": ",
+            )}} = require("${from}");`,
+        )
+        .replace(`export { ${tool}Plugin as downwind };\n`, "")
+        .concat(`module.exports.downwind = ${tool}Plugin;\n`),
+    );
+    rmSync(`dist/${tool}Plugin.js`);
+  }
 
   writeFileSync(
     "dist/index.d.ts",

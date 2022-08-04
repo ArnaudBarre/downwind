@@ -1,5 +1,5 @@
 import { defineConfig } from "vite";
 
-import { vitePlugin as downwind } from "../../../dist";
+import { downwind } from "../../../dist/vite";
 
 export default defineConfig({ plugins: [downwind()] });

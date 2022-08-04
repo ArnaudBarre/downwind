@@ -1,18 +1,19 @@
 import { createHash } from "crypto";
 import { transform as parcelTransform } from "@parcel/css";
-import { Targets } from "@parcel/css/node/targets";
 import { ViteDevServer, Plugin, ResolvedConfig, Logger } from "vite";
 
-import { initDownwind } from "./index";
-import { Downwind, vitePlugin as vitePluginDeclaration } from "./types";
-import { convertTargets } from "./utils/convertTargets";
+import { initDownwind, convertTargets } from "./index";
+import { Downwind, ParcelTargets } from "./types";
+import { downwind as declaration } from "./vitePlugin.d";
 
 const scanRE = /\.[jt]sx?$/;
 const cssRE = /\.css(\?.+)?$/;
 
-export const vitePlugin: typeof vitePluginDeclaration = (): Plugin[] => {
+export { vitePlugin as downwind };
+
+const vitePlugin: typeof declaration = (): Plugin[] => {
   let downwind: Downwind;
-  let targets: Targets | undefined;
+  let targets: ParcelTargets | undefined;
 
   // Common
   const configResolved = async (config: ResolvedConfig) => {
@@ -202,5 +203,5 @@ export const vitePlugin: typeof vitePluginDeclaration = (): Plugin[] => {
   ];
 };
 
-export const getHash = (input: string) =>
+const getHash = (input: string) =>
   createHash("sha256").update(input).digest("hex").slice(0, 8);

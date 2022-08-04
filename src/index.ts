@@ -20,8 +20,6 @@ export const VERSION = __VERSION__;
 export { codegen } from "./codegen";
 export { cssModuleToJS } from "./utils/modules";
 export { convertTargets } from "./utils/convertTargets";
-export { esbuildPlugin } from "./esbuildPlugin";
-export { vitePlugin } from "./vitePlugin";
 
 export const initDownwind: typeof initDownwindDeclaration = async (
   targets?: TransformOptions["targets"],

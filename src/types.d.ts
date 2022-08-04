@@ -1,7 +1,5 @@
 import { DefineConfig } from "@arnaud-barre/config-loader";
 import { CSSModuleExports, Dependency, TransformOptions } from "@parcel/css";
-import { Plugin as ESBuildPlugin } from "esbuild";
-import { Plugin as VitePlugin } from "vite";
 
 export declare const VERSION: string;
 
@@ -43,10 +41,6 @@ export type Downwind = {
 export declare const codegen: (opts: {
   omitContent: boolean;
 }) => Promise<string>;
-
-export declare const vitePlugin: () => VitePlugin[];
-
-export declare const esbuildPlugin: () => ESBuildPlugin;
 
 /**
  * Utils

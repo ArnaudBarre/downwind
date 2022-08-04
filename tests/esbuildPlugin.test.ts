@@ -1,7 +1,7 @@
 import { readFileSync, rmSync } from "fs";
 import { build, BuildOptions, formatMessagesSync } from "esbuild";
 
-import { esbuildPlugin } from "../src/esbuildPlugin";
+import { downwind } from "../src/esbuildPlugin";
 import { snapshotTest } from "./test-utils";
 
 const esbuildPluginTest = (name: string, opts?: BuildOptions) => {
@@ -10,7 +10,7 @@ const esbuildPluginTest = (name: string, opts?: BuildOptions) => {
     const result = await build({
       bundle: true,
       entryPoints: ["./playground/vite/src/main.tsx"],
-      plugins: [esbuildPlugin()],
+      plugins: [downwind()],
       outdir: "./tests/dist",
       ...opts,
     });

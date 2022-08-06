@@ -1,5 +1,6 @@
-import { RuleMatch } from "../getTokenParser";
-import { Container, CSSEntries, RuleMeta } from "../types";
+import type { RuleMatch } from "../getEntries";
+import type { ResolvedConfig } from "../resolveConfig";
+import type { Container, CSSEntries, RuleMeta } from "../types";
 
 export const escapeSelector = (selector: string) =>
   selector.replace(/[.:/[\]#]/g, (c) => `\\${c}`);
@@ -28,6 +29,19 @@ export const printContainerClass = (config: Container) => {
   }
 
   return printBlock(".container", cssEntriesToLines(entries));
+};
+
+export const printScreenContainer = (
+  config: ResolvedConfig,
+  name: string,
+  min: string,
+): string => {
+  const paddingConfig = config.theme.container.padding;
+  const padding =
+    typeof paddingConfig === "string" ? undefined : paddingConfig?.[name];
+  return `  .container { max-width: ${min}; ${
+    padding ? `padding-left: ${padding}; padding-right: ${padding}; ` : ""
+  }}`;
 };
 
 export const cssEntriesToLines = (entries: CSSEntries) =>

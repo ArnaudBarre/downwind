@@ -11,7 +11,7 @@ const esbuildPlugin: typeof declaration = () => ({
   name: "downwind",
   setup: async (build) => {
     const targets = convertTargets(build.initialOptions.target);
-    const downwind = await initDownwind(targets);
+    const downwind = await initDownwind({ targets });
     const cssModulesMap: Record<string, string> = {};
     let hasBase = false;
     let hasUtils = false;

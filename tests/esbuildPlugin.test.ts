@@ -2,10 +2,10 @@ import { readFileSync, rmSync } from "fs";
 import { build, BuildOptions, formatMessagesSync } from "esbuild";
 
 import { downwind } from "../src/esbuildPlugin";
-import { snapshotTest } from "./test-utils";
+import { pluginSnapshotTest } from "./test-utils";
 
 const esbuildPluginTest = (name: string, opts?: BuildOptions) => {
-  snapshotTest(`esbuildPlugin-${name}`, async () => {
+  pluginSnapshotTest(`esbuildPlugin-${name}`, async () => {
     rmSync("./tests/dist", { recursive: true, force: true });
     const result = await build({
       bundle: true,

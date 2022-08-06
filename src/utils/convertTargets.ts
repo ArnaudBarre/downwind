@@ -1,4 +1,4 @@
-import {
+import type {
   convertTargets as convertTargetsDeclaration,
   ParcelTargets,
 } from "../types";

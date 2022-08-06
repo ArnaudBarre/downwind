@@ -18,7 +18,7 @@ const vitePlugin: typeof declaration = (): Plugin[] => {
   // Common
   const configResolved = async (config: ResolvedConfig) => {
     targets = convertTargets(config.build.cssTarget);
-    downwind = await initDownwind(targets);
+    downwind = await initDownwind({ targets });
   };
 
   let hasBase = false;

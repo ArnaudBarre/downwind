@@ -1,4 +1,4 @@
-import { DownwindTheme } from "../types";
+import type { DownwindTheme } from "../types";
 import { mapObject } from "../utils/helpers";
 import { getBaseColors } from "./getBaseColors";
 import { getBaseFonts } from "./getBaseFonts";

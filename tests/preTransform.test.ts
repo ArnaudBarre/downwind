@@ -1,9 +1,7 @@
-import { initDownwind } from "../src";
 import { snapshotTest } from "./test-utils";
 
-snapshotTest("preTransform", async () => {
-  const downwind = await initDownwind();
-  return downwind.preTransform(`
+snapshotTest("preTransform", (downwind) =>
+  downwind.preTransform(`
 .class1 {
   @apply m-4 px-4;
 }
@@ -22,5 +20,5 @@ snapshotTest("preTransform", async () => {
     @apply top-4 last:space-y-10
   }
 }
-`);
-});
+`),
+);

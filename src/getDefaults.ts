@@ -1,4 +1,4 @@
-import { ResolvedConfig } from "./getConfig";
+import { ResolvedConfig } from "./resolveConfig";
 import { Default, CSSEntries } from "./types";
 import { withAlphaValue } from "./utils/colors";
 

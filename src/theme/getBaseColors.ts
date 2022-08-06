@@ -1,4 +1,4 @@
-import { DownwindTheme } from "../types";
+import type { DownwindTheme } from "../types";
 
 // https://github.com/tailwindlabs/tailwindcss/blob/master/src/public/colors.js
 export const getBaseColors = (): DownwindTheme["colors"] => ({

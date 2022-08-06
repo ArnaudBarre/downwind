@@ -1,4 +1,4 @@
-import { cssModuleToJS as cssModuleToJSDeclaration } from "../types";
+import type { cssModuleToJS as cssModuleToJSDeclaration } from "../types";
 
 export const cssModuleToJS: typeof cssModuleToJSDeclaration = (cssModule) =>
   Object.entries(cssModule)

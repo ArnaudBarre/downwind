@@ -64,8 +64,6 @@ When implemented, [arbitrary properties](https://tailwindcss.com/docs/adding-cus
 
 ## TODO
 
-- cache for token parser
-- codegen on downwind
 - arbitrary alpha
 - colored box shadow?
 - lighter ring, transform, filter, font-variant-numeric

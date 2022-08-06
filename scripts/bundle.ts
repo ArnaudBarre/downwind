@@ -42,6 +42,7 @@ Promise.all([
 ]).then(() => {
   execSync("cp -r LICENSE README.md dist/");
   copyFileSync("src/base/base.css", "dist/base.css");
+  copyFileSync("src/types.d.ts", "dist/index.d.ts");
 
   for (const tool of ["esbuild", "vite"]) {
     copyFileSync(`src/${tool}Plugin.d.ts`, `dist/${tool}.d.ts`);
@@ -62,24 +63,6 @@ Promise.all([
     );
     rmSync(`dist/${tool}Plugin.js`);
   }
-
-  writeFileSync(
-    "dist/index.d.ts",
-    readFileSync("src/types.d.ts", "utf-8").replaceAll(
-      /export type (.*) =/gu,
-      (substring, match) =>
-        [
-          "DownwindConfig",
-          "BaseRule",
-          "StaticRule",
-          "ThemeRule<T>",
-          "DirectionThemeRule",
-          "DownwindTheme",
-        ].includes(match)
-          ? substring
-          : substring.slice(7),
-    ),
-  );
 
   writeFileSync(
     "dist/package.json",

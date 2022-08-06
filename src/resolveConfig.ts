@@ -1,5 +1,3 @@
-import { loadConfig } from "@arnaud-barre/config-loader";
-
 import { getBaseTheme } from "./theme/getBaseTheme";
 import {
   DownwindTheme,
@@ -20,9 +18,9 @@ export type ResolvedConfig = {
   safelist: string[];
 };
 
-export const getConfig = async () => {
-  const config =
-    global.TEST_CONFIG ?? (await loadConfig<UserConfig>("downwind"));
+export const resolveConfig = (
+  config: UserConfig | undefined,
+): ResolvedConfig => {
   const theme = run((): DownwindTheme => {
     const baseTheme = getBaseTheme();
     if (!config?.theme) return baseTheme;
@@ -79,7 +77,7 @@ export const getConfig = async () => {
     }
   }
 
-  const resolvedConfig: ResolvedConfig = {
+  return {
     theme: theme as ResolvedTheme,
     corePlugins: config?.corePlugins ?? {},
     plugins:
@@ -89,5 +87,4 @@ export const getConfig = async () => {
     shortcuts: config?.shortcuts ?? {},
     safelist: config?.safelist?.(theme as ResolvedTheme) ?? [],
   };
-  return resolvedConfig;
 };

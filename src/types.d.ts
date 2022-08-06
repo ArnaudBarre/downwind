@@ -6,7 +6,7 @@ export declare const VERSION: string;
 /**
  * Config
  */
-export type UserConfig = Partial<{
+type UserConfig = Partial<{
   theme: Partial<DownwindTheme & { extend: Partial<DownwindTheme> }>;
   corePlugins: Partial<Record<CorePlugin, boolean>>;
   plugins: BaseRule[] | ((theme: ResolvedTheme) => BaseRule[]);
@@ -19,9 +19,9 @@ export type DownwindConfig = DefineConfig<UserConfig>;
  * API
  */
 type ParcelTargets = NonNullable<TransformOptions["targets"]>;
-export declare const initDownwind: (
-  targets?: ParcelTargets,
-) => Promise<Downwind>;
+export declare const initDownwind: (opts?: {
+  targets?: ParcelTargets;
+}) => Promise<Downwind>;
 
 export type Downwind = {
   getBase: () => string;
@@ -36,11 +36,8 @@ export type Downwind = {
   };
   scan: (path: string, content?: string) => boolean /* hasNew */;
   generate: () => string;
+  codegen: (opts: { omitContent: boolean }) => string;
 };
-
-export declare const codegen: (opts: {
-  omitContent: boolean;
-}) => Promise<string>;
 
 /**
  * Utils
@@ -69,7 +66,7 @@ export type DirectionThemeRule = [
   (direction: string, value: string) => CSSEntries,
   (ThemeRuleMeta & { omitHyphen?: boolean; mandatory?: boolean })?,
 ];
-export type RuleMeta = {
+type RuleMeta = {
   /**
    * Can be used to target children: (v) => `${v} > * + *`
    */
@@ -88,7 +85,7 @@ export type RuleMeta = {
   addContainer?: boolean;
   addKeyframes?: boolean;
 };
-export type ThemeRuleMeta = RuleMeta & {
+type ThemeRuleMeta = RuleMeta & {
   /**
    * Also generate negative entries if the key is a number (like -p-4).
    */
@@ -103,14 +100,14 @@ export type ThemeRuleMeta = RuleMeta & {
    */
   arbitrary?: "color" | null;
 };
-export type SelectorRewrite = (value: string) => string;
-export type CSSEntries = CSSEntry[];
-export type CSSEntry = [string, string];
+type SelectorRewrite = (value: string) => string;
+type CSSEntries = CSSEntry[];
+type CSSEntry = [string, string];
 
 /**
  * Theme
  */
-export type ResolvedTheme = Record<
+type ResolvedTheme = Record<
   Exclude<ThemeKey, "screens" | "container" | "fontSize" | "dropShadow">,
   Record<string, string | undefined>
 > & {
@@ -135,18 +132,18 @@ export type DownwindTheme = {
   dropShadow: Record<string, string | [string, string]>;
 };
 
-export type ThemeCallback = {
+type ThemeCallback = {
   (key: Exclude<ThemeKey, "container" | "dropShadow">): Record<string, string>;
   (key: "screens"): Record<string, Screen>;
 };
 
 type Screen = { min: string; max?: string } | { min?: string; max: string };
-export type Container = {
+type Container = {
   center?: boolean;
   padding?: string | Record<string, string>;
 };
 
-export type ThemeKey =
+type ThemeKey =
   | "screens"
   | "colors"
   | "columns"
@@ -260,7 +257,7 @@ export type ThemeKey =
   | "willChange"
   | "zIndex";
 
-export type Default =
+type Default =
   | "transform"
   | "touch-action"
   | "scroll-snap-type"
@@ -269,7 +266,7 @@ export type Default =
   | "filter"
   | "backdrop-filter";
 
-export type CorePlugin =
+type CorePlugin =
   | "container"
   | "accessibility"
   | "pointerEvents"

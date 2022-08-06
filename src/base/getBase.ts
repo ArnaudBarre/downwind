@@ -2,7 +2,7 @@ import { readFileSync } from "fs";
 import { join } from "path";
 
 import { getBaseFonts } from "../theme/getBaseFonts";
-import { ResolvedTheme } from "../types";
+import type { ResolvedTheme } from "../types";
 
 export const getBase = (theme: ResolvedTheme) => {
   const rawCSS = readFileSync(join(__dirname, "base.css"), "utf-8");

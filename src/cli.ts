@@ -1,5 +1,7 @@
 #!/usr/bin/env node
-/* eslint-disable @typescript-eslint/no-require-imports */
+
+import type { Downwind } from "./types";
+
 const firstArg = process.argv[2] as string | undefined;
 
 if (firstArg === "-v" || firstArg === "--version") {
@@ -29,7 +31,9 @@ if (!output) {
   process.exit(1);
 }
 
-require("fs").writeFileSync(
-  output,
-  require("./index").codegen({ omitContent }),
-);
+/* eslint-disable @typescript-eslint/no-require-imports */
+require("./index")
+  .initDownwind()
+  .then((downwind: Downwind) => {
+    require("fs").writeFileSync(output, downwind.codegen({ omitContent }));
+  });

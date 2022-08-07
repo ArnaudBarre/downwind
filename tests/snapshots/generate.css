@@ -109,7 +109,7 @@
 }
 
 /* with-default: rotate-12 */
-*, ::before, ::after {
+*, ::before, ::after, ::backdrop {
   --tw-translate-x: 0;
   --tw-translate-y: 0;
   --tw-rotate: 0;

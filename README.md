@@ -57,16 +57,73 @@ The implementation would work most of the time, but some shortcuts have been mad
 
 - Arbitrary alpha is not supported (yet)
 - backgroundImage, backgroundPosition and fontFamily are not supported
-- For prefix with collision (divide, border, bg, stroke, text, decoration, outline, ring, ring-offset), if the value doesn't match a CSS color (hex, rgba?, hsla?) it's interpreted as the "size" version. Using data types is not supported
+- For prefix with collision (divide, border, bg, stroke, text, decoration, outline, ring, ring-offset), if the value doesn't match a CSS color (hex, rgb\[a], hsl\[a]) it's interpreted as the "size" version. Using data types is not supported
 - Underscore are always mapped to space
 
 When implemented, [arbitrary properties](https://tailwindcss.com/docs/adding-custom-styles#arbitrary-properties) could be use to bypass the rare edge cases.
 
+### Dark mode
+
+Only the `class` strategy is supported.
+
+### Variants
+
+- `marker` and `selection` variants don't apply on children
+- `visited` variant doesn't remove opacity modifiers
+
+### boxShadow and ring utilities
+
+Both rely on box-shadow to works. The current implementation is way simpler than the tailwind one, so both utilities can't be used at the same time and colored box shadows are not supported (yet).
+
+### Flex utility
+
+`display: flex` is automatically included in some cases:
+
+- `flex flex-col` -> `flex-col`
+- `flex flex-row-reverse` -> `flex-row-reverse`
+- `flex flex-col-reverse` -> `flex-col-reverse`
+- `flex flex-wrap` -> `flex-wrap`
+- `flex flex-wrap-reverse` -> `flex-wrap-reverse`
+
+### Space utility
+
+Can be overridden by margin utility and doesn't work for flex-reverse.
+
+### Divide utility
+
+Simpler implementation that makes divide and divide-reverse independent. Naming is updated to avoid an implementation edge case.
+`divide-y divide-y-reverse` -> `divide-reverse-y`
+
+### VerticalAlign utility
+
+Can be customized via theme. Mostly useful to allow arbitrary values without a specific edge case.
+
+### Almost exhaustive list of other non-supported features
+
+#### Planned
+
+- Alpha modifier (i.e. `text-blue-200/20`) and so arbitrary alpha (`text-blue-200/\[.06]`)
+- [Important modifier](https://tailwindcss.com/docs/configuration#important-modifier) (i.e `!font-bold`)
+- [Arbitrary properties](https://tailwindcss.com/docs/adding-custom-styles#arbitrary-properties)
+- [Arbitrary variants](https://tailwindcss.com/docs/hover-focus-and-other-states#using-arbitrary-variants)
+- [Theme function](https://tailwindcss.com/docs/functions-and-directives#theme) is CSS files
+
+#### Out of scope for now
+
+- These utils: transform, transform-cpu, decoration-slice decoration-clone, filter, backdrop-filter, blur-0
+- Using multiple group and peer variants (i.e. `group-active:group-hover:bg-blue-200` doesn't work)
+- `@tailwind` and `@layer`
+- Using pre-processor like `Sass` or `less`
+- `border-spacing` utility
+- `rtl` variant
+- Object for keyframes definition
+- Multiple keyframes in animation
+- Theme for cursor
+- Letter spacing in fontSize theme
+
 ## TODO
 
-- arbitrary alpha
-- colored box shadow?
+- preTransform utils that requires keyframes or default
 - lighter ring, transform, filter, font-variant-numeric
 - workaround https://github.com/parcel-bundler/parcel-css/issues/246 if not fixed
-- preTransform utils that requires keyframes or default
-- arbitrary properties: https://tailwindcss.com/docs/adding-custom-styles#arbitrary-properties
+- grouping?

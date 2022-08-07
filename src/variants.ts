@@ -6,6 +6,7 @@ export type Variant =
   | { selectorRewrite: SelectorRewrite; media?: never; screen?: never }
   | { selectorRewrite?: never; media: string; screen?: string };
 
+// https://github.com/tailwindlabs/tailwindcss/blob/master/src/corePlugins.js
 export const getVariants = (config: ResolvedConfig) => {
   const variantsMap: VariantsMap = new Map();
 
@@ -40,6 +41,7 @@ export const getVariants = (config: ResolvedConfig) => {
     "selection", // Non-compliant: No children selector
     ["file", "file-selector-button"],
     "placeholder",
+    "backdrop",
     "before", // Non-compliant: Don't add content property if not present
     "after", // Non-compliant: Don't add content property if not present
   ].forEach((value) => {
@@ -87,6 +89,8 @@ export const getVariants = (config: ResolvedConfig) => {
     "focus",
     "focus-visible",
     "active",
+    "enabled",
+    "enabled",
     "disabled",
   ].forEach((value) => {
     const [prefix, suffix] = Array.isArray(value)
@@ -111,6 +115,8 @@ export const getVariants = (config: ResolvedConfig) => {
     ["print", "print"],
     ["portrait", "(orientation: portrait)"],
     ["landscape", "(orientation: landscape)"],
+    ["contrast-more", "(prefers-contrast: more)"],
+    ["contrast-less", "(prefers-contrast: less)"],
   ].forEach(([prefix, media]) => {
     variantsMap.set(prefix, { media });
   });

@@ -582,7 +582,6 @@ export const getCorePlugins = ({
     standardDirections,
     theme.borderWidth,
     (d) => borderWidthDirectionMap[d],
-    { arbitrary: "color" },
   ),
   borderStyle: enumRule("border-", "border-style", [
     "solid",
@@ -603,7 +602,7 @@ export const getCorePlugins = ({
         variable: "--tw-border-opacity",
         enabled: corePlugins.borderOpacity !== false,
       }),
-    { filterDefault: true },
+    { filterDefault: true, arbitrary: "color" },
   ),
   borderOpacity: themeRule(
     "border-opacity",

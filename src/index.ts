@@ -383,7 +383,7 @@ export const initDownwindWithConfig = ({
 
       if (usedDefaults.size) {
         output += printBlock(
-          "*, ::before, ::after",
+          "*, ::before, ::after, ::backdrop",
           cssEntriesToLines([...usedDefaults].flatMap((d) => defaults[d])),
         );
         output += "\n";

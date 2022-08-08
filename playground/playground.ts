@@ -15,7 +15,7 @@ export const config: UserConfig = {};
   );
   writeFileSync(
     "./input.ts",
-    `// @css-scan
+    `// @downwind-scan
 console.log("p-4");
 `,
   );

@@ -31,7 +31,45 @@ await build({
 
 Add `import "virtual:@downwind/base.css";` and `import "virtual:@downwind/utils.css";` to your code.
 
-## Differences
+## Scanned extension
+
+For almost all UI application, the CSS classes are always located in the same file extension (`tsx`, `vue`, `svelte`).
+
+By default, downwind will only scan the file with matches the `scannedExtension` (default to `tsx`).
+
+It can be changed in both plugins:
+
+```ts
+plugins: [downwind({ scannedExtension: "vue" })];
+```
+
+For cases where you need any other file to be scanned, include the `@downwind-scan` pragma in any comment of the file.
+
+## Configuration
+
+This is optional and can be used to customize the default theme, disable core plugins, add new plugins, shortcuts or a safelist.
+
+The file should be name `downwind.config.ts`.
+
+```ts
+import { DownwindConfig } from "@arnaud-barre/downwind";
+
+export const config: DownwindConfig = {
+  // ...
+};
+```
+
+This can also be computed asynchronously:
+
+```ts
+export const config: DownwindConfig = async () => {
+  return {
+    // ...
+  };
+};
+```
+
+## Differences with Tailwind
 
 ### Components
 
@@ -61,6 +99,10 @@ The implementation would work most of the time, but some shortcuts have been mad
 - Underscore are always mapped to space
 
 When implemented, [arbitrary properties](https://tailwindcss.com/docs/adding-custom-styles#arbitrary-properties) could be use to bypass the rare edge cases.
+
+### Extended theme
+
+Only a shallow merge is done, so extending the colors is a little more verbose.
 
 ### Dark mode
 
@@ -123,6 +165,7 @@ Can be customized via theme. Mostly useful to allow arbitrary values without a s
 
 ## TODO
 
+- Simpler API for user plugins
 - preTransform utils that requires keyframes or default
 - lighter ring, transform, filter, font-variant-numeric
 - workaround https://github.com/parcel-bundler/parcel-css/issues/246 if not fixed

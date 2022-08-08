@@ -21,6 +21,7 @@ export type DownwindConfig = DefineConfig<UserConfig>;
 type ParcelTargets = NonNullable<TransformOptions["targets"]>;
 export declare const initDownwind: (opts?: {
   targets?: ParcelTargets;
+  scannedExtension?: string;
 }) => Promise<Downwind>;
 
 export type Downwind = {

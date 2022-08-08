@@ -7,11 +7,11 @@ import { cssModuleToJS, initDownwind, convertTargets } from "./index";
 
 export { esbuildPlugin as downwind };
 
-const esbuildPlugin: typeof declaration = () => ({
+const esbuildPlugin: typeof declaration = ({ scannedExtension } = {}) => ({
   name: "downwind",
   setup: async (build) => {
     const targets = convertTargets(build.initialOptions.target);
-    const downwind = await initDownwind({ targets });
+    const downwind = await initDownwind({ targets, scannedExtension });
     const cssModulesMap: Record<string, string> = {};
     let hasBase = false;
     let hasUtils = false;

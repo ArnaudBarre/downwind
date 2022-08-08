@@ -11,14 +11,16 @@ const cssRE = /\.css(\?.+)?$/;
 
 export { vitePlugin as downwind };
 
-const vitePlugin: typeof declaration = (): Plugin[] => {
+const vitePlugin: typeof declaration = ({
+  scannedExtension,
+} = {}): Plugin[] => {
   let downwind: Downwind;
   let targets: ParcelTargets | undefined;
 
   // Common
   const configResolved = async (config: ResolvedConfig) => {
     targets = convertTargets(config.build.cssTarget);
-    downwind = await initDownwind({ targets });
+    downwind = await initDownwind({ targets, scannedExtension });
   };
 
   let hasBase = false;

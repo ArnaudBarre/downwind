@@ -1,11 +1,6 @@
 import { readFileSync } from "fs";
 import { loadConfig } from "@arnaud-barre/config-loader";
-import {
-  CSSModuleExports,
-  Dependency,
-  transform,
-  TransformOptions,
-} from "@parcel/css";
+import { CSSModuleExports, Dependency, transform } from "@parcel/css";
 
 import { getBase } from "./base/getBase";
 import { getDefaults } from "./getDefaults";
@@ -26,7 +21,6 @@ import {
   UserConfig,
 } from "./types";
 import { isColor } from "./utils/colors";
-import { run } from "./utils/helpers";
 import {
   applyVariants,
   cssEntriesToLines,
@@ -46,9 +40,7 @@ const applyRE = /[{\s]@apply ([^;}\n]+)([;}\n])/g;
 const screenRE = /@screen ([^{]+){/g;
 const validSelectorRE = /^[a-z0-9.:/_[\]#-]+$/;
 
-export const initDownwind: typeof initDownwindDeclaration = async (opts?: {
-  targets?: TransformOptions["targets"];
-}) =>
+export const initDownwind: typeof initDownwindDeclaration = async (opts) =>
   initDownwindWithConfig({
     config:
       globalThis.TEST_CONFIG ?? (await loadConfig<UserConfig>("downwind")),
@@ -58,10 +50,10 @@ export const initDownwind: typeof initDownwindDeclaration = async (opts?: {
 export const initDownwindWithConfig = ({
   config: userConfig,
   targets,
+  scannedExtension = "tsx",
 }: {
   config: UserConfig | undefined;
-  targets?: TransformOptions["targets"];
-}) => {
+} & Parameters<typeof initDownwindDeclaration>[0]) => {
   const config = resolveConfig(userConfig);
   const defaults = getDefaults(config);
   const variantsMap = getVariants(config);
@@ -301,10 +293,8 @@ export const initDownwindWithConfig = ({
       path: string,
       code = readFileSync(path, "utf-8"),
     ): boolean /* hasNew */ => {
-      const shouldScan = run(() => {
-        if (path.endsWith("x")) return true;
-        return code.includes("@css-scan");
-      });
+      const shouldScan =
+        path.endsWith(scannedExtension) || code.includes("@downwind-scan");
       if (!shouldScan) return false;
       const tokens = code
         .split(/[\s'"`;>=]+/g)

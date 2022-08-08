@@ -67,7 +67,7 @@ export const shuffle = (array: string[]) => {
 };
 
 const getContent = () =>
-  `// @css-scan
+  `// @downwind-scan
 document.getElementById('app').className = "${shuffle(classes).join(" ")}"`;
 
 const sourceDir = join(__dirname, "source");

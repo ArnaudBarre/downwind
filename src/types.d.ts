@@ -27,7 +27,7 @@ export declare const initDownwind: (opts?: {
 export type Downwind = {
   getBase: () => string;
   preTransform: (content: string) => string;
-  transform: <AnalyzeDependencies extends boolean>(
+  transform: <AnalyzeDependencies extends boolean = false>(
     path: string,
     opts?: { analyzeDependencies: AnalyzeDependencies },
   ) => {

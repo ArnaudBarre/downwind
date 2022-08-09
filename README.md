@@ -16,6 +16,17 @@ export default defineConfig({ plugins: [downwind()] });
 
 Add `import "virtual:@downwind/base.css";` and `import "virtual:@downwind/utils.css";` to your code.
 
+To use nesting, install [postcss-nested](https://github.com/postcss/postcss-nested) and it to the postcss config:
+
+```js
+// postcss.config.js
+module.exports = {
+  plugins: {
+    "postcss-nested": {},
+  },
+};
+```
+
 ## Usage with [esbuild](https://github.com/evanw/esbuild)
 
 ```ts
@@ -30,6 +41,8 @@ await build({
 ```
 
 Add `import "virtual:@downwind/base.css";` and `import "virtual:@downwind/utils.css";` to your code.
+
+Nesting and CSS modules are directly supported via @parcel/css.
 
 ## Scanned extension
 

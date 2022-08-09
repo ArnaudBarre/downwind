@@ -28,12 +28,39 @@ Promise.all([
   build({
     entryPoints: ["src/cli.ts", "src/esbuildPlugin.ts", "src/vitePlugin.ts"],
     ...commonOptions,
+    plugins: [
+      {
+        name: "Update plugins output",
+        setup: ({ onEnd }) =>
+          onEnd(() => {
+            for (const tool of ["esbuild", "vite"]) {
+              copyFileSync(`src/${tool}Plugin.d.ts`, `dist/${tool}.d.ts`);
+              // light custom esm -> cjs
+              writeFileSync(
+                `dist/${tool}.js`,
+                readFileSync(`dist/${tool}Plugin.js`, "utf-8")
+                  .replaceAll(
+                    /import \{([^}]+)\} from "(.*)";/gu,
+                    (_, specifiers: string, from: string) =>
+                      `const {${specifiers.replaceAll(
+                        " as ",
+                        ": ",
+                      )}} = require("${from}");`,
+                  )
+                  .replace(`export { ${tool}Plugin as downwind };\n`, "")
+                  .concat(`module.exports.downwind = ${tool}Plugin;\n`),
+              );
+              rmSync(`dist/${tool}Plugin.js`);
+            }
+          }),
+      },
+    ],
   }),
   build({
     bundle: true,
     entryPoints: ["src/index.ts"],
     external: Object.keys(dependencies),
-    // V8 has an performance issue with object spread: https://bugs.chromium.org/p/v8/issues/detail?id=11536
+    // V8 has a performance issue with object spread: https://bugs.chromium.org/p/v8/issues/detail?id=11536
     // It's used a lot for theme merging, so for now we force esbuild to polyfill it
     // (which was the behaviour pre 14.46: https://github.com/evanw/esbuild/releases/tag/v0.14.46)
     supported: { "object-rest-spread": false },
@@ -43,26 +70,6 @@ Promise.all([
   execSync("cp -r LICENSE README.md dist/");
   copyFileSync("src/base/base.css", "dist/base.css");
   copyFileSync("src/types.d.ts", "dist/index.d.ts");
-
-  for (const tool of ["esbuild", "vite"]) {
-    copyFileSync(`src/${tool}Plugin.d.ts`, `dist/${tool}.d.ts`);
-    // light custom esm -> cjs
-    writeFileSync(
-      `dist/${tool}.js`,
-      readFileSync(`dist/${tool}Plugin.js`, "utf-8")
-        .replaceAll(
-          /import \{([^}]+)\} from "(.*)";/gu,
-          (_, specifiers: string, from: string) =>
-            `const {${specifiers.replaceAll(
-              " as ",
-              ": ",
-            )}} = require("${from}");`,
-        )
-        .replace(`export { ${tool}Plugin as downwind };\n`, "")
-        .concat(`module.exports.downwind = ${tool}Plugin;\n`),
-    );
-    rmSync(`dist/${tool}Plugin.js`);
-  }
 
   writeFileSync(
     "dist/package.json",

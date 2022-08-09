@@ -6,7 +6,6 @@ import { initDownwind, convertTargets } from "./index";
 import { Downwind, ParcelTargets } from "./types";
 import { downwind as declaration } from "./vitePlugin.d";
 
-const scanRE = /\.[jt]sx?$/;
 const cssRE = /\.css(\?.+)?$/;
 
 export { vitePlugin as downwind };
@@ -110,12 +109,11 @@ const vitePlugin: typeof declaration = ({
           return downwind.generate();
         }
       },
-      async transform(code, id) {
+      transform(code, id) {
         if (id.endsWith(".css")) return { code: downwind.preTransform(code) };
-        if (!id.includes("/node_modules/") && scanRE.test(id)) {
-          await new Promise((res) => setTimeout(res, 1_000));
+        if (!id.includes("/node_modules/")) {
           const hasNew = downwind.scan(id, code);
-          if (hasNew) sendUpdate();
+          if (hasNew && lastServed) sendUpdate();
         }
       },
     },
@@ -145,10 +143,10 @@ const vitePlugin: typeof declaration = ({
         if (id === utilsModuleId) return placeholder;
       },
       transform(code, id) {
-        if (cssRE.test(id)) return { code: downwind.preTransform(code) };
-        if (!id.includes("/node_modules/") && scanRE.test(id)) {
-          downwind.scan(id, code);
+        if (cssRE.test(id)) {
+          return { code: downwind.preTransform(code), map: null };
         }
+        if (!id.includes("/node_modules/")) downwind.scan(id, code);
       },
       // we inject a hash to chunk before the dist hash calculation to make sure
       // the hash is different when utils changes
@@ -172,6 +170,11 @@ const vitePlugin: typeof declaration = ({
         }
         return null;
       },
+    },
+    {
+      name: "downwind:build:post",
+      apply: "build",
+      enforce: "post",
       generateBundle(_, bundle) {
         if (!hasBase || !hasUtils) {
           this.error(
@@ -181,6 +184,7 @@ const vitePlugin: typeof declaration = ({
           );
         }
 
+        let placeholderFound = false;
         for (const [path, chunk] of Object.entries(bundle)) {
           if (
             path.endsWith(".css") &&
@@ -198,7 +202,13 @@ const vitePlugin: typeof declaration = ({
               minify,
               targets,
             }).code;
+            placeholderFound = true;
           }
+        }
+        if (!placeholderFound) {
+          this.error(
+            "Couldn't inject CSS utils into the build output. This is an error in the plugin",
+          );
         }
       },
     },

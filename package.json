@@ -31,13 +31,13 @@
     "@parcel/css": "^1.12.0"
   },
   "devDependencies": {
-    "@arnaud-barre/eslint-config": "^1.0.10",
+    "@arnaud-barre/eslint-config": "^1.0.11",
     "@ianvs/prettier-plugin-sort-imports": "^3.4.2",
     "@nabla/tnode": "^0.6.0",
     "@types/node": "^18.6.3",
     "eslint": "^8.20.0",
     "prettier": "^2.7.1",
     "typescript": "^4.7.4",
-    "vite": "^3.0.4"
+    "vite": "3.0.4"
   }
 }

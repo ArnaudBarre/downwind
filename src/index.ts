@@ -21,6 +21,7 @@ import {
   UserConfig,
 } from "./types";
 import { isColor } from "./utils/colors";
+import { forceDownlevelNesting } from "./utils/convertTargets";
 import {
   applyVariants,
   cssEntriesToLines,
@@ -49,7 +50,7 @@ export const initDownwind: typeof initDownwindDeclaration = async (opts) =>
 
 export const initDownwindWithConfig = ({
   config: userConfig,
-  targets,
+  targets = forceDownlevelNesting,
   scannedExtension = "tsx",
 }: {
   config: UserConfig | undefined;

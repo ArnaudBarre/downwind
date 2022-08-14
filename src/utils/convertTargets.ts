@@ -32,10 +32,15 @@ const esMap: Record<number, string[]> = {
 const esRE = /es(\d{4})/;
 const versionRE = /\d/;
 
+// Without targets, nesting is not transformed,
+// which will fail because it's not implemented anywhere for now
+/* eslint-disable no-bitwise */
+export const forceDownlevelNesting: ParcelTargets = { chrome: 104 << 16 };
+
 export const convertTargets: typeof convertTargetsDeclaration = (
   esbuildTarget: string | string[] | undefined | false,
-): ParcelTargets | undefined => {
-  if (!esbuildTarget) return;
+): ParcelTargets => {
+  if (!esbuildTarget) return forceDownlevelNesting;
 
   const targets: ParcelTargets = {};
 
@@ -57,7 +62,6 @@ export const convertTargets: typeof convertTargetsDeclaration = (
           .split(".")
           .map((v) => parseInt(v, 10));
         if (!isNaN(major) && !isNaN(minor)) {
-          // eslint-disable-next-line no-bitwise
           const version = (major << 16) | (minor << 8);
           if (!targets[browser] || version < targets[browser]!) {
             targets[browser] = version;
@@ -69,5 +73,5 @@ export const convertTargets: typeof convertTargetsDeclaration = (
     throw new Error(`Unsupported target entry ${entry}`);
   }
 
-  return targets;
+  return Object.keys(targets).length ? targets : forceDownlevelNesting;
 };

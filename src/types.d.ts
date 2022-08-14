@@ -47,7 +47,7 @@ export declare const cssModuleToJS: (cssModule: CSSModuleExports) => string;
 
 export declare const convertTargets: (
   esbuildTarget: string | string[] | undefined | false,
-) => ParcelTargets | undefined;
+) => ParcelTargets;
 
 /**
  * Rules

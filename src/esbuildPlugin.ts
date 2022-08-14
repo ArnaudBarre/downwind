@@ -82,8 +82,8 @@ const esbuildPlugin: typeof declaration = ({ scannedExtension } = {}) => ({
           notes: [],
           location: null,
         });
-        return;
       }
+      if (result.errors.length) return;
 
       const transform = (cssPath: string, content: string) => {
         if (!content.includes(getPlaceholder())) {

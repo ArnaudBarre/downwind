@@ -87,12 +87,12 @@ export const initDownwindWithConfig = ({
     const cachedValue = parseCache.get(token);
     if (cachedValue) return cachedValue;
 
-    const initialToken = token;
+    let tokenWithoutVariants = token;
     let index: number;
     let screen = "";
     const variants: Variant[] = [];
-    while ((index = token.indexOf(":")) !== -1) {
-      const prefix = token.slice(0, index);
+    while ((index = tokenWithoutVariants.indexOf(":")) !== -1) {
+      const prefix = tokenWithoutVariants.slice(0, index);
       const variant = variantsMap.get(prefix);
       if (!variant) {
         blockList.add(token);
@@ -100,16 +100,16 @@ export const initDownwindWithConfig = ({
       }
       if (variant.screen) screen = variant.screen;
       else variants.push(variant);
-      token = token.slice(index + 1);
+      tokenWithoutVariants = tokenWithoutVariants.slice(index + 1);
     }
-    let ruleEntry = rulesEntries.get(token);
+    let ruleEntry = rulesEntries.get(tokenWithoutVariants);
     if (!ruleEntry) {
-      const start = token.indexOf("[");
-      if (start !== -1 && arbitraryValueRE.test(token)) {
-        const prefix = token.slice(0, start - 1);
+      const start = tokenWithoutVariants.indexOf("[");
+      if (start !== -1 && arbitraryValueRE.test(tokenWithoutVariants)) {
+        const prefix = tokenWithoutVariants.slice(0, start - 1);
         const entries = arbitraryEntries.get(prefix);
         if (entries) {
-          const value = token.slice(start + 1, -1);
+          const value = tokenWithoutVariants.slice(start + 1, -1);
           const entry =
             entries.length > 1
               ? entries.find((e) =>
@@ -132,12 +132,7 @@ export const initDownwindWithConfig = ({
       blockList.add(token);
       return;
     }
-    const result: ParseResult = {
-      token: initialToken,
-      ruleEntry,
-      variants,
-      screen,
-    };
+    const result: ParseResult = { token, ruleEntry, variants, screen };
     parseCache.set(token, result);
     return result;
   };

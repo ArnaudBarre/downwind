@@ -65,7 +65,7 @@
   left: 0px;
 }
 
-/* negative values plugins: -m-0 -m-auto -m-4 */
+/* negative values rules: -m-0 -m-auto -m-4 */
 .-m-4 {
   margin: -1rem;
 }
@@ -84,7 +84,7 @@
   }
 }
 
-/* omit-hyphen plugins: px-2 mt-6 scroll-p-2 scroll-pb-4 scroll-my-6 */
+/* omit-hyphen rules: px-2 mt-6 scroll-p-2 scroll-pb-4 scroll-my-6 */
 .scroll-my-6 {
   scroll-margin-top: 1.5rem;
   scroll-margin-bottom: 1.5rem;
@@ -103,7 +103,7 @@
   padding-right: 0.5rem;
 }
 
-/* direction mandatory plugins: space-2 space-y-4 */
+/* direction mandatory rules: space-2 space-y-4 */
 .space-y-4 > * + * {
   margin-top: 1rem;
 }
@@ -315,7 +315,7 @@
   grid-template-columns: 1fr 500px 2fr;
 }
 
-/* disable-plugin: p-4 m-4 */
+/* disable-rule: p-4 m-4 */
 .m-4 {
   margin: 1rem;
 }

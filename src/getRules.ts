@@ -1,27 +1,27 @@
-import { BaseRuleOrBaseRules, getCorePlugins } from "./corePlugins";
+import { BaseRuleOrBaseRules, getCoreRules } from "./coreRules";
 import { getRuleMeta } from "./getEntries";
 import { ResolvedConfig } from "./resolveConfig";
-import { BaseRule, CorePlugin } from "./types";
+import { BaseRule, CoreRule } from "./types";
 import { split } from "./utils/helpers";
 
 export type Shortcut = [string, string];
 export type Rule = BaseRule | Shortcut;
 
 export const getRules = (config: ResolvedConfig): Rule[] => {
-  const corePlugins = getCorePlugins(config);
-  const coreRules: BaseRule[] = [];
+  const coreRules = getCoreRules(config);
+  const enabledCoreRules: BaseRule[] = [];
   const isBaseRules = (v: BaseRuleOrBaseRules): v is BaseRule[] =>
     Array.isArray(v[0]);
-  for (const corePlugin in corePlugins) {
-    if (config.corePlugins[corePlugin as CorePlugin] !== false) {
-      const value = corePlugins[corePlugin as CorePlugin];
-      coreRules.push(...(isBaseRules(value) ? value : [value]));
+  for (const coreRule in coreRules) {
+    if (config.coreRules[coreRule as CoreRule] !== false) {
+      const value = coreRules[coreRule as CoreRule];
+      enabledCoreRules.push(...(isBaseRules(value) ? value : [value]));
     }
   }
   const shortcuts: Rule[] = Object.entries(config.shortcuts);
   const [before, after] = split(
-    config.plugins,
+    config.rules,
     (r) => getRuleMeta(r)?.injectFirst ?? false,
   );
-  return shortcuts.concat(before, coreRules, after);
+  return shortcuts.concat(before, enabledCoreRules, after);
 };

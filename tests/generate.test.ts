@@ -20,10 +20,10 @@ const cases: [name: string, content: string, config?: UserConfig][] = [
   ["transform-gpu", "transform-gpu"],
   ["border-default", "border"],
   ["inset", "inset-0"],
-  ["negative values plugins", "-m-0 -m-auto -m-4"],
+  ["negative values rules", "-m-0 -m-auto -m-4"],
   ["screen", "md:p-4 p-2 md:p-6"],
-  ["omit-hyphen plugins", "px-2 mt-6 scroll-p-2 scroll-pb-4 scroll-my-6"],
-  ["direction mandatory plugins", "space-2 space-y-4"],
+  ["omit-hyphen rules", "px-2 mt-6 scroll-p-2 scroll-pb-4 scroll-my-6"],
+  ["direction mandatory rules", "space-2 space-y-4"],
   ["with-default", "rotate-12"],
   ["with-keyframes", "animate-spin"],
   ["gradients", "from-orange-200 via-purple-400 to-red-600"],
@@ -79,11 +79,11 @@ const cases: [name: string, content: string, config?: UserConfig][] = [
     "inset-[-10px] pt-[100px] text-[#ddd] text-[#f009] text-[10px]",
   ],
   ["arbitrary-values-with-spaces", "grid grid-cols-[1fr_500px_2fr]"],
-  ["disable-plugin", "p-4 m-4", { corePlugins: { padding: false } }],
+  ["disable-rule", "p-4 m-4", { coreRules: { padding: false } }],
   [
     "disable-opacity",
     "text-slate-200 bg-orange-300 border-blue-100 border-black/20",
-    { corePlugins: { textOpacity: false, borderOpacity: false } },
+    { coreRules: { textOpacity: false, borderOpacity: false } },
   ],
   ["custom-config", "p-4 p-6 m-4", { theme: { padding: { 4: "4px" } } }],
   [
@@ -95,7 +95,7 @@ const cases: [name: string, content: string, config?: UserConfig][] = [
     "static-plugin",
     "flex-center m-4",
     {
-      plugins: [
+      rules: [
         [
           "flex-center",
           [
@@ -111,7 +111,7 @@ const cases: [name: string, content: string, config?: UserConfig][] = [
     "complex-plugin",
     "m-4 flex-gap-x-4 flex-gap-y-2 flex-gap-6",
     {
-      plugins: (theme) => [
+      rules: (theme) => [
         // Generates a (hacky margin based) flex-gap plugin for to support Safari iOS < 14.5 (https://caniuse.com/flexbox-gap)
         [
           "flex-gap",

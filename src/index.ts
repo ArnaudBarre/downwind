@@ -15,6 +15,7 @@ import {
 } from "./getEntries";
 import { resolveConfig } from "./resolveConfig";
 import {
+  staticRules as staticRulesDeclaration,
   CSSEntries,
   Default,
   initDownwind as initDownwindDeclaration,
@@ -441,6 +442,9 @@ export const initDownwindWithConfig = ({
     },
   };
 };
+
+export const staticRules: typeof staticRulesDeclaration = (rules) =>
+  Object.entries(rules).map(([key, value]) => [key, Object.entries(value)]);
 
 export class DownwindError extends Error {
   context: string;

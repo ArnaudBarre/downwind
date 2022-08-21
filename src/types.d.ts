@@ -8,8 +8,8 @@ export declare const VERSION: string;
  */
 type UserConfig = Partial<{
   theme: Partial<DownwindTheme & { extend: Partial<DownwindTheme> }>;
-  corePlugins: Partial<Record<CorePlugin, boolean>>;
-  plugins: BaseRule[] | ((theme: ResolvedTheme) => BaseRule[]);
+  coreRules: Partial<Record<CoreRule, boolean>>;
+  rules: BaseRule[] | ((theme: ResolvedTheme) => BaseRule[]);
   shortcuts: Record<string, string>;
   safelist: (theme: ResolvedTheme) => string[];
 }>;
@@ -49,31 +49,35 @@ export declare const convertTargets: (
   esbuildTarget: string | string[] | undefined | false,
 ) => ParcelTargets;
 
+export declare const staticRules: (
+  rules: Record<string, Record<string, string>>,
+) => StaticRule[];
+
 /**
  * Rules
  */
 export type BaseRule = StaticRule | ThemeRule<any> | DirectionThemeRule;
-export type StaticRule = [string, CSSEntries, RuleMeta?];
+export type StaticRule = [handle: string, entries: CSSEntries, meta?: RuleMeta];
 export type ThemeRule<T> = [
-  string,
-  Record<string, T | undefined>,
-  (value: T) => CSSEntries,
-  ThemeRuleMeta?,
+  base: string,
+  themeMap: Record<string, T | undefined>,
+  callback: (value: T) => CSSEntries,
+  meta?: ThemeRuleMeta,
 ];
 export type DirectionThemeRule = [
-  string,
-  string[],
-  Record<string, string | undefined>,
-  (direction: string, value: string) => CSSEntries,
-  (ThemeRuleMeta & { omitHyphen?: boolean; mandatory?: boolean })?,
+  base: string,
+  directions: string[],
+  themeMap: Record<string, string | undefined>,
+  callback: (direction: string, value: string) => CSSEntries,
+  meta?: ThemeRuleMeta & { omitHyphen?: boolean; mandatory?: boolean },
 ];
 type RuleMeta = {
   /**
-   * Can be used to target children: (v) => `${v} > * + *`
+   * Can be used to target children: (v) => `${v} > *`
    */
   selectorRewrite?: SelectorRewrite;
   /**
-   * Set to true to inject this plugin before the core plugins.
+   * Set to true to inject this rule before the core rules.
    */
   injectFirst?: boolean;
   /**
@@ -280,7 +284,7 @@ type Default =
   | "filter"
   | "backdrop-filter";
 
-type CorePlugin =
+type CoreRule =
   | "container"
   | "accessibility"
   | "pointerEvents"

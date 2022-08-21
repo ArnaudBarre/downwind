@@ -2,3 +2,4 @@ node_modules/
 dist/
 tests/snapshots/
 bench/source
+playground/output.css

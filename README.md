@@ -60,7 +60,7 @@ For cases where you need any other file to be scanned, include the `@downwind-sc
 
 ## Configuration
 
-This is optional and can be used to customize the default theme, disable core plugins, add new plugins, shortcuts or a safelist.
+This is optional and can be used to customize the default theme, disable core rules, add new rules, shortcuts or a safelist.
 
 The file should be name `downwind.config.ts`.
 
@@ -86,7 +86,7 @@ export const config: DownwindConfig = async () => {
 
 ### Components
 
-Downwind doesn't have the notion of components, but custom plugins can be injected before core plugins by using `injectFirst: true`.
+Downwind doesn't have the notion of components, but custom rules can be injected before core rules by using `injectFirst: true`.
 
 Shortcuts from [Windi CSS](https://windicss.org/features/shortcuts.html#shortcuts) solves most the needs and can be added to the configuration:
 
@@ -110,7 +110,7 @@ The implementation would work most of the time, but some shortcuts have been mad
 - For prefix with collision (divide, border, bg, stroke, text, decoration, outline, ring, ring-offset), if the value doesn't match a CSS color (hex, rgb\[a], hsl\[a]) it's interpreted as the "size" version. Using data types is not supported
 - Underscore are always mapped to space
 
-When implemented, [arbitrary properties](https://tailwindcss.com/docs/adding-custom-styles#arbitrary-properties) could be use to bypass the rare edge cases.
+When implemented, [arbitrary properties](https://tailwindcss.com/docs/adding-custom-styles#arbitrary-properties) could be used to bypass the rare edge cases.
 
 ### Extended theme
 
@@ -119,6 +119,26 @@ Only a shallow merge is done, so extending the colors is a little more verbose.
 ### Dark mode
 
 Only the `class` strategy is supported.
+
+### Plugins
+
+Tailwind plugins are incompatible, but can probably be re-written using Downwind rules. Go to the types definition to get more information.
+
+For simple utilities, you can use `staticRules`:
+
+```ts
+// downwind.config.ts
+import { DownwindConfig, staticRules } from "@arnaud-barre/downwind";
+
+export const config: DownwindConfig = {
+  rules: [
+    ...staticRules({
+      "overflow-x-auto": { "overflow-x": "auto" },
+      "overflow-y-auto": { "overflow-y": "auto" },
+    }),
+  ],
+};
+```
 
 ### Variants
 
@@ -184,7 +204,6 @@ Can be customized via theme. Mostly useful to allow arbitrary values without a s
 
 ## TODO
 
-- Simpler API for user plugins
 - preTransform utils that requires keyframes or default
 - lighter ring, transform, filter, font-variant-numeric
 - workaround https://github.com/parcel-bundler/parcel-css/issues/246 if not fixed

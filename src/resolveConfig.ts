@@ -1,7 +1,7 @@
 import { getBaseTheme } from "./theme/getBaseTheme";
 import {
   DownwindTheme,
-  CorePlugin,
+  CoreRule,
   UserConfig,
   ResolvedTheme,
   BaseRule,
@@ -12,8 +12,8 @@ import { mapObjectValue, run } from "./utils/helpers";
 
 export type ResolvedConfig = {
   theme: ResolvedTheme;
-  corePlugins: Partial<Record<CorePlugin, boolean>>;
-  plugins: BaseRule[];
+  coreRules: Partial<Record<CoreRule, boolean>>;
+  rules: BaseRule[];
   shortcuts: Record<string, string>;
   safelist: string[];
 };
@@ -79,11 +79,11 @@ export const resolveConfig = (
 
   return {
     theme: theme as ResolvedTheme,
-    corePlugins: config?.corePlugins ?? {},
-    plugins:
-      typeof config?.plugins === "function"
-        ? config.plugins(theme as ResolvedTheme)
-        : config?.plugins ?? [],
+    coreRules: config?.coreRules ?? {},
+    rules:
+      typeof config?.rules === "function"
+        ? config.rules(theme as ResolvedTheme)
+        : config?.rules ?? [],
     shortcuts: config?.shortcuts ?? {},
     safelist: config?.safelist?.(theme as ResolvedTheme) ?? [],
   };

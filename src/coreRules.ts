@@ -1,6 +1,6 @@
 import { ResolvedConfig } from "./resolveConfig";
 import {
-  CorePlugin,
+  CoreRule,
   CSSEntries,
   CSSEntry,
   DirectionThemeRule,
@@ -15,11 +15,11 @@ import { withAlphaValue, withAlphaVariable } from "./utils/colors";
 export type BaseRuleOrBaseRules = BaseRule | BaseRule[];
 
 // https://github.com/tailwindlabs/tailwindcss/blob/master/src/corePlugins.js
-export const getCorePlugins = ({
+export const getCoreRules = ({
   theme,
-  corePlugins,
+  coreRules,
 }: ResolvedConfig): {
-  [key in CorePlugin]: BaseRuleOrBaseRules;
+  [key in CoreRule]: BaseRuleOrBaseRules;
 } => ({
   container: ["container", [], { addContainer: true }],
   accessibility: [
@@ -500,13 +500,13 @@ export const getCorePlugins = ({
         properties: ["border-color"],
         color: value,
         variable: "--tw-divide-opacity",
-        enabled: corePlugins.divideOpacity !== false,
+        enabled: coreRules.divideOpacity !== false,
       }),
     {
       selectorRewrite: siblingChildrenSelectorRewrite,
       arbitrary: "color-only",
       alphaModifiers:
-        corePlugins.divideOpacity === false ? undefined : theme.divideOpacity,
+        coreRules.divideOpacity === false ? undefined : theme.divideOpacity,
     },
   ),
   divideOpacity: themeRule(
@@ -605,13 +605,13 @@ export const getCorePlugins = ({
         properties: directionSuffixMap[d].map((dir) => `border${dir}-color`),
         color: value,
         variable: "--tw-border-opacity",
-        enabled: corePlugins.borderOpacity !== false,
+        enabled: coreRules.borderOpacity !== false,
       }),
     {
       filterDefault: true,
       arbitrary: "color-only",
       alphaModifiers:
-        corePlugins.borderOpacity === false ? undefined : theme.borderOpacity,
+        coreRules.borderOpacity === false ? undefined : theme.borderOpacity,
     },
   ),
   borderOpacity: themeRule(
@@ -627,12 +627,12 @@ export const getCorePlugins = ({
         properties: ["background-color"],
         color: value,
         variable: "--tw-bg-opacity",
-        enabled: corePlugins.backgroundOpacity !== false,
+        enabled: coreRules.backgroundOpacity !== false,
       }),
     {
       arbitrary: "color-only",
       alphaModifiers:
-        corePlugins.backgroundOpacity === false
+        coreRules.backgroundOpacity === false
           ? undefined
           : theme.backgroundOpacity,
     },
@@ -810,12 +810,12 @@ export const getCorePlugins = ({
         properties: ["color"],
         color: value,
         variable: "--tw-text-opacity",
-        enabled: corePlugins.textOpacity !== false,
+        enabled: coreRules.textOpacity !== false,
       }),
     {
       arbitrary: "color-only",
       alphaModifiers:
-        corePlugins.textOpacity === false ? undefined : theme.textOpacity,
+        coreRules.textOpacity === false ? undefined : theme.textOpacity,
     },
   ),
   textOpacity: themeRule(
@@ -876,12 +876,12 @@ export const getCorePlugins = ({
         properties: ["color"],
         color: value,
         variable: "--tw-placeholder-opacity",
-        enabled: corePlugins.placeholderOpacity !== false,
+        enabled: coreRules.placeholderOpacity !== false,
       }),
     {
       selectorRewrite: (value) => `${value}::placeholder`,
       alphaModifiers:
-        corePlugins.placeholderOpacity === false
+        coreRules.placeholderOpacity === false
           ? undefined
           : theme.placeholderOpacity,
     },
@@ -973,13 +973,13 @@ export const getCorePlugins = ({
         properties: ["--tw-ring-color"],
         color: value,
         variable: "--tw-ring-opacity",
-        enabled: corePlugins.ringOpacity !== false,
+        enabled: coreRules.ringOpacity !== false,
       }),
     {
       filterDefault: true,
       arbitrary: "color-only",
       alphaModifiers:
-        corePlugins.ringOpacity === false ? undefined : theme.ringOpacity,
+        coreRules.ringOpacity === false ? undefined : theme.ringOpacity,
     },
   ),
   ringOpacity: themeRule(

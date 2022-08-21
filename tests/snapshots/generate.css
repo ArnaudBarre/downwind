@@ -255,6 +255,15 @@
   color: rgb(226 232 240 / .06);
 }
 
+/* important modifier: !border-0 !rounded-l-none */
+.\!rounded-l-none {
+  border-top-left-radius: 0px !important;
+  border-bottom-left-radius: 0px !important;
+}
+.\!border-0 {
+  border-width: 0px !important;
+}
+
 /* arbitrary-values: inset-[-10px] pt-[100px] text-[#ddd] text-[#f009] text-[10px] */
 .inset-\[-10px\] {
   top: -10px;

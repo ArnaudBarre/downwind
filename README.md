@@ -156,7 +156,6 @@ Can be customized via theme. Mostly useful to allow arbitrary values without a s
 
 #### Planned
 
-- [Important modifier](https://tailwindcss.com/docs/configuration#important-modifier) (i.e `!font-bold`)
 - [Arbitrary properties](https://tailwindcss.com/docs/adding-custom-styles#arbitrary-properties)
 - [Arbitrary variants](https://tailwindcss.com/docs/hover-focus-and-other-states#using-arbitrary-variants)
 - [Theme function](https://tailwindcss.com/docs/functions-and-directives#theme) is CSS files

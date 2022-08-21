@@ -3,7 +3,7 @@ import type { ResolvedConfig } from "../resolveConfig";
 import type { Container, CSSEntries, RuleMeta } from "../types";
 
 export const escapeSelector = (selector: string) =>
-  selector.replace(/[.:/[\]#]/g, (c) => `\\${c}`);
+  selector.replace(/[.:/[\]!#]/g, (c) => `\\${c}`);
 
 export const printBlock = (selector: string, lines: string[], indent = "") => {
   let output = `${indent}${selector} {\n`;
@@ -28,7 +28,7 @@ export const printContainerClass = (config: Container) => {
     entries.push(["padding-right", defaultPadding]);
   }
 
-  return printBlock(".container", cssEntriesToLines(entries));
+  return printBlock(".container", cssEntriesToLines(entries, false));
 };
 
 export const printScreenContainer = (
@@ -44,8 +44,10 @@ export const printScreenContainer = (
   }}`;
 };
 
-export const cssEntriesToLines = (entries: CSSEntries) =>
-  entries.map((entry) => `${entry[0]}: ${entry[1]};`);
+export const cssEntriesToLines = (entries: CSSEntries, important: boolean) =>
+  entries.map(
+    (entry) => `${entry[0]}: ${entry[1]}${important ? " !important" : ""};`,
+  );
 
 export const applyVariants = (
   selector: string,

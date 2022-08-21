@@ -36,10 +36,10 @@ export const VERSION = __VERSION__;
 export { cssModuleToJS } from "./utils/modules";
 export { convertTargets } from "./utils/convertTargets";
 
-const arbitraryValueRE = /-\[.*]$/;
+const arbitraryValueRE = /-\[.+]$/;
 const applyRE = /[{\s]@apply ([^;}\n]+)([;}\n])/g;
 const screenRE = /@screen ([^{]+){/g;
-const validSelectorRE = /^[a-z0-9.:/_[\]#-]+$/;
+const validSelectorRE = /^[a-z0-9.:/_[\]!#-]+$/;
 
 export const initDownwind: typeof initDownwindDeclaration = async (opts) =>
   initDownwindWithConfig({
@@ -75,19 +75,14 @@ export const initDownwindWithConfig = ({
     return true;
   };
 
-  type ParseResult = {
-    token: string;
-    ruleEntry: RuleEntry;
-    variants: Variant[];
-    screen: string;
-  };
-  const parseCache = new Map<string, ParseResult>();
-  const parse = (token: string): ParseResult | undefined => {
+  const parseCache = new Map<string, RuleMatch>();
+  const parse = (token: string): RuleMatch | undefined => {
     if (blockList.has(token)) return;
     const cachedValue = parseCache.get(token);
     if (cachedValue) return cachedValue;
 
-    let tokenWithoutVariants = token;
+    const important = token.startsWith("!");
+    let tokenWithoutVariants = important ? token.slice(1) : token;
     let index: number;
     let screen = "";
     const variants: Variant[] = [];
@@ -169,12 +164,12 @@ export const initDownwindWithConfig = ({
       blockList.add(token);
       return;
     }
-    const result: ParseResult = { token, ruleEntry, variants, screen };
+    const result: RuleMatch = { token, ruleEntry, variants, screen, important };
     parseCache.set(token, result);
     return result;
   };
 
-  const toCSS = (ruleEntry: RuleEntry): string[] => {
+  const toCSS = (ruleEntry: RuleEntry, important: boolean): string[] => {
     const rule = ruleEntry.rule;
 
     if (isShortcut(rule)) {
@@ -204,7 +199,7 @@ export const initDownwindWithConfig = ({
         )
       : rule[1];
 
-    return cssEntriesToLines(cssEntries);
+    return cssEntriesToLines(cssEntries, important);
   };
 
   const apply = ({
@@ -244,7 +239,7 @@ export const initDownwindWithConfig = ({
           context,
         );
       }
-      const tokenOutput = toCSS(match.ruleEntry).join(" ");
+      const tokenOutput = toCSS(match.ruleEntry, match.important).join(" ");
       output.push(
         selector === "&" ? tokenOutput : `${selector} { ${tokenOutput} }`,
       );
@@ -396,7 +391,7 @@ export const initDownwindWithConfig = ({
           }
           utilsOutput += printBlock(
             `.${selector}`,
-            toCSS(match.ruleEntry),
+            toCSS(match.ruleEntry, match.important),
             mediaWrapper ? `${screenIndent}  ` : screenIndent,
           );
           if (mediaWrapper) utilsOutput += `${screenIndent}}\n`;
@@ -407,7 +402,10 @@ export const initDownwindWithConfig = ({
       if (usedDefaults.size) {
         output += printBlock(
           "*, ::before, ::after, ::backdrop",
-          cssEntriesToLines([...usedDefaults].flatMap((d) => defaults[d])),
+          cssEntriesToLines(
+            [...usedDefaults].flatMap((d) => defaults[d]),
+            false,
+          ),
         );
         output += "\n";
       }
@@ -437,7 +435,7 @@ export const initDownwindWithConfig = ({
           if (ruleMeta?.selectorRewrite) {
             selector = ruleMeta.selectorRewrite(selector);
           }
-          return printBlock(`.${selector}`, toCSS(ruleEntry));
+          return printBlock(`.${selector}`, toCSS(ruleEntry, false));
         })
         .join("");
     },

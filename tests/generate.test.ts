@@ -69,6 +69,7 @@ const cases: [name: string, content: string, config?: UserConfig][] = [
     "bg-orange-400/20 text-slate-200/[.06] border-black/15",
     { theme: { extend: { borderOpacity: { "15": "0.15" } } } },
   ],
+  ["important modifier", "!border-0 !rounded-l-none"],
   [
     "arbitrary-values",
     "inset-[-10px] pt-[100px] text-[#ddd] text-[#f009] text-[10px]",

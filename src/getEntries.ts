@@ -14,6 +14,7 @@ export type RuleMatch = {
   ruleEntry: RuleEntry;
   variants: Variant[];
   screen: string;
+  important: boolean;
 };
 export type RuleEntry = {
   rule: Rule;

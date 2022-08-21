@@ -113,19 +113,23 @@ type CSSEntry = [string, string];
  * Theme
  */
 type ResolvedTheme = Record<
-  Exclude<ThemeKey, "screens" | "container" | "fontSize" | "dropShadow">,
+  Exclude<
+    ThemeKey,
+    "screens" | "container" | "fontSize" | "boxShadow" | "dropShadow"
+  >,
   Record<string, string | undefined>
 > & {
   screens: Record<string, Screen | undefined>;
   container: Container;
   fontSize: Record<string, string | [string, string] | undefined>;
+  boxShadow: Record<string, BoxShadow | undefined>;
   dropShadow: Record<string, string | [string, string] | undefined>;
 };
 
 export type DownwindTheme = {
   [key in Exclude<
     ThemeKey,
-    "screens" | "container" | "colors" | "fontSize" | "dropShadow"
+    "screens" | "container" | "colors" | "fontSize" | "boxShadow" | "dropShadow"
   >]:
     | Record<string, string>
     | ((theme: ThemeCallback) => Record<string, string>);
@@ -134,15 +138,20 @@ export type DownwindTheme = {
   container: Container;
   colors: Record<string, string | Record<string, string>>;
   fontSize: Record<string, string | [string, string]>;
+  boxShadow: Record<string, BoxShadow>;
   dropShadow: Record<string, string | [string, string]>;
 };
 
 type ThemeCallback = {
-  (key: Exclude<ThemeKey, "container" | "dropShadow">): Record<string, string>;
+  (key: Exclude<ThemeKey, "container" | "boxShadow" | "dropShadow">): Record<
+    string,
+    string
+  >;
   (key: "screens"): Record<string, Screen>;
 };
 
 type Screen = { min: string; max?: string } | { min?: string; max: string };
+type BoxShadow = string | { value: string; defaultColor: string };
 type Container = {
   center?: boolean;
   padding?: string | Record<string, string>;
@@ -405,6 +414,7 @@ type CorePlugin =
   | "backgroundBlendMode"
   | "mixBlendMode"
   | "boxShadow"
+  | "boxShadowColor"
   | "outlineStyle"
   | "outlineWidth"
   | "outlineOffset"

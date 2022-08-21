@@ -197,10 +197,11 @@ body {
 }
 
 .btn {
+  --tw-shadow-color: #0000001a;
+  box-shadow: 0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);
   border-radius: .5rem;
   padding: .5rem 1rem;
   font-weight: 600;
-  box-shadow: 0 4px 6px -1px #0000001a, 0 2px 4px -2px #0000001a;
 }
 
 .btn-green {

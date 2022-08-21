@@ -27,6 +27,10 @@ const cases: [name: string, content: string, config?: UserConfig][] = [
   ["with-default", "rotate-12"],
   ["with-keyframes", "animate-spin"],
   ["gradients", "from-orange-200 via-purple-400 to-red-600"],
+  [
+    "box-shadow colors",
+    "shadow shadow-lg shadow-none shadow-teal-800 shadow-[#dd2] shadow-[5px_10px_teal]",
+  ],
   ["container", "container md:p-6"],
   [
     "container-with-screen-max",

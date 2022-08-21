@@ -125,9 +125,18 @@ Only the `class` strategy is supported.
 - `marker` and `selection` variants don't apply on children
 - `visited` variant doesn't remove opacity modifiers
 
-### boxShadow and ring utilities
+### BoxShadow and ring utilities
 
-Both rely on box-shadow to works. The current implementation is way simpler than the tailwind one, so both utilities can't be used at the same time and colored box shadows are not supported (yet).
+Both rely on box-shadow to work. The current implementation is way simpler than the Tailwind one, so both utilities can't be used at the same time.
+
+For colored box shadows, you need to use this config format:
+
+```ts
+"md": {
+  value: "0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color)",
+  defaultColor: "rgb(0 0 0 / 0.1)",
+}
+```
 
 ### Flex utility
 

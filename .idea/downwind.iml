@@ -7,6 +7,7 @@
       <excludeFolder url="file://$MODULE_DIR$/bench/source" />
       <excludePattern pattern="bun.lockb" />
       <excludePattern pattern="dist" />
+      <excludePattern pattern="output.css" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

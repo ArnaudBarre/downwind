@@ -27,7 +27,7 @@
     ]
   },
   "dependencies": {
-    "@arnaud-barre/config-loader": "^0.2.1",
+    "@arnaud-barre/config-loader": "^0.3.0",
     "@parcel/css": "^1.12.0"
   },
   "devDependencies": {

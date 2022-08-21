@@ -112,9 +112,9 @@ The implementation would work most of the time, but some shortcuts have been mad
 
 When implemented, [arbitrary properties](https://tailwindcss.com/docs/adding-custom-styles#arbitrary-properties) could be used to bypass the rare edge cases.
 
-### Extended theme
+### Extending theme
 
-Only a shallow merge is done, so extending the colors is a little more verbose.
+Only a shallow merge is done, so extending the color palette is a little more verbose.
 
 ### Dark mode
 
@@ -180,6 +180,10 @@ Simpler implementation that makes divide and divide-reverse independent. Naming 
 ### VerticalAlign utility
 
 Can be customized via theme. Mostly useful to allow arbitrary values without a specific edge case.
+
+### [Line clamp utility](https://tailwindcss.com/docs/plugins#line-clamp)
+
+Included by default
 
 ### Almost exhaustive list of other non-supported features
 

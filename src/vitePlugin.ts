@@ -1,4 +1,4 @@
-import { createHash } from "crypto";
+import { getHash } from "@arnaud-barre/config-loader";
 import { transform as parcelTransform } from "@parcel/css";
 import { ViteDevServer, Plugin, ResolvedConfig, Logger } from "vite";
 
@@ -214,6 +214,3 @@ const vitePlugin: typeof declaration = ({
     },
   ];
 };
-
-const getHash = (input: string) =>
-  createHash("sha256").update(input).digest("hex").slice(0, 8);

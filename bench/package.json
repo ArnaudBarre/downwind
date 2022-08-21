@@ -1,13 +1,13 @@
 {
   "private": true,
   "scripts": {
-    "bench": "./gen.ts && cd fixtures && hyperfine 'cd downwind && vite build' 'cd none && vite build' 'cd tailwindcss && vite build' 'cd unocss && vite build' 'cd windicss && vite build'"
+    "bench": "./gen.ts && cd fixtures && hyperfine --runs 5 'cd downwind && vite build' 'cd none && vite build' 'cd tailwindcss && vite build' 'cd unocss && vite build' 'cd windicss && vite build'"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.7",
-    "tailwindcss": "^3.1.6",
-    "unocss": "^0.45.1",
-    "vite": "^3.0.4",
+    "tailwindcss": "^3.1.8",
+    "unocss": "^0.45.8",
+    "vite": "^3.0.9",
     "vite-plugin-windicss": "^1.8.7",
     "windicss": "^3.5.6"
   }

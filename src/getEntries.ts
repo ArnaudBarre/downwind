@@ -17,7 +17,7 @@ export type RuleMatch = {
 };
 export type RuleEntry = {
   rule: Rule;
-  key: string; // "" for static rules & shortcuts, the theme key for theme rules or the actual values for arbitrary entries
+  key: string; // "" for static rules & shortcuts, the theme key for theme rules or the actual value for arbitrary entries
   direction: string;
   negative: boolean;
   order: number;
@@ -26,7 +26,7 @@ export type RuleEntry = {
 type ArbitraryEntry = {
   rule: AnyThemeRule;
   direction: string;
-  validation: "color" | undefined;
+  validation: "color-only" | undefined;
   order: number;
 };
 
@@ -94,7 +94,9 @@ export const getEntries = (config: ResolvedConfig) => {
       nbArbitraryRules++;
       const current = arbitraryEntries.get(prefix);
       if (current) {
-        validation === "color" ? current.unshift(entry) : current.push(entry);
+        validation === "color-only"
+          ? current.unshift(entry)
+          : current.push(entry);
       } else {
         arbitraryEntries.set(prefix, [entry]);
       }
@@ -140,9 +142,9 @@ export const getEntries = (config: ResolvedConfig) => {
         `Unsupported: ${entries.length} rules are using arbitrary values with the prefix "${prefix}"`,
       );
     }
-    if (entries[0].validation !== "color") {
+    if (entries[0].validation !== "color-only") {
       console.warn(
-        `Unsupported: 2 rules are using arbitrary values with the prefix "${prefix}" but none is scoped to "color"`,
+        `Unsupported: 2 rules are using arbitrary values with the prefix "${prefix}" but none is scoped to "color-only"`,
       );
     }
   }

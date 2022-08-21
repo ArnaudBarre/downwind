@@ -64,12 +64,20 @@ const cases: [name: string, content: string, config?: UserConfig][] = [
     },
   ],
   ["variants", "hover:p-4 md:print:landscape:first:p-8"],
-  ["arbitrary-values", "inset-[-10px] pt-[100px] text-[#ddd] text-[10px]"],
+  [
+    "alpha modifier",
+    "bg-orange-400/20 text-slate-200/[.06] border-black/15",
+    { theme: { extend: { borderOpacity: { "15": "0.15" } } } },
+  ],
+  [
+    "arbitrary-values",
+    "inset-[-10px] pt-[100px] text-[#ddd] text-[#f009] text-[10px]",
+  ],
   ["arbitrary-values-with-spaces", "grid grid-cols-[1fr_500px_2fr]"],
   ["disable-plugin", "p-4 m-4", { corePlugins: { padding: false } }],
   [
     "disable-opacity",
-    "text-slate-200 bg-orange-300 border-blue-100",
+    "text-slate-200 bg-orange-300 border-blue-100 border-black/20",
     { corePlugins: { textOpacity: false, borderOpacity: false } },
   ],
   ["custom-config", "p-4 p-6 m-4", { theme: { padding: { 4: "4px" } } }],

@@ -99,7 +99,11 @@ type ThemeRuleMeta = RuleMeta & {
   /**
    * Use null to disable arbitrary values, undefined to allow any value.
    */
-  arbitrary?: "color" | null;
+  arbitrary?: "color-only" | null;
+  /**
+   * Opacity theme to enable opacity shortcut like text-blue-200/20
+   */
+  alphaModifiers?: Record<string, string | undefined>;
 };
 type SelectorRewrite = (value: string) => string;
 type CSSEntries = CSSEntry[];

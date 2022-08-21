@@ -20,7 +20,7 @@ import {
   initDownwind as initDownwindDeclaration,
   UserConfig,
 } from "./types";
-import { isColor } from "./utils/colors";
+import { formatColor, isColor, parseColor } from "./utils/colors";
 import { forceDownlevelNesting } from "./utils/convertTargets";
 import {
   applyVariants,
@@ -104,26 +104,63 @@ export const initDownwindWithConfig = ({
     }
     let ruleEntry = rulesEntries.get(tokenWithoutVariants);
     if (!ruleEntry) {
-      const start = tokenWithoutVariants.indexOf("[");
-      if (start !== -1 && arbitraryValueRE.test(tokenWithoutVariants)) {
-        const prefix = tokenWithoutVariants.slice(0, start - 1);
-        const entries = arbitraryEntries.get(prefix);
-        if (entries) {
-          const value = tokenWithoutVariants.slice(start + 1, -1);
-          const entry =
-            entries.length > 1
-              ? entries.find((e) =>
-                  e.validation === "color" ? isColor(value) : true,
-                )!
-              : entries[0];
-          ruleEntry = {
-            rule: entry.rule,
-            key: value.replaceAll("_", " "),
-            direction: entry.direction,
-            negative: false,
-            order: entry.order,
-            isArbitrary: true,
-          };
+      let start = tokenWithoutVariants.indexOf("/");
+      // eslint-disable-next-line no-negated-condition
+      if (start !== -1) {
+        const prefix = tokenWithoutVariants.slice(0, start);
+        const entry = rulesEntries.get(prefix);
+        if (entry && (isThemeRule(entry.rule) || isDirectionRule(entry.rule))) {
+          const alphaModifiers = (
+            isThemeRule(entry.rule) ? entry.rule[3] : entry.rule[4]
+          )?.alphaModifiers;
+          if (alphaModifiers) {
+            const alphaModifier = tokenWithoutVariants.slice(start + 1);
+            const alpha = alphaModifier.startsWith("[")
+              ? alphaModifier.endsWith("]")
+                ? alphaModifier.slice(1, -1)
+                : undefined
+              : alphaModifiers[alphaModifier];
+            if (alpha) {
+              const parsed = parseColor(
+                (isThemeRule(entry.rule) ? entry.rule[1] : entry.rule[2])[
+                  entry.key
+                ],
+              );
+              if (parsed && !parsed.alpha) {
+                ruleEntry = {
+                  rule: entry.rule,
+                  key: formatColor({ ...parsed, alpha }),
+                  direction: entry.direction,
+                  negative: false,
+                  order: entry.order,
+                  isArbitrary: true,
+                };
+              }
+            }
+          }
+        }
+      } else {
+        start = tokenWithoutVariants.indexOf("[");
+        if (start !== -1 && arbitraryValueRE.test(tokenWithoutVariants)) {
+          const prefix = tokenWithoutVariants.slice(0, start - 1);
+          const entries = arbitraryEntries.get(prefix);
+          if (entries) {
+            const value = tokenWithoutVariants.slice(start + 1, -1);
+            const entry =
+              entries.length > 1
+                ? entries.find((e) =>
+                    e.validation === "color-only" ? isColor(value) : true,
+                  )!
+                : entries[0];
+            ruleEntry = {
+              rule: entry.rule,
+              key: value.replaceAll("_", " "),
+              direction: entry.direction,
+              negative: false,
+              order: entry.order,
+              isArbitrary: true,
+            };
+          }
         }
       }
     }

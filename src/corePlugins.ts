@@ -446,7 +446,7 @@ export const getCorePlugins = ({
       {
         supportsNegativeValues: true,
         mandatory: true,
-        selectorRewrite: childSelectorRewrite,
+        selectorRewrite: siblingChildrenSelectorRewrite,
       },
     ),
     // Non-compliant version for https://tailwindcss.com/docs/space#reversing-children-order
@@ -458,7 +458,7 @@ export const getCorePlugins = ({
       {
         supportsNegativeValues: true,
         mandatory: true,
-        selectorRewrite: childSelectorRewrite,
+        selectorRewrite: siblingChildrenSelectorRewrite,
       },
     ),
   ],
@@ -472,17 +472,17 @@ export const getCorePlugins = ({
   ),
   divideWidth: [
     themeRule("divide-x", theme.divideWidth, "border-left-width", {
-      selectorRewrite: childSelectorRewrite,
+      selectorRewrite: siblingChildrenSelectorRewrite,
     }),
     themeRule("divide-y", theme.divideWidth, "border-top-width", {
-      selectorRewrite: childSelectorRewrite,
+      selectorRewrite: siblingChildrenSelectorRewrite,
     }),
     // Non-compliant version for https://tailwindcss.com/docs/divide-width#reversing-children-order
     themeRule("divide-reverse-x", theme.divideWidth, "border-right-width", {
-      selectorRewrite: childSelectorRewrite,
+      selectorRewrite: siblingChildrenSelectorRewrite,
     }),
     themeRule("divide-reverse-y", theme.divideWidth, "border-bottom-width", {
-      selectorRewrite: childSelectorRewrite,
+      selectorRewrite: siblingChildrenSelectorRewrite,
     }),
   ],
   divideStyle: enumRule(
@@ -490,7 +490,7 @@ export const getCorePlugins = ({
     "border-style",
     ["solid", "dashed", "dotted", "double", "none"],
     undefined,
-    childSelectorRewrite,
+    siblingChildrenSelectorRewrite,
   ),
   divideColor: themeRule(
     "divide",
@@ -502,13 +502,18 @@ export const getCorePlugins = ({
         variable: "--tw-divide-opacity",
         enabled: corePlugins.divideOpacity !== false,
       }),
-    { selectorRewrite: childSelectorRewrite, arbitrary: "color" },
+    {
+      selectorRewrite: siblingChildrenSelectorRewrite,
+      arbitrary: "color-only",
+      alphaModifiers:
+        corePlugins.divideOpacity === false ? undefined : theme.divideOpacity,
+    },
   ),
   divideOpacity: themeRule(
     "divide",
     theme.divideOpacity,
     "--tw-divide-opacity",
-    { selectorRewrite: childSelectorRewrite },
+    { selectorRewrite: siblingChildrenSelectorRewrite },
   ),
   placeSelf: enumRule("place-self-", "place-self", [
     "auto",
@@ -602,7 +607,12 @@ export const getCorePlugins = ({
         variable: "--tw-border-opacity",
         enabled: corePlugins.borderOpacity !== false,
       }),
-    { filterDefault: true, arbitrary: "color" },
+    {
+      filterDefault: true,
+      arbitrary: "color-only",
+      alphaModifiers:
+        corePlugins.borderOpacity === false ? undefined : theme.borderOpacity,
+    },
   ),
   borderOpacity: themeRule(
     "border-opacity",
@@ -619,7 +629,13 @@ export const getCorePlugins = ({
         variable: "--tw-bg-opacity",
         enabled: corePlugins.backgroundOpacity !== false,
       }),
-    { arbitrary: "color" },
+    {
+      arbitrary: "color-only",
+      alphaModifiers:
+        corePlugins.backgroundOpacity === false
+          ? undefined
+          : theme.backgroundOpacity,
+    },
   ),
   backgroundOpacity: themeRule(
     "bg-opacity",
@@ -630,24 +646,36 @@ export const getCorePlugins = ({
     arbitrary: null,
   }),
   gradientColorStops: [
-    themeRule("from", theme.gradientColorStops, (value) => [
-      ["--tw-gradient-from", value],
-      [
-        "--tw-gradient-stops",
-        `var(--tw-gradient-from), var(--tw-gradient-to, ${transparentTo(
-          value,
-        )})`,
+    themeRule(
+      "from",
+      theme.gradientColorStops,
+      (value) => [
+        ["--tw-gradient-from", value],
+        [
+          "--tw-gradient-stops",
+          `var(--tw-gradient-from), var(--tw-gradient-to, ${transparentTo(
+            value,
+          )})`,
+        ],
       ],
-    ]),
-    themeRule("via", theme.gradientColorStops, (value) => [
-      [
-        "--tw-gradient-stops",
-        `var(--tw-gradient-from), ${value}, var(--tw-gradient-to, ${transparentTo(
-          value,
-        )})`,
+      { alphaModifiers: theme.opacity },
+    ),
+    themeRule(
+      "via",
+      theme.gradientColorStops,
+      (value) => [
+        [
+          "--tw-gradient-stops",
+          `var(--tw-gradient-from), ${value}, var(--tw-gradient-to, ${transparentTo(
+            value,
+          )})`,
+        ],
       ],
-    ]),
-    themeRule("to", theme.gradientColorStops, "--tw-gradient-to"),
+      { alphaModifiers: theme.opacity },
+    ),
+    themeRule("to", theme.gradientColorStops, "--tw-gradient-to", {
+      alphaModifiers: theme.opacity,
+    }),
   ],
   // Non-compliant: Remove deprecated decoration-(slice|clone)
   boxDecorationBreak: enumRule("box-decoration-", "box-decoration-break", [
@@ -687,8 +715,13 @@ export const getCorePlugins = ({
     ["border", "padding", "content"],
     (v) => `${v}-box`,
   ),
-  fill: themeRule("fill", theme.fill, "fill"),
-  stroke: themeRule("stroke", theme.stroke, "stroke", { arbitrary: "color" }),
+  fill: themeRule("fill", theme.fill, "fill", {
+    alphaModifiers: theme.opacity,
+  }),
+  stroke: themeRule("stroke", theme.stroke, "stroke", {
+    arbitrary: "color-only",
+    alphaModifiers: theme.opacity,
+  }),
   strokeWidth: themeRule("stroke", theme.strokeWidth, "stroke-width"),
   objectFit: enumRule("object-", "object-fit", [
     "contain",
@@ -779,7 +812,11 @@ export const getCorePlugins = ({
         variable: "--tw-text-opacity",
         enabled: corePlugins.textOpacity !== false,
       }),
-    { arbitrary: "color" },
+    {
+      arbitrary: "color-only",
+      alphaModifiers:
+        corePlugins.textOpacity === false ? undefined : theme.textOpacity,
+    },
   ),
   textOpacity: themeRule(
     "text-opacity",
@@ -796,7 +833,7 @@ export const getCorePlugins = ({
     "decoration",
     theme.textDecorationColor,
     "text-decoration-color",
-    { arbitrary: "color" },
+    { arbitrary: "color-only", alphaModifiers: theme.opacity },
   ),
   textDecorationStyle: enumRule("decoration-", "text-decoration-style", [
     "solid",
@@ -841,7 +878,13 @@ export const getCorePlugins = ({
         variable: "--tw-placeholder-opacity",
         enabled: corePlugins.placeholderOpacity !== false,
       }),
-    { selectorRewrite: (value) => `${value}::placeholder` },
+    {
+      selectorRewrite: (value) => `${value}::placeholder`,
+      alphaModifiers:
+        corePlugins.placeholderOpacity === false
+          ? undefined
+          : theme.placeholderOpacity,
+    },
   ),
   placeholderOpacity: themeRule(
     "placeholder-opacity",
@@ -849,8 +892,12 @@ export const getCorePlugins = ({
     "--tw-placeholder-opacity",
     { selectorRewrite: (value) => `${value}::placeholder` },
   ),
-  caretColor: themeRule("caret", theme.caretColor, "caret-color"),
-  accentColor: themeRule("accent", theme.accentColor, "accent-color"),
+  caretColor: themeRule("caret", theme.caretColor, "caret-color", {
+    alphaModifiers: theme.opacity,
+  }),
+  accentColor: themeRule("accent", theme.accentColor, "accent-color", {
+    alphaModifiers: theme.opacity,
+  }),
   opacity: themeRule("opacity", theme.opacity, "opacity"),
   backgroundBlendMode: enumRule(
     "bg-blend-",
@@ -883,7 +930,8 @@ export const getCorePlugins = ({
     "outline-offset",
   ),
   outlineColor: themeRule("outline", theme.outlineColor, "outline-color", {
-    arbitrary: "color",
+    arbitrary: "color-only",
+    alphaModifiers: theme.opacity,
   }),
   ringWidth: [
     themeRule(
@@ -914,7 +962,12 @@ export const getCorePlugins = ({
         variable: "--tw-ring-opacity",
         enabled: corePlugins.ringOpacity !== false,
       }),
-    { filterDefault: true, arbitrary: "color" },
+    {
+      filterDefault: true,
+      arbitrary: "color-only",
+      alphaModifiers:
+        corePlugins.ringOpacity === false ? undefined : theme.ringOpacity,
+    },
   ),
   ringOpacity: themeRule(
     "ring-opacity",
@@ -931,7 +984,7 @@ export const getCorePlugins = ({
     "ring-offset",
     theme.ringOffsetColor,
     "--tw-ring-offset-color",
-    { arbitrary: "color" },
+    { arbitrary: "color-only", alphaModifiers: theme.opacity },
   ),
   blur: filterRule("blur", theme.blur),
   brightness: filterRule("brightness", theme.brightness),
@@ -1126,7 +1179,7 @@ const backdropFilterRule = (
   { addDefault: "backdrop-filter" },
 ];
 
-const childSelectorRewrite: SelectorRewrite = (v) => `${v} > * + *`;
+const siblingChildrenSelectorRewrite: SelectorRewrite = (v) => `${v} > * + *`;
 
 const prefixFlex = (v: string) =>
   ["start", "end"].includes(v) ? `flex-${v}` : v;

@@ -106,7 +106,6 @@ export const config: DownwindConfig = {
 
 The implementation would work most of the time, but some shortcuts have been made to keep the implementation lean and fast:
 
-- Arbitrary alpha is not supported (yet)
 - backgroundImage, backgroundPosition and fontFamily are not supported
 - For prefix with collision (divide, border, bg, stroke, text, decoration, outline, ring, ring-offset), if the value doesn't match a CSS color (hex, rgb\[a], hsl\[a]) it's interpreted as the "size" version. Using data types is not supported
 - Underscore are always mapped to space
@@ -157,7 +156,6 @@ Can be customized via theme. Mostly useful to allow arbitrary values without a s
 
 #### Planned
 
-- Alpha modifier (i.e. `text-blue-200/20`) and so arbitrary alpha (`text-blue-200/\[.06]`)
 - [Important modifier](https://tailwindcss.com/docs/configuration#important-modifier) (i.e `!font-bold`)
 - [Arbitrary properties](https://tailwindcss.com/docs/adding-custom-styles#arbitrary-properties)
 - [Arbitrary variants](https://tailwindcss.com/docs/hover-focus-and-other-states#using-arbitrary-variants)

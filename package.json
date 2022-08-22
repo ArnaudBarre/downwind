@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "@arnaud-barre/config-loader": "^0.3.0",
-    "@parcel/css": "^1.12.0"
+    "@parcel/css": "^1.13.0"
   },
   "devDependencies": {
     "@arnaud-barre/eslint-config": "^1.0.11",

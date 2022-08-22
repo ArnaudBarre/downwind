@@ -210,5 +210,4 @@ Included by default
 
 - preTransform utils that requires keyframes or default
 - lighter ring, transform, filter, font-variant-numeric
-- workaround https://github.com/parcel-bundler/parcel-css/issues/246 if not fixed
 - grouping?

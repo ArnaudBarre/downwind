@@ -182,26 +182,29 @@ Simpler implementation that makes divide and divide-reverse independent. Naming 
 
 Can be customized via theme. Mostly useful to allow arbitrary values without a specific edge case.
 
+### Cursor utility
+
+The possible values are not configurable via theme.
+
 ### [Line clamp utility](https://tailwindcss.com/docs/plugins#line-clamp)
 
 Included by default
 
-### Almost exhaustive list of other non-supported features
+### Theme function
 
-#### Planned
+Internally downwind flatten the palette color, so you should use `theme(colors.blue-500)` instead of `theme(colors.blue.500)`
 
-- [Theme function](https://tailwindcss.com/docs/functions-and-directives#theme) is CSS files
-
-#### Out of scope for now
+### Almost exhaustive list of non-supported features
 
 - [prefix](https://tailwindcss.com/docs/configuration#prefix), [separator](https://tailwindcss.com/docs/configuration#separator) and [important](https://tailwindcss.com/docs/configuration#important) configuration options
 - These utils: `transform`, `transform-cpu`, `decoration-slice` `decoration-clone`, `filter`, `backdrop-filter`, `blur-0`
 - Using multiple group and peer variants (i.e. `group-active:group-hover:bg-blue-200` doesn't work)
-- `@tailwind` and `@layer`
+- `@tailwind` and `@layer` directives
+- `@apply` for anything else than utils
+- `!important` at the end of `@apply` statement
 - Using pre-processor like `Sass` or `less`
 - `border-spacing` utility
 - `rtl` variant
 - Object for keyframes definition
 - Multiple keyframes in animation
-- Theme for cursor
 - Letter spacing in fontSize theme

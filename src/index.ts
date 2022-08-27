@@ -22,6 +22,7 @@ import {
 } from "./types";
 import { formatColor, isColor, parseColor } from "./utils/colors";
 import { forceDownlevelNesting } from "./utils/convertTargets";
+import { get } from "./utils/get";
 import {
   applyVariants,
   arbitraryPropertyMatchToLine,
@@ -39,7 +40,8 @@ export { convertTargets } from "./utils/convertTargets";
 
 const arbitraryValueRE = /-\[.+]$/;
 const applyRE = /[{\s]@apply ([^;}\n]+)([;}\n])/g;
-const screenRE = /@screen ([^{]+){/g;
+const screenRE = /screen\(([a-z-]+)\)/g;
+const themeRE = /theme\(([^)]+)\)/g;
 const validSelectorRE = /^[a-z0-9.:/_[\]!#&()-]+$/;
 
 type Match = {
@@ -306,7 +308,7 @@ export const initDownwindWithConfig = ({
         throw new DownwindError(
           `Complex utils like "${token}" are not supported.${
             hasMedia && from === "CSS"
-              ? " You can use @screen for media variants."
+              ? " You can use @media screen(...) for media variants."
               : ""
           }`,
           context,
@@ -342,21 +344,39 @@ export const initDownwindWithConfig = ({
       );
     }
 
-    const hasScreen = content.includes("@screen ");
+    const hasScreen = content.includes("screen(");
     if (hasScreen) {
-      content = content.replace(screenRE, (substring, rawValue: string) => {
-        const value = rawValue.trim();
+      content = content.replace(screenRE, (substring, value: string) => {
         const variant = variantsMap.get(value);
         if (variant === undefined) {
           throw new DownwindError(`No variant matching "${value}"`, substring);
         }
         if (!variant.media) {
           throw new DownwindError(
-            `"${value}" is not a screen variant`,
+            `"${value}" is not a media variant`,
             substring,
           );
         }
-        return `@media ${variant.media} {`;
+        return variant.media;
+      });
+    }
+
+    const hasTheme = content.includes("theme(");
+    if (hasTheme) {
+      content = content.replace(themeRE, (_, path: string) => {
+        if (path.includes(" / ")) {
+          const [key, alpha] = path.split(" / ");
+          const color = get(config.theme, key);
+          const parsed = color ? parseColor(color) : undefined;
+          if (parsed) return formatColor({ ...parsed, alpha });
+        } else {
+          const value = get(config.theme, path);
+          if (value) return value;
+        }
+        throw new DownwindError(
+          `Could not resolve "${path}" in current theme`,
+          `theme(${path})`,
+        );
       });
     }
 

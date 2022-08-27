@@ -2,19 +2,21 @@
 .class1 {
   margin: 1rem;
   padding-left: 1rem; padding-right: 1rem;
+  min-height: 0.625rem;
 }
 
 @media (orientation: landscape) {
   .class2 {
     padding-left: 1rem; padding-right: 1rem;
   margin: 1rem;
+    background: rgb(59 130 246 / 50%);
   }
 }
 
 .class3 {&:hover { padding: 1rem; }
   &:first-child { padding: 2rem; }}
 
-@media (min-width: 768px) {
+@media (min-width: 768px) and (min-height: 25rem) {
   .class4 {
     padding-top: 0.5rem; padding-bottom: 0.5rem; padding-left: 1rem; padding-right: 1rem; font-weight: 600; border-radius: 0.5rem; --tw-shadow-color: rgb(0 0 0 / 0.1); box-shadow: 0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);
     top: 1rem;

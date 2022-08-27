@@ -6,16 +6,8 @@ import {
   ThemeRule,
   ThemeRuleMeta,
 } from "./types";
-import { Variant } from "./variants";
 
 type AnyThemeRule = ThemeRule<any> | DirectionThemeRule;
-export type RuleMatch = {
-  token: string;
-  ruleEntry: RuleEntry;
-  variants: Variant[];
-  screen: string;
-  important: boolean;
-};
 export type RuleEntry = {
   rule: Rule;
   key: string; // "" for static rules & shortcuts, the theme key for theme rules or the actual value for arbitrary entries

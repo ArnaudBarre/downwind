@@ -11,7 +11,6 @@ import {
   isShortcut,
   isThemeRule,
   RuleEntry,
-  RuleMatch,
 } from "./getEntries";
 import { resolveConfig } from "./resolveConfig";
 import {
@@ -25,6 +24,7 @@ import { formatColor, isColor, parseColor } from "./utils/colors";
 import { forceDownlevelNesting } from "./utils/convertTargets";
 import {
   applyVariants,
+  arbitraryPropertyMatchToLine,
   cssEntriesToLines,
   escapeSelector,
   printBlock,
@@ -40,7 +40,17 @@ export { convertTargets } from "./utils/convertTargets";
 const arbitraryValueRE = /-\[.+]$/;
 const applyRE = /[{\s]@apply ([^;}\n]+)([;}\n])/g;
 const screenRE = /@screen ([^{]+){/g;
-const validSelectorRE = /^[a-z0-9.:/_[\]!#-]+$/;
+const validSelectorRE = /^[a-z0-9.:/_[\]!#&()-]+$/;
+
+type Match = {
+  token: string;
+  variants: Variant[];
+  screen: string;
+  important: boolean;
+} & (
+  | { type: "Rule"; ruleEntry: RuleEntry }
+  | { type: "Arbitrary property"; content: string }
+);
 
 export const initDownwind: typeof initDownwindDeclaration = async (opts) =>
   initDownwindWithConfig({
@@ -63,50 +73,91 @@ export const initDownwindWithConfig = ({
 
   const usedKeyframes = new Set<string>();
   const usedDefaults = new Set<Default>();
-  const allMatches = new Map<string, RuleMatch[]>([
-    ["", [] as RuleMatch[]],
-    ...Object.keys(config.theme.screens).map(
-      (screen): [string, RuleMatch[]] => [screen, []],
-    ),
+  const allMatches = new Map<string, Match[]>([
+    ["", [] as Match[]],
+    ...Object.keys(config.theme.screens).map((screen): [string, Match[]] => [
+      screen,
+      [],
+    ]),
   ]);
   const allClasses = new Set<string>();
   const blockList = new Set<string>();
-  const addMatch = (match: RuleMatch): boolean /* isNew */ => {
+  const addMatch = (match: Match): boolean /* isNew */ => {
     if (allClasses.has(match.token)) return false;
     allClasses.add(match.token);
     allMatches.get(match.screen)!.push(match);
-    const meta = getRuleMeta(match.ruleEntry.rule);
-    if (meta?.addDefault) usedDefaults.add(meta.addDefault);
-    if (meta?.addKeyframes) {
-      const animationProperty = config.theme.animation[match.ruleEntry.key]!;
-      const name = animationProperty.slice(0, animationProperty.indexOf(" "));
-      if (config.theme.keyframes[name]) usedKeyframes.add(name);
+    if (match.type === "Rule") {
+      const meta = getRuleMeta(match.ruleEntry.rule);
+      if (meta?.addDefault) usedDefaults.add(meta.addDefault);
+      if (meta?.addKeyframes) {
+        const animationProperty = config.theme.animation[match.ruleEntry.key]!;
+        const name = animationProperty.slice(0, animationProperty.indexOf(" "));
+        if (config.theme.keyframes[name]) usedKeyframes.add(name);
+      }
     }
     return true;
   };
 
-  const parseCache = new Map<string, RuleMatch>();
-  const parse = (token: string): RuleMatch | undefined => {
+  const parseCache = new Map<string, Match>();
+  const parse = (token: string): Match | undefined => {
     if (blockList.has(token)) return;
     const cachedValue = parseCache.get(token);
     if (cachedValue) return cachedValue;
 
     const important = token.startsWith("!");
     let tokenWithoutVariants = important ? token.slice(1) : token;
-    let index: number;
     let screen = "";
     const variants: Variant[] = [];
-    while ((index = tokenWithoutVariants.indexOf(":")) !== -1) {
+    let isArbitraryProperty = false;
+
+    const extractVariant = () => {
+      if (tokenWithoutVariants.startsWith("[")) {
+        if (tokenWithoutVariants.endsWith("]")) {
+          isArbitraryProperty = true;
+          return "NO_VARIANT" as const;
+        }
+        const index = tokenWithoutVariants.indexOf("]:");
+        if (index === -1) return;
+        const content = tokenWithoutVariants.slice(1, index);
+        if (!content.includes("&")) return;
+        const arbitraryVariant: Variant = {
+          selectorRewrite: (v) => content.replace("&", v),
+        };
+        tokenWithoutVariants = tokenWithoutVariants.slice(index + 2);
+        return arbitraryVariant;
+      }
+      const index = tokenWithoutVariants.indexOf(":");
+      if (index === -1) return "NO_VARIANT";
       const prefix = tokenWithoutVariants.slice(0, index);
-      const variant = variantsMap.get(prefix);
-      if (!variant) {
+      tokenWithoutVariants = tokenWithoutVariants.slice(index + 1);
+      return variantsMap.get(prefix);
+    };
+
+    let variant = extractVariant();
+    while (variant !== "NO_VARIANT") {
+      if (!variant || (screen && variant.screen)) {
         blockList.add(token);
         return;
       }
       if (variant.screen) screen = variant.screen;
       else variants.push(variant);
-      tokenWithoutVariants = tokenWithoutVariants.slice(index + 1);
+      variant = extractVariant();
     }
+
+    // Issue in TS control flow
+    if (isArbitraryProperty as boolean) {
+      const result: Match = {
+        token,
+        variants,
+        screen,
+        important,
+        type: "Arbitrary property",
+        content: tokenWithoutVariants.slice(1, -1),
+      };
+      parseCache.set(token, result);
+      return result;
+    }
+
     let ruleEntry = rulesEntries.get(tokenWithoutVariants);
     if (!ruleEntry) {
       let start = tokenWithoutVariants.indexOf("/");
@@ -174,7 +225,15 @@ export const initDownwindWithConfig = ({
       blockList.add(token);
       return;
     }
-    const result: RuleMatch = { token, ruleEntry, variants, screen, important };
+
+    const result: Match = {
+      token,
+      variants,
+      screen,
+      important,
+      type: "Rule",
+      ruleEntry,
+    };
     parseCache.set(token, result);
     return result;
   };
@@ -221,7 +280,7 @@ export const initDownwindWithConfig = ({
     context: string;
     from: "CSS" | "SHORTCUT";
   }) => {
-    const cssLines = [];
+    const cssLines: string[] = [];
     let invalidateUtils = false;
     for (const token of tokens.split(" ")) {
       if (!token) continue;
@@ -229,9 +288,13 @@ export const initDownwindWithConfig = ({
       if (!match) {
         throw new DownwindError(`No rule matching "${token}"`, context);
       }
+      if (match.type === "Arbitrary property") {
+        cssLines.push(arbitraryPropertyMatchToLine(match));
+        continue;
+      }
       const meta = getRuleMeta(match.ruleEntry.rule);
       let hasMedia = !!match.screen;
-      const selector = applyVariants("&", match, meta, () => {
+      const selector = applyVariants("&", match.variants, meta, () => {
         hasMedia = true;
       });
       if (
@@ -373,10 +436,11 @@ export const initDownwindWithConfig = ({
             utilsOutput += `${declaration}\n`;
           }
         }
-        for (const match of matches.sort(
-          (a, b) => a.ruleEntry.order - b.ruleEntry.order,
-        )) {
-          const meta = getRuleMeta(match.ruleEntry.rule);
+        for (const match of matches.sort((a, b) => getOrder(a) - getOrder(b))) {
+          const meta =
+            match.type === "Rule"
+              ? getRuleMeta(match.ruleEntry.rule)
+              : undefined;
           if (meta?.addContainer) {
             if (!screen) {
               useContainer = true;
@@ -386,7 +450,7 @@ export const initDownwindWithConfig = ({
           }
           let mediaWrapper: string | undefined;
           let selector = escapeSelector(match.token);
-          selector = applyVariants(selector, match, meta, (media) => {
+          selector = applyVariants(selector, match.variants, meta, (media) => {
             mediaWrapper = mediaWrapper
               ? `${media} and ${mediaWrapper}`
               : media;
@@ -396,7 +460,9 @@ export const initDownwindWithConfig = ({
           }
           utilsOutput += printBlock(
             `.${selector}`,
-            toCSS(match.ruleEntry, match.important),
+            match.type === "Rule"
+              ? toCSS(match.ruleEntry, match.important)
+              : [arbitraryPropertyMatchToLine(match)],
             mediaWrapper ? `${screenIndent}  ` : screenIndent,
           );
           if (mediaWrapper) utilsOutput += `${screenIndent}}\n`;
@@ -447,6 +513,9 @@ export const initDownwindWithConfig = ({
     },
   };
 };
+
+const getOrder = (match: Match) =>
+  match.type === "Rule" ? match.ruleEntry.order : Infinity;
 
 export const staticRules: typeof staticRulesDeclaration = (rules) =>
   Object.entries(rules).map(([key, value]) => [key, Object.entries(value)]);

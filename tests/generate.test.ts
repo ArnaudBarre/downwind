@@ -79,6 +79,8 @@ const cases: [name: string, content: string, config?: UserConfig][] = [
     "inset-[-10px] pt-[100px] text-[#ddd] text-[#f009] text-[10px]",
   ],
   ["arbitrary-values-with-spaces", "grid grid-cols-[1fr_500px_2fr]"],
+  ["arbitrary-properties", "[mask-type:luminance] hover:[mask-type:alpha]"],
+  ["arbitrary-variants", "[&:nth-child(3)]:underline"],
   ["disable-rule", "p-4 m-4", { coreRules: { padding: false } }],
   [
     "disable-opacity",

@@ -1,9 +1,9 @@
-import type { RuleMatch } from "../getEntries";
 import type { ResolvedConfig } from "../resolveConfig";
 import type { Container, CSSEntries, RuleMeta } from "../types";
+import { Variant } from "../variants";
 
 export const escapeSelector = (selector: string) =>
-  selector.replace(/[.:/[\]!#]/g, (c) => `\\${c}`);
+  selector.replace(/[.:/[\]!#&()]/g, (c) => `\\${c}`);
 
 export const printBlock = (selector: string, lines: string[], indent = "") => {
   let output = `${indent}${selector} {\n`;
@@ -49,14 +49,19 @@ export const cssEntriesToLines = (entries: CSSEntries, important: boolean) =>
     (entry) => `${entry[0]}: ${entry[1]}${important ? " !important" : ""};`,
   );
 
+export const arbitraryPropertyMatchToLine = (match: {
+  content: string;
+  important: boolean;
+}) => `${match.content}${match.important ? " !important" : ""}`;
+
 export const applyVariants = (
   selector: string,
-  match: RuleMatch,
+  variants: Variant[],
   meta: RuleMeta | undefined,
   mediaScreen: (media: string) => void,
 ) => {
-  for (let i = match.variants.length - 1; i >= 0; i--) {
-    const variant = match.variants[i];
+  for (let i = variants.length - 1; i >= 0; i--) {
+    const variant = variants[i];
     if (variant.selectorRewrite) {
       selector = variant.selectorRewrite(selector);
     } else {

@@ -106,11 +106,12 @@ export const config: DownwindConfig = {
 
 The implementation would work most of the time, but some shortcuts have been made to keep the implementation lean and fast:
 
-- backgroundImage, backgroundPosition and fontFamily are not supported
+- `backgroundImage`, `backgroundPosition` and `fontFamily` are not supported
 - For prefix with collision (divide, border, bg, stroke, text, decoration, outline, ring, ring-offset), if the value doesn't match a CSS color (hex, rgb\[a], hsl\[a]) it's interpreted as the "size" version. Using data types is not supported
 - Underscore are always mapped to space
+- The theme function is not supported
 
-When implemented, [arbitrary properties](https://tailwindcss.com/docs/adding-custom-styles#arbitrary-properties) could be used to bypass the rare edge cases.
+[Arbitrary properties](https://tailwindcss.com/docs/adding-custom-styles#arbitrary-properties) can be used to bypass the rare edge cases.
 
 ### Extending theme
 
@@ -189,8 +190,6 @@ Included by default
 
 #### Planned
 
-- [Arbitrary properties](https://tailwindcss.com/docs/adding-custom-styles#arbitrary-properties)
-- [Arbitrary variants](https://tailwindcss.com/docs/hover-focus-and-other-states#using-arbitrary-variants)
 - [Theme function](https://tailwindcss.com/docs/functions-and-directives#theme) is CSS files
 
 #### Out of scope for now

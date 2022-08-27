@@ -315,6 +315,19 @@
   grid-template-columns: 1fr 500px 2fr;
 }
 
+/* arbitrary-properties: [mask-type:luminance] hover:[mask-type:alpha] */
+.\[mask-type\:luminance\] {
+  mask-type:luminance
+}
+.hover\:\[mask-type\:alpha\]:hover {
+  mask-type:alpha
+}
+
+/* arbitrary-variants: [&:nth-child(3)]:underline */
+.\[\&\:nth-child\(3\)\]\:underline:nth-child(3) {
+  text-decoration-line: underline;
+}
+
 /* disable-rule: p-4 m-4 */
 .m-4 {
   margin: 1rem;

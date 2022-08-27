@@ -109,9 +109,10 @@ The implementation would work most of the time, but some shortcuts have been mad
 - `backgroundImage`, `backgroundPosition` and `fontFamily` are not supported
 - For prefix with collision (divide, border, bg, stroke, text, decoration, outline, ring, ring-offset), if the value doesn't match a CSS color (hex, rgb\[a], hsl\[a]) it's interpreted as the "size" version. Using data types is not supported
 - Underscore are always mapped to space
+- Values with quotes are not possible (by design for fast scanning)
 - The theme function is not supported
 
-[Arbitrary properties](https://tailwindcss.com/docs/adding-custom-styles#arbitrary-properties) can be used to bypass the rare edge cases.
+[Arbitrary properties](https://tailwindcss.com/docs/adding-custom-styles#arbitrary-properties) can be used to bypass some edge cases.
 
 ### Extending theme
 

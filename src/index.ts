@@ -43,6 +43,7 @@ const applyRE = /[{\s]@apply ([^;}\n]+)([;}\n])/g;
 const screenRE = /screen\(([a-z-]+)\)/g;
 const themeRE = /theme\(([^)]+)\)/g;
 const validSelectorRE = /^[a-z0-9.:/_[\]!#&()-]+$/;
+const arbitraryPropertyRE = /^\[[^[\]:]+:[^[\]:]+]$/;
 
 type Match = {
   token: string;
@@ -114,7 +115,7 @@ export const initDownwindWithConfig = ({
 
     const extractVariant = () => {
       if (tokenWithoutVariants.startsWith("[")) {
-        if (tokenWithoutVariants.endsWith("]")) {
+        if (arbitraryPropertyRE.test(tokenWithoutVariants)) {
           isArbitraryProperty = true;
           return "NO_VARIANT" as const;
         }

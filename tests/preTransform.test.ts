@@ -1,7 +1,9 @@
 import { snapshotTest } from "./test-utils";
 
-snapshotTest("preTransform", (downwind) =>
-  downwind.preTransform(`
+snapshotTest(
+  "preTransform",
+  (downwind) =>
+    downwind.preTransform(`
 .class1 {
   @apply m-4 px-4;
 }
@@ -20,5 +22,5 @@ snapshotTest("preTransform", (downwind) =>
     @apply top-4 last:space-y-10
   }
 }
-`),
+`).content,
 );

@@ -195,7 +195,8 @@ Included by default
 
 #### Out of scope for now
 
-- These utils: transform, transform-cpu, decoration-slice decoration-clone, filter, backdrop-filter, blur-0
+- [prefix](https://tailwindcss.com/docs/configuration#prefix), [separator](https://tailwindcss.com/docs/configuration#separator) and [important](https://tailwindcss.com/docs/configuration#important) configuration options
+- These utils: `transform`, `transform-cpu`, `decoration-slice` `decoration-clone`, `filter`, `backdrop-filter`, `blur-0`
 - Using multiple group and peer variants (i.e. `group-active:group-hover:bg-blue-200` doesn't work)
 - `@tailwind` and `@layer`
 - Using pre-processor like `Sass` or `less`
@@ -205,9 +206,3 @@ Included by default
 - Multiple keyframes in animation
 - Theme for cursor
 - Letter spacing in fontSize theme
-
-## TODO
-
-- preTransform utils that requires keyframes or default
-- lighter ring, transform, filter, font-variant-numeric
-- grouping?

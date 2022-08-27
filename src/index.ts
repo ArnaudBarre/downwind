@@ -60,8 +60,9 @@ export const initDownwindWithConfig = ({
   const defaults = getDefaults(config);
   const variantsMap = getVariants(config);
   const { rulesEntries, arbitraryEntries } = getEntries(config);
-  const blockList = new Set<string>();
 
+  const usedKeyframes = new Set<string>();
+  const usedDefaults = new Set<Default>();
   const allMatches = new Map<string, RuleMatch[]>([
     ["", [] as RuleMatch[]],
     ...Object.keys(config.theme.screens).map(
@@ -69,10 +70,18 @@ export const initDownwindWithConfig = ({
     ),
   ]);
   const allClasses = new Set<string>();
+  const blockList = new Set<string>();
   const addMatch = (match: RuleMatch): boolean /* isNew */ => {
     if (allClasses.has(match.token)) return false;
     allClasses.add(match.token);
     allMatches.get(match.screen)!.push(match);
+    const meta = getRuleMeta(match.ruleEntry.rule);
+    if (meta?.addDefault) usedDefaults.add(meta.addDefault);
+    if (meta?.addKeyframes) {
+      const animationProperty = config.theme.animation[match.ruleEntry.key]!;
+      const name = animationProperty.slice(0, animationProperty.indexOf(" "));
+      if (config.theme.keyframes[name]) usedKeyframes.add(name);
+    }
     return true;
   };
 
@@ -178,7 +187,7 @@ export const initDownwindWithConfig = ({
         tokens: rule[1],
         context: `"${rule[0]}": "${rule[1]}"`,
         from: "SHORTCUT",
-      });
+      }).cssLines;
     }
 
     const cssEntries: CSSEntries = isThemeRule(rule)
@@ -211,8 +220,9 @@ export const initDownwindWithConfig = ({
     tokens: string;
     context: string;
     from: "CSS" | "SHORTCUT";
-  }): string[] => {
-    const output = [];
+  }) => {
+    const cssLines = [];
+    let invalidateUtils = false;
     for (const token of tokens.split(" ")) {
       if (!token) continue;
       const match = parse(token);
@@ -227,8 +237,7 @@ export const initDownwindWithConfig = ({
       if (
         hasMedia ||
         !selector.startsWith("&") ||
-        meta?.addDefault || // TODO: Maybe it works if added in main
-        meta?.addKeyframes || // TODO: Maybe it works if added in main
+        meta?.addKeyframes ||
         meta?.addContainer
       ) {
         throw new DownwindError(
@@ -240,26 +249,30 @@ export const initDownwindWithConfig = ({
           context,
         );
       }
+      if (meta?.addDefault && !usedDefaults.has(meta.addDefault)) {
+        usedDefaults.add(meta.addDefault);
+        invalidateUtils = true;
+      }
       const tokenOutput = toCSS(match.ruleEntry, match.important).join(" ");
-      output.push(
+      cssLines.push(
         selector === "&" ? tokenOutput : `${selector} { ${tokenOutput} }`,
       );
     }
-    return output;
+    return { cssLines, invalidateUtils };
   };
 
   const preTransform = (content: string) => {
+    let invalidateUtils = false;
     const hasApply = content.includes("@apply ");
     if (hasApply) {
       content = content.replace(
         applyRE,
         (substring, tokens: string, endChar: string) => {
-          const output = apply({
-            tokens,
-            context: substring,
-            from: "CSS",
-          });
-          return `${substring[0]}${output.join("\n  ")}${
+          const result = apply({ tokens, context: substring, from: "CSS" });
+          if (result.invalidateUtils && !invalidateUtils) {
+            invalidateUtils = true;
+          }
+          return `${substring[0]}${result.cssLines.join("\n  ")}${
             endChar === ";" ? "" : endChar
           }`;
         },
@@ -284,7 +297,7 @@ export const initDownwindWithConfig = ({
       });
     }
 
-    return content;
+    return { content, invalidateUtils };
   };
 
   for (const token of config.safelist) {
@@ -302,15 +315,19 @@ export const initDownwindWithConfig = ({
       path: string,
       opts?: { analyzeDependencies: AnalyzeDependencies },
     ) => {
+      const { content, invalidateUtils } = preTransform(
+        readFileSync(path, "utf-8"),
+      );
       const result = transform({
         filename: path,
-        code: Buffer.from(preTransform(readFileSync(path, "utf-8"))),
+        code: Buffer.from(content),
         analyzeDependencies: opts?.analyzeDependencies,
         cssModules: path.endsWith(".module.css"),
         drafts: { nesting: true },
         targets,
       });
       return {
+        invalidateUtils,
         code: result.code.toString(),
         exports: result.exports as CSSModuleExports | undefined,
         dependencies: result.dependencies as AnalyzeDependencies extends true
@@ -337,9 +354,6 @@ export const initDownwindWithConfig = ({
     },
     generate: () => {
       let useContainer = false;
-      const keyframes = new Set<string>();
-      const usedDefaults = new Set<Default>();
-      let output = "";
       let utilsOutput = "";
       allMatches.forEach((matches, screen) => {
         if (!matches.length && !useContainer) return;
@@ -370,16 +384,6 @@ export const initDownwindWithConfig = ({
             }
             continue;
           }
-          if (meta?.addDefault) usedDefaults.add(meta.addDefault);
-          if (meta?.addKeyframes) {
-            const animationProperty =
-              config.theme.animation[match.ruleEntry.key]!;
-            const name = animationProperty.slice(
-              0,
-              animationProperty.indexOf(" "),
-            );
-            if (config.theme.keyframes[name]) keyframes.add(name);
-          }
           let mediaWrapper: string | undefined;
           let selector = escapeSelector(match.token);
           selector = applyVariants(selector, match, meta, (media) => {
@@ -400,24 +404,25 @@ export const initDownwindWithConfig = ({
         if (screen) utilsOutput += "}\n";
       });
 
+      let header = "";
       if (usedDefaults.size) {
-        output += printBlock(
+        header += printBlock(
           "*, ::before, ::after, ::backdrop",
           cssEntriesToLines(
             [...usedDefaults].flatMap((d) => defaults[d]),
             false,
           ),
         );
-        output += "\n";
+        header += "\n";
       }
-      keyframes.forEach((name) => {
-        output += `@keyframes ${name} {\n  ${config.theme.keyframes[
+      usedKeyframes.forEach((name) => {
+        header += `@keyframes ${name} {\n  ${config.theme.keyframes[
           name
         ]!}\n}\n`;
       });
-      if (keyframes.size) output += "\n";
+      if (usedKeyframes.size) header += "\n";
 
-      return output + utilsOutput;
+      return header + utilsOutput;
     },
     codegen: ({ omitContent }: { omitContent: boolean }) => {
       if (omitContent) {

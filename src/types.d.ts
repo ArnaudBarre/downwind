@@ -26,11 +26,15 @@ export declare const initDownwind: (opts?: {
 
 export type Downwind = {
   getBase: () => string;
-  preTransform: (content: string) => string;
+  preTransform: (content: string) => {
+    invalidateUtils: boolean;
+    content: string;
+  };
   transform: <AnalyzeDependencies extends boolean = false>(
     path: string,
     opts?: { analyzeDependencies: AnalyzeDependencies },
   ) => {
+    invalidateUtils: boolean;
     code: string;
     exports: CSSModuleExports | undefined;
     dependencies: AnalyzeDependencies extends true ? Dependency[] : never;

@@ -110,7 +110,11 @@ const vitePlugin: typeof declaration = ({
         }
       },
       transform(code, id) {
-        if (id.endsWith(".css")) return { code: downwind.preTransform(code) };
+        if (id.endsWith(".css")) {
+          const result = downwind.preTransform(code);
+          if (result.invalidateUtils && lastServed) sendUpdate();
+          return { code: result.content };
+        }
         if (!id.includes("/node_modules/")) {
           const hasNew = downwind.scan(id, code);
           if (hasNew && lastServed) sendUpdate();
@@ -144,7 +148,7 @@ const vitePlugin: typeof declaration = ({
       },
       transform(code, id) {
         if (cssRE.test(id)) {
-          return { code: downwind.preTransform(code), map: null };
+          return { code: downwind.preTransform(code).content, map: null };
         }
         if (!id.includes("/node_modules/")) downwind.scan(id, code);
       },

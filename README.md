@@ -1,4 +1,4 @@
-# downwind
+# downwind [![npm](https://img.shields.io/npm/v/@arnaud-barre/downwind)](https://www.npmjs.com/package/@arnaud-barre/downwind)
 
 A PostCSS-less implementation of Tailwind based on [@parcel/css](https://github.com/parcel-bundler/parcel-css) with an API optimized for dev server like [Vite](https://github.com/vitejs/vite).
 

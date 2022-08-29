@@ -42,7 +42,7 @@ const arbitraryValueRE = /-\[.+]$/;
 const applyRE = /[{\s]@apply ([^;}\n]+)([;}\n])/g;
 const screenRE = /screen\(([a-z-]+)\)/g;
 const themeRE = /theme\(([^)]+)\)/g;
-const validSelectorRE = /^[a-z0-9.:/_[\]!#&()-]+$/;
+const validSelectorRE = /^[a-z0-9.:/_[\]!#%&()-]+$/;
 const arbitraryPropertyRE = /^\[[^[\]:]+:[^[\]:]+]$/;
 
 type Match = {

@@ -286,12 +286,15 @@
   border-width: 0px !important;
 }
 
-/* arbitrary-values: inset-[-10px] pt-[100px] text-[#ddd] text-[#f009] text-[10px] */
+/* arbitrary-values: inset-[-10px] pt-[100px] w-[45%] text-[#ddd] text-[#f009] text-[10px] */
 .inset-\[-10px\] {
   top: -10px;
   right: -10px;
   bottom: -10px;
   left: -10px;
+}
+.w-\[45\%\] {
+  width: 45%;
 }
 .pt-\[100px\] {
   padding-top: 100px;

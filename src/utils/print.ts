@@ -3,7 +3,7 @@ import type { Container, CSSEntries, RuleMeta } from "../types";
 import { Variant } from "../variants";
 
 export const escapeSelector = (selector: string) =>
-  selector.replace(/[.:/[\]!#&()]/g, (c) => `\\${c}`);
+  selector.replace(/[.:/[\]!#%&()]/g, (c) => `\\${c}`);
 
 export const printBlock = (selector: string, lines: string[], indent = "") => {
   let output = `${indent}${selector} {\n`;

@@ -19,7 +19,11 @@ const vitePlugin: typeof declaration = ({
   // Common
   const configResolved = async (config: ResolvedConfig) => {
     targets = convertTargets(config.build.cssTarget);
-    downwind = await initDownwind({ targets, scannedExtension });
+    downwind = await initDownwind({
+      targets,
+      scannedExtension,
+      root: config.root,
+    });
   };
 
   let hasBase = false;

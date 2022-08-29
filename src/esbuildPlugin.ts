@@ -11,7 +11,11 @@ const esbuildPlugin: typeof declaration = ({ scannedExtension } = {}) => ({
   name: "downwind",
   setup: async (build) => {
     const targets = convertTargets(build.initialOptions.target);
-    const downwind = await initDownwind({ targets, scannedExtension });
+    const downwind = await initDownwind({
+      targets,
+      scannedExtension,
+      root: build.initialOptions.absWorkingDir,
+    });
     const cssModulesMap: Record<string, string> = {};
     let hasBase = false;
     let hasUtils = false;

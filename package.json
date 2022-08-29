@@ -5,11 +5,11 @@
   "author": "Arnaud Barré (https://github.com/ArnaudBarre)",
   "license": "MIT",
   "scripts": {
+    "postinstall": "cd playground/vite && bun install",
     "dev": "scripts/bundle.ts --dev",
     "build": "scripts/bundle.ts",
     "test": "tests/run-tests.ts --update-snapshots",
     "test-ci": "tests/run-tests.ts",
-    "tsc": "tsc",
     "lint": "bun run lint-ci --fix --cache",
     "lint-ci": "eslint src scripts tests --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "prettier": "bun run prettier-ci --write",

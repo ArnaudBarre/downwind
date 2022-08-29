@@ -1,4 +1,5 @@
 import { readFileSync } from "fs";
+import { relative } from "node:path";
 import { loadConfig } from "@arnaud-barre/config-loader";
 import { CSSModuleExports, Dependency, transform } from "@parcel/css";
 
@@ -66,6 +67,7 @@ export const initDownwindWithConfig = ({
   config: userConfig,
   targets = forceDownlevelNesting,
   scannedExtension = "tsx",
+  root = process.cwd(),
 }: {
   config: UserConfig | undefined;
 } & Parameters<typeof initDownwindDeclaration>[0]) => {
@@ -403,7 +405,7 @@ export const initDownwindWithConfig = ({
         readFileSync(path, "utf-8"),
       );
       const result = transform({
-        filename: path,
+        filename: relative(root, path),
         code: Buffer.from(content),
         analyzeDependencies: opts?.analyzeDependencies,
         cssModules: path.endsWith(".module.css"),

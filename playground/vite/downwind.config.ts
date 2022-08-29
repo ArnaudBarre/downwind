@@ -1,4 +1,4 @@
-import { DownwindConfig } from "../../dist";
+import type { DownwindConfig } from "../../src/types";
 
 export const config: DownwindConfig = {
   shortcuts: {

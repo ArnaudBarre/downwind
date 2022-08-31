@@ -74,8 +74,8 @@ export const getCoreRules = ({
       (d) =>
         ({
           all: ["top", "right", "bottom", "left"],
-          x: ["top", "bottom"],
-          y: ["left", "right"],
+          x: ["left", "right"],
+          y: ["top", "bottom"],
           tr: ["top", "right"],
           br: ["bottom", "right"],
           bl: ["bottom", "left"],

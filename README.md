@@ -16,7 +16,7 @@ export default defineConfig({ plugins: [downwind()] });
 
 Add `import "virtual:@downwind/base.css";` and `import "virtual:@downwind/utils.css";` to your code.
 
-To use nesting, install [postcss-nested](https://github.com/postcss/postcss-nested) and it to the postcss config:
+To use nesting, install [postcss-nested](https://github.com/postcss/postcss-nested) and add it to the postcss config:
 
 ```js
 // postcss.config.js
@@ -209,3 +209,4 @@ Internally downwind flatten the palette color, so you should use `theme(colors.b
 - Object for keyframes definition
 - Multiple keyframes in animation
 - Letter spacing in fontSize theme
+- Regular expressions in safelist

@@ -174,6 +174,10 @@ For colored box shadows, you need to use this config format:
 
 Can be overridden by margin utility and doesn't work for flex-reverse.
 
+### Inset utility
+
+Angle utility are available ex: `insert-tr-2`
+
 ### Divide utility
 
 Simpler implementation that makes divide and divide-reverse independent. Naming is updated to avoid an implementation edge case.

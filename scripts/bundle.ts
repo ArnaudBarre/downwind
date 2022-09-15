@@ -82,7 +82,7 @@ Promise.all([
         license,
         repository: "ArnaudBarre/downwind",
         bin: { downwind: "cli.js" },
-        keywords: ["tailwind", "@parcel/css"],
+        keywords: ["tailwind", "lightningcss"],
         dependencies,
       },
       null,

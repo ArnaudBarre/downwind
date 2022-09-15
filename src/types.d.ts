@@ -1,5 +1,5 @@
 import { DefineConfig } from "@arnaud-barre/config-loader";
-import { CSSModuleExports, Dependency, TransformOptions } from "@parcel/css";
+import { CSSModuleExports, Dependency, TransformOptions } from "lightningcss";
 
 export declare const VERSION: string;
 
@@ -18,9 +18,9 @@ export type DownwindConfig = DefineConfig<UserConfig>;
 /**
  * API
  */
-type ParcelTargets = NonNullable<TransformOptions["targets"]>;
+type LightningCSSTargets = NonNullable<TransformOptions["targets"]>;
 export declare const initDownwind: (opts?: {
-  targets?: ParcelTargets;
+  targets?: LightningCSSTargets;
   scannedExtension?: string;
   root?: string;
 }) => Promise<Downwind>;
@@ -52,7 +52,7 @@ export declare const cssModuleToJS: (cssModule: CSSModuleExports) => string;
 
 export declare const convertTargets: (
   esbuildTarget: string | string[] | undefined | false,
-) => ParcelTargets;
+) => LightningCSSTargets;
 
 export declare const staticRules: (
   rules: Record<string, Record<string, string>>,

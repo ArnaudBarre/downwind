@@ -1,9 +1,9 @@
 import { getHash } from "@arnaud-barre/config-loader";
-import { transform as parcelTransform } from "@parcel/css";
+import { transform as lightningCSSTransform } from "lightningcss";
 import { ViteDevServer, Plugin, ResolvedConfig, Logger } from "vite";
 
 import { initDownwind, convertTargets } from "./index";
-import { Downwind, ParcelTargets } from "./types";
+import { Downwind, LightningCSSTargets } from "./types";
 import { downwind as declaration } from "./vitePlugin.d";
 
 const cssRE = /\.css(\?.+)?$/;
@@ -14,7 +14,7 @@ const vitePlugin: typeof declaration = ({
   scannedExtension,
 } = {}): Plugin[] => {
   let downwind: Downwind;
-  let targets: ParcelTargets | undefined;
+  let targets: LightningCSSTargets | undefined;
 
   // Common
   const configResolved = async (config: ResolvedConfig) => {
@@ -203,7 +203,7 @@ const vitePlugin: typeof declaration = ({
             const newSource = chunk.source
               .replace(hashPlaceholder!, "")
               .replace(placeholder, downwind.generate());
-            chunk.source = parcelTransform({
+            chunk.source = lightningCSSTransform({
               filename: path,
               code: Buffer.from(newSource),
               drafts: { nesting: true },

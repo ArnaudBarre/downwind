@@ -1,7 +1,7 @@
 import { readFileSync } from "fs";
 import { relative } from "node:path";
 import { loadConfig } from "@arnaud-barre/config-loader";
-import { CSSModuleExports, Dependency, transform } from "@parcel/css";
+import { CSSModuleExports, Dependency, transform } from "lightningcss";
 
 import { getBase } from "./base/getBase";
 import { getDefaults } from "./getDefaults";

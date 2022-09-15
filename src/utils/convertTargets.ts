@@ -1,12 +1,12 @@
 import type {
   convertTargets as convertTargetsDeclaration,
-  ParcelTargets,
+  LightningCSSTargets,
 } from "../types";
 
 // Convert https://esbuild.github.io/api/#target
-// To https://github.com/parcel-bundler/parcel-css/blob/master/node/targets.d.ts
+// To https://github.com/parcel-bundler/lightningcss/blob/master/node/targets.d.ts
 
-const map: Record<string, keyof ParcelTargets | null | undefined> = {
+const map: Record<string, keyof LightningCSSTargets | null | undefined> = {
   chrome: "chrome",
   edge: "edge",
   firefox: "firefox",
@@ -35,14 +35,14 @@ const versionRE = /\d/;
 // Without targets, nesting is not transformed,
 // which will fail because it's not implemented anywhere for now
 /* eslint-disable no-bitwise */
-export const forceDownlevelNesting: ParcelTargets = { chrome: 104 << 16 };
+export const forceDownlevelNesting: LightningCSSTargets = { chrome: 104 << 16 };
 
 export const convertTargets: typeof convertTargetsDeclaration = (
   esbuildTarget: string | string[] | undefined | false,
-): ParcelTargets => {
+): LightningCSSTargets => {
   if (!esbuildTarget) return forceDownlevelNesting;
 
-  const targets: ParcelTargets = {};
+  const targets: LightningCSSTargets = {};
 
   const list = Array.isArray(esbuildTarget) ? esbuildTarget : [esbuildTarget];
   const entriesWithoutES = list.flatMap((e) => {

@@ -1,6 +1,6 @@
 import { createHash } from "crypto";
 import { readFileSync, rmSync, writeFileSync } from "fs";
-import { transform as parcelTransform } from "@parcel/css";
+import { transform as lightningCSSTransform } from "lightningcss";
 
 import { downwind as declaration } from "./esbuildPlugin.d";
 import { cssModuleToJS, initDownwind, convertTargets } from "./index";
@@ -99,7 +99,7 @@ const esbuildPlugin: typeof declaration = ({ scannedExtension } = {}) => ({
           getPlaceholder(),
           downwind.generate(),
         );
-        const output = parcelTransform({
+        const output = lightningCSSTransform({
           filename: cssPath,
           code: Buffer.from(withUtils),
           drafts: { nesting: true },

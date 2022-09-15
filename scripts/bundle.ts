@@ -71,6 +71,16 @@ Promise.all([
   copyFileSync("src/base/base.css", "dist/base.css");
   copyFileSync("src/types.d.ts", "dist/index.d.ts");
 
+  if (
+    // https://github.com/ArnaudBarre/github-release/blob/main/index.ts#L10-L11
+    readFileSync("CHANGELOG.md", "utf-8")
+      .split("##")[1]
+      .split("\n")[0]
+      .trim() !== version
+  ) {
+    throw new Error("Missing changelog");
+  }
+
   writeFileSync(
     "dist/package.json",
     JSON.stringify(

@@ -1,7 +1,7 @@
 import { readFileSync } from "fs";
 import { relative } from "node:path";
 import { loadConfig } from "@arnaud-barre/config-loader";
-import { CSSModuleExports, Dependency, transform } from "lightningcss";
+import { Dependency, transform } from "lightningcss";
 
 import { getBase } from "./base/getBase";
 import { getDefaults } from "./getDefaults";
@@ -415,7 +415,14 @@ export const initDownwindWithConfig = ({
       return {
         invalidateUtils,
         code: result.code.toString(),
-        exports: result.exports as CSSModuleExports | undefined,
+        exports: result.exports
+          ? // https://github.com/parcel-bundler/lightningcss/issues/291
+            Object.fromEntries(
+              Object.entries(result.exports).sort((a, b) =>
+                a[0].localeCompare(b[0]),
+              ),
+            )
+          : undefined,
         dependencies: result.dependencies as AnalyzeDependencies extends true
           ? Dependency[]
           : never,

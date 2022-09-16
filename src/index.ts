@@ -23,7 +23,6 @@ import {
 } from "./types";
 import { formatColor, isColor, parseColor } from "./utils/colors";
 import { forceDownlevelNesting } from "./utils/convertTargets";
-import { get } from "./utils/get";
 import {
   applyVariants,
   arbitraryPropertyMatchToLine,
@@ -33,6 +32,7 @@ import {
   printContainerClass,
   printScreenContainer,
 } from "./utils/print";
+import { themeGet } from "./utils/themeGet";
 import { getVariants, Variant } from "./variants";
 
 export const VERSION = __VERSION__;
@@ -42,7 +42,7 @@ export { convertTargets } from "./utils/convertTargets";
 const arbitraryValueRE = /-\[.+]$/;
 const applyRE = /[{\s]@apply ([^;}\n]+)([;}\n])/g;
 const screenRE = /screen\(([a-z-]+)\)/g;
-const themeRE = /theme\(([^)]+)\)/g;
+const themeRE = /theme\("([^)]+)"\)/g;
 const validSelectorRE = /^[a-z0-9.:/_[\]!#%&()-]+$/;
 const arbitraryPropertyRE = /^\[[^[\]:]+:[^[\]:]+]$/;
 
@@ -364,16 +364,16 @@ export const initDownwindWithConfig = ({
       });
     }
 
-    const hasTheme = content.includes("theme(");
+    const hasTheme = content.includes('theme("');
     if (hasTheme) {
       content = content.replace(themeRE, (_, path: string) => {
         if (path.includes(" / ")) {
           const [key, alpha] = path.split(" / ");
-          const color = get(config.theme, key);
+          const color = themeGet(config.theme, key);
           const parsed = color ? parseColor(color) : undefined;
           if (parsed) return formatColor({ ...parsed, alpha });
         } else {
-          const value = get(config.theme, path);
+          const value = themeGet(config.theme, path);
           if (value) return value;
         }
         throw new DownwindError(

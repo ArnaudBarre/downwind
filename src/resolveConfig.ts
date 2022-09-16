@@ -42,16 +42,6 @@ export const resolveConfig = (
     }
     return Object.assign(baseTheme, userTheme);
   });
-  theme.colors = Object.fromEntries(
-    Object.entries(theme.colors).flatMap(([key, stringOrMap]) =>
-      typeof stringOrMap === "string"
-        ? [[key, stringOrMap]]
-        : Object.entries(stringOrMap).map(([subKey, value]) => [
-            `${key}-${subKey}`,
-            value,
-          ]),
-    ),
-  );
   theme.screens = mapObjectValue(theme.screens, (stringOrObj) =>
     typeof stringOrObj === "string" ? { min: stringOrObj } : stringOrObj,
   );
@@ -62,7 +52,6 @@ export const resolveConfig = (
         typeof v === "string" ? v : v[0],
       );
     }
-    if (key === "colors") return theme.colors as Record<string, string>;
     const value = theme[key];
     if (typeof value === "object") return value;
     return value(themeCallback);

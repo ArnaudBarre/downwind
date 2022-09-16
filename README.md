@@ -114,9 +114,9 @@ The implementation would work most of the time, but some shortcuts have been mad
 
 [Arbitrary properties](https://tailwindcss.com/docs/adding-custom-styles#arbitrary-properties) can be used to bypass some edge cases.
 
-### Extending theme
+### Theme colors
 
-Only a shallow merge is done, so extending the color palette is a little more verbose.
+The color palette is flat, so colors should be defined like: `"blue-300": "#93c5fd", "blue-400": "#60a5fa"` instead of `blue: { 300: "#93c5fd", 400: "#60a5fa" }`
 
 ### Dark mode
 
@@ -197,12 +197,17 @@ Included by default
 
 ### Theme function
 
-Internally downwind flatten the palette color, so you should use `theme(colors.blue-500)` instead of `theme(colors.blue.500)`
+To avoid parsing errors in WebStorm, double quotes are required. And because [the palette color is flat](#theme-colors), any configuration value is accessed via `theme("key.value")`:
+
+- `theme(borderRadius.lg)` -> `theme("borderRadius.lg")`
+- `theme(colors.blue.500 / 75%)` -> `theme("colors.blue-500 / 75%")`
+- `theme(spacing[2.5])` -> `theme("spacing.2.5")`
 
 ### Almost exhaustive list of non-supported features
 
 - [prefix](https://tailwindcss.com/docs/configuration#prefix), [separator](https://tailwindcss.com/docs/configuration#separator) and [important](https://tailwindcss.com/docs/configuration#important) configuration options
-- These utils: `transform`, `transform-cpu`, `decoration-slice` `decoration-clone`, `filter`, `backdrop-filter`, `blur-0`
+- These deprecated utils: `transform`, `transform-cpu`, `decoration-slice` `decoration-clone`, `filter`, `backdrop-filter`, `blur-0`
+- These deprecated colors: `lightBlue`, `warmGray`, `trueGray`, `coolGray`, `blueGray`
 - Using multiple group and peer variants (i.e. `group-active:group-hover:bg-blue-200` doesn't work)
 - `@tailwind` and `@layer` directives
 - `@apply` for anything else than utils

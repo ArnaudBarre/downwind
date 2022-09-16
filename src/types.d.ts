@@ -102,7 +102,7 @@ type ThemeRuleMeta = RuleMeta & {
   supportsNegativeValues?: boolean;
   /**
    * Don't generate the class for the DEFAULT key.
-   * Used when the DEFAULT value is used in the base styles or in another rule.
+   * Used when the DEFAULT value is used for the base styles or in another rule.
    */
   filterDefault?: boolean;
   /**
@@ -138,14 +138,13 @@ type ResolvedTheme = Record<
 export type DownwindTheme = {
   [key in Exclude<
     ThemeKey,
-    "screens" | "container" | "colors" | "fontSize" | "boxShadow" | "dropShadow"
+    "screens" | "container" | "fontSize" | "boxShadow" | "dropShadow"
   >]:
     | Record<string, string>
     | ((theme: ThemeCallback) => Record<string, string>);
 } & {
   screens: Record<string, string | Screen>;
   container: Container;
-  colors: Record<string, string | Record<string, string>>;
   fontSize: Record<string, string | [string, string]>;
   boxShadow: Record<string, BoxShadow>;
   dropShadow: Record<string, string | [string, string]>;

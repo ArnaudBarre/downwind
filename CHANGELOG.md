@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.0
+
+Breaking:
+
+- Use flat color palette in theme (i.e. `blue: { 300: "#93c5fd", 400: "#60a5fa" }` -> `"blue-300": "#93c5fd", "blue-400": "#60a5fa"`)
+- Theme function requires double quotes and always uses `key.value` syntax (`theme(spacing[2.5])` -> `theme("spacing.2.5")`)
+
 ## 0.1.4
 
 - Parcel CSS -> Lightning CSS

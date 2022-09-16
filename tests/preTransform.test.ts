@@ -6,13 +6,13 @@ snapshotTest(
     downwind.preTransform(`
 .class1 {
   @apply m-4 px-4;
-  min-height: theme(spacing[2.5]);
+  min-height: theme("spacing.2.5");
 }
 
 @media screen(landscape) {
   .class2 {
     @apply px-4 m-4;
-    background: theme(colors.blue-500 / 50%);
+    background: theme("colors.blue-500 / 50%");
   }
 }
 

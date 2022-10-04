@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- esbuild plugin: Remove CSS map from output
+
 ## 0.2.0
 
 Breaking:

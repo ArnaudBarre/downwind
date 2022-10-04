@@ -123,6 +123,7 @@ const esbuildPlugin: typeof declaration = ({ scannedExtension } = {}) => ({
         const outputs = result.metafile!.outputs;
         const paths = Object.keys(outputs);
         const cssPath = paths.find((p) => p.endsWith(".css"))!;
+        const cssMapPath = `${cssPath}.map`;
         const content = readFileSync(cssPath, "utf-8");
         const { output, path } = transform(cssPath, content);
         writeFileSync(path, output);
@@ -132,7 +133,11 @@ const esbuildPlugin: typeof declaration = ({ scannedExtension } = {}) => ({
           // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
           delete outputs[cssPath];
         }
-        rmSync(`${cssPath}.map`, { force: true });
+        if (cssMapPath in outputs) {
+          rmSync(cssMapPath);
+          // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+          delete outputs[cssMapPath];
+        }
       } else {
         const cssOutput = result.outputFiles!.find((p) =>
           p.path.endsWith(".css"),

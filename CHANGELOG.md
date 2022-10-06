@@ -1,8 +1,8 @@
 # Changelog
 
-## Unreleased
+## 0.2.1
 
-- esbuild plugin: Remove CSS map from output
+esbuild plugin: Fix metafile output (remove map & update cssBundle prop)
 
 ## 0.2.0
 

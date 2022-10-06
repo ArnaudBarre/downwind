@@ -24,6 +24,7 @@ const esbuildPlugin: typeof declaration = ({ scannedExtension } = {}) => ({
       build.initialOptions.entryNames?.includes("[hash]") ?? false;
     const minify = build.initialOptions.minify ?? false;
     const write = build.initialOptions.write ?? true;
+    const sourcemap = build.initialOptions.sourcemap ?? false;
     if (write) build.initialOptions.metafile = true;
 
     const getPlaceholder = () =>
@@ -106,7 +107,7 @@ const esbuildPlugin: typeof declaration = ({ scannedExtension } = {}) => ({
           minify,
           targets,
         }).code;
-        if (!useHash) return { output, path: cssPath };
+        if (!useHash) return { output, newPath: cssPath };
         const hexHash = createHash("sha256")
           .update(output)
           .digest("hex")
@@ -116,39 +117,57 @@ const esbuildPlugin: typeof declaration = ({ scannedExtension } = {}) => ({
           .toUpperCase()
           .padStart(8, "0")
           .slice(0, 8);
-        return { output, path: cssPath.replace(/[A-Z\d]{8}/, hash) };
+        return { output, newPath: cssPath.replace(/[A-Z\d]{8}/, hash) };
       };
 
       if (write) {
         const outputs = result.metafile!.outputs;
-        const paths = Object.keys(outputs);
-        const cssPath = paths.find((p) => p.endsWith(".css"))!;
-        const cssMapPath = `${cssPath}.map`;
-        const content = readFileSync(cssPath, "utf-8");
-        const { output, path } = transform(cssPath, content);
-        writeFileSync(path, output);
-        outputs[path] = { ...outputs[path], bytes: output.byteLength };
-        if (useHash) {
-          rmSync(cssPath);
-          // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-          delete outputs[cssPath];
+        const oldPath = Object.keys(outputs).find((p) => p.endsWith(".css"))!;
+        const content = readFileSync(oldPath, "utf-8");
+        const { output, newPath } = transform(oldPath, content);
+        writeFileSync(newPath, output);
+        outputs[newPath] = { ...outputs[oldPath], bytes: output.byteLength };
+        for (const key in outputs) {
+          if (outputs[key].cssBundle === oldPath) {
+            outputs[key].cssBundle = newPath;
+          }
         }
-        if (cssMapPath in outputs) {
-          rmSync(cssMapPath);
+        if (useHash) {
+          rmSync(oldPath);
           // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-          delete outputs[cssMapPath];
+          delete outputs[oldPath];
+        }
+        if (sourcemap) {
+          rmSync(`${oldPath}.map`);
+          // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+          delete outputs[`${oldPath}.map`];
         }
       } else {
         const cssOutput = result.outputFiles!.find((p) =>
           p.path.endsWith(".css"),
         )!;
-        const { output, path } = transform(cssOutput.path, cssOutput.text);
-        cssOutput.path = path;
+        const oldPath = cssOutput.path;
+        const { output, newPath } = transform(oldPath, cssOutput.text);
+        cssOutput.path = newPath;
         cssOutput.contents = output;
-        // https://github.com/evanw/esbuild/issues/2423
-        Object.defineProperty(cssOutput, "text", {
-          value: output.toString(),
-        });
+        if (sourcemap) {
+          result.outputFiles = result.outputFiles!.filter(
+            (f) => f.path !== `${oldPath}.map`,
+          );
+        }
+        if (result.metafile) {
+          const outputs = result.metafile.outputs;
+          outputs[newPath] = { ...outputs[oldPath], bytes: output.byteLength };
+          // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+          if (useHash) delete outputs[oldPath];
+          // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+          if (sourcemap) delete outputs[`${oldPath}.map`];
+          for (const key in outputs) {
+            if (outputs[key].cssBundle === oldPath) {
+              outputs[key].cssBundle = newPath;
+            }
+          }
+        }
       }
     });
   },

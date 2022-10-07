@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.2
+
+Fix: Support arbitrary variants with `>`, `*`, `+` and `~`
+
 ## 0.2.1
 
 esbuild plugin: Fix metafile output (remove map & update cssBundle prop)

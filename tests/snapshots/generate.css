@@ -326,7 +326,14 @@
   mask-type:alpha
 }
 
-/* arbitrary-variants: [&:nth-child(3)]:underline */
+/* arbitrary-variants: [html:has(&)]:bg-blue-500 [&:nth-child(3)]:underline [&>*]:p-4 */
+.html:has(\[html\:has\(\&\)\]\:bg-blue-500) {
+  --tw-bg-opacity: 1;
+  background-color: rgb(59 130 246 / var(--tw-bg-opacity));
+}
+.\[\&\>\*\]\:p-4>* {
+  padding: 1rem;
+}
 .\[\&\:nth-child\(3\)\]\:underline:nth-child(3) {
   text-decoration-line: underline;
 }

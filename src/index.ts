@@ -43,7 +43,7 @@ const arbitraryValueRE = /-\[.+]$/;
 const applyRE = /[{\s]@apply ([^;}\n]+)([;}\n])/g;
 const screenRE = /screen\(([a-z-]+)\)/g;
 const themeRE = /theme\("([^)]+)"\)/g;
-const validSelectorRE = /^[a-z0-9.:/_[\]!#%&()-]+$/;
+const validSelectorRE = /^[a-z0-9.:/_[\]!#%&>+~*()-]+$/;
 const arbitraryPropertyRE = /^\[[^[\]:]+:[^[\]:]+]$/;
 
 type Match = {
@@ -436,7 +436,7 @@ export const initDownwindWithConfig = ({
         path.endsWith(scannedExtension) || code.includes("@downwind-scan");
       if (!shouldScan) return false;
       const tokens = code
-        .split(/[\s'"`;>=]+/g)
+        .split(/[\s'"`;=]+/g)
         .filter((t) => validSelectorRE.test(t) && !blockList.has(t));
       let hasNew = false;
       for (const token of tokens) {

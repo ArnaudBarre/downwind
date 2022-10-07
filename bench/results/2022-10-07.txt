@@ -1,0 +1,26 @@
+Benchmark 1: cd downwind && vite build
+  Time (mean ± σ):     436.5 ms ±   5.7 ms    [User: 468.7 ms, System: 67.7 ms]
+  Range (min … max):   428.7 ms … 444.4 ms    5 runs
+
+Benchmark 2: cd none && vite build
+  Time (mean ± σ):     319.5 ms ±  17.8 ms    [User: 307.1 ms, System: 45.6 ms]
+  Range (min … max):   308.6 ms … 350.8 ms    5 runs
+
+Benchmark 3: cd tailwindcss && vite build
+  Time (mean ± σ):      1.290 s ±  0.006 s    [User: 2.053 s, System: 0.142 s]
+  Range (min … max):    1.281 s …  1.297 s    5 runs
+
+Benchmark 4: cd unocss && vite build
+  Time (mean ± σ):     596.7 ms ±   8.1 ms    [User: 735.4 ms, System: 78.1 ms]
+  Range (min … max):   587.3 ms … 607.7 ms    5 runs
+
+Benchmark 5: cd windicss && vite build
+  Time (mean ± σ):      2.035 s ±  0.015 s    [User: 2.089 s, System: 0.091 s]
+  Range (min … max):    2.015 s …  2.054 s    5 runs
+
+Summary
+  'cd none && vite build' ran
+    1.37 ± 0.08 times faster than 'cd downwind && vite build'
+    1.87 ± 0.11 times faster than 'cd unocss && vite build'
+    4.04 ± 0.23 times faster than 'cd tailwindcss && vite build'
+    6.37 ± 0.36 times faster than 'cd windicss && vite build'

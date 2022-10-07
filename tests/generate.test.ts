@@ -80,7 +80,10 @@ const cases: [name: string, content: string, config?: UserConfig][] = [
   ],
   ["arbitrary-values-with-spaces", "grid grid-cols-[1fr_500px_2fr]"],
   ["arbitrary-properties", "[mask-type:luminance] hover:[mask-type:alpha]"],
-  ["arbitrary-variants", "[&:nth-child(3)]:underline"],
+  [
+    "arbitrary-variants",
+    "[html:has(&)]:bg-blue-500 [&:nth-child(3)]:underline [&>*]:p-4",
+  ],
   ["disable-rule", "p-4 m-4", { coreRules: { padding: false } }],
   [
     "disable-opacity",

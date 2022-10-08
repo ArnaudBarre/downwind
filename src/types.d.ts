@@ -45,6 +45,10 @@ export type Downwind = {
   codegen: (opts: { omitContent: boolean }) => string;
 };
 
+declare class DownwindError extends Error {
+  context: string;
+}
+
 /**
  * Utils
  */

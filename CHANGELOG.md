@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.3
+
+Add DownwindError to types
+
 ## 0.2.2
 
 Fix: Support arbitrary variants with `>`, `*`, `+` and `~`

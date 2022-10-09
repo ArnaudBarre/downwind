@@ -5,10 +5,10 @@ import { Variant } from "../variants";
 export const escapeSelector = (selector: string) =>
   selector.replace(/[.:/[\]!#%&>+~*()]/g, (c) => `\\${c}`);
 
-export const printBlock = (selector: string, lines: string[], indent = "") => {
-  let output = `${indent}${selector} {\n`;
-  for (const line of lines) output += `${indent}  ${line}\n`;
-  output += `${indent}}\n`;
+export const printBlock = (selector: string, lines: string[]) => {
+  let output = `${selector} {\n`;
+  for (const line of lines) output += `  ${line}\n`;
+  output += "}\n";
   return output;
 };
 

@@ -98,7 +98,7 @@ const esbuildPlugin: typeof declaration = ({ scannedExtension } = {}) => ({
         }
         const withUtils = content.replace(
           getPlaceholder(),
-          downwind.generate(),
+          downwind.generate({ skipLightningCSS: true }),
         );
         const output = lightningCSSTransform({
           filename: cssPath,

@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Use Lightning CSS to print utils in dev. This fixes usage of variants in shortcuts
 - Bump config-loader
 
 ## 0.2.3

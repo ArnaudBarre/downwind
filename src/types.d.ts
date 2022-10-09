@@ -41,7 +41,7 @@ export type Downwind = {
     dependencies: AnalyzeDependencies extends true ? Dependency[] : never;
   };
   scan: (path: string, content?: string) => boolean /* hasNew */;
-  generate: () => string;
+  generate: (opts?: { skipLightningCSS?: boolean }) => string;
   codegen: (opts: { omitContent: boolean }) => string;
 };
 

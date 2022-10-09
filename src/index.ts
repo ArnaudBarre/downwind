@@ -445,12 +445,11 @@ export const initDownwindWithConfig = ({
       }
       return hasNew;
     },
-    generate: () => {
+    generate: (opts?: { skipLightningCSS?: boolean }) => {
       let useContainer = false;
       let utilsOutput = "";
       allMatches.forEach((matches, screen) => {
         if (!matches.length && !useContainer) return;
-        const screenIndent = screen ? "  " : "";
         if (screen) {
           const { min, max } = config.theme.screens[screen]!;
           if (useContainer && min && max !== undefined) {
@@ -485,17 +484,14 @@ export const initDownwindWithConfig = ({
               ? `${media} and ${mediaWrapper}`
               : media;
           });
-          if (mediaWrapper) {
-            utilsOutput += `${screenIndent}@media ${mediaWrapper} {\n`;
-          }
+          if (mediaWrapper) utilsOutput += `@media ${mediaWrapper} {\n`;
           utilsOutput += printBlock(
             `.${selector}`,
             match.type === "Rule"
               ? toCSS(match.ruleEntry, match.important)
               : [arbitraryPropertyMatchToLine(match)],
-            mediaWrapper ? `${screenIndent}  ` : screenIndent,
           );
-          if (mediaWrapper) utilsOutput += `${screenIndent}}\n`;
+          if (mediaWrapper) utilsOutput += "}\n";
         }
         if (screen) utilsOutput += "}\n";
       });
@@ -518,7 +514,13 @@ export const initDownwindWithConfig = ({
       });
       if (usedKeyframes.size) header += "\n";
 
-      return header + utilsOutput;
+      if (opts?.skipLightningCSS) return header + utilsOutput;
+      return transform({
+        filename: "@downwind/utils.css",
+        code: Buffer.from(header + utilsOutput),
+        drafts: { nesting: true },
+        targets,
+      }).code.toString();
     },
     codegen: ({ omitContent }: { omitContent: boolean }) => {
       if (omitContent) {

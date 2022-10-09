@@ -171,7 +171,7 @@ const vitePlugin: typeof declaration = ({
             renderedLength: 0,
           };
           hashPlaceholder = `#--downwind-hash--{content:${getHash(
-            downwind.generate(),
+            downwind.generate({ skipLightningCSS: true }),
           )}}`;
           // fool the css plugin to generate the css in corresponding chunk
           await cssPostPlugin.transform.call({}, hashPlaceholder, fakeId);
@@ -202,7 +202,10 @@ const vitePlugin: typeof declaration = ({
           ) {
             const newSource = chunk.source
               .replace(hashPlaceholder!, "")
-              .replace(placeholder, downwind.generate());
+              .replace(
+                placeholder,
+                downwind.generate({ skipLightningCSS: true }),
+              );
             chunk.source = lightningCSSTransform({
               filename: path,
               code: Buffer.from(newSource),

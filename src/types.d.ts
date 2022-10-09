@@ -43,6 +43,7 @@ export type Downwind = {
   scan: (path: string, content?: string) => boolean /* hasNew */;
   generate: (opts?: { skipLightningCSS?: boolean }) => string;
   codegen: (opts: { omitContent: boolean }) => string;
+  configFiles: string[];
 };
 
 declare class DownwindError extends Error {

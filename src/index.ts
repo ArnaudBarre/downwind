@@ -56,20 +56,26 @@ type Match = {
   | { type: "Arbitrary property"; content: string }
 );
 
-export const initDownwind: typeof initDownwindDeclaration = async (opts) =>
-  initDownwindWithConfig({
-    config:
-      globalThis.TEST_CONFIG ?? (await loadConfig<UserConfig>("downwind")),
+export const initDownwind: typeof initDownwindDeclaration = async (opts) => {
+  const loadedConfig = globalThis.TEST_CONFIG
+    ? { config: globalThis.TEST_CONFIG, files: [] }
+    : await loadConfig<UserConfig>("downwind");
+  return initDownwindWithConfig({
+    config: loadedConfig?.config,
+    configFiles: loadedConfig?.files,
     ...opts,
   });
+};
 
 export const initDownwindWithConfig = ({
   config: userConfig,
+  configFiles = [],
   targets = forceDownlevelNesting,
   scannedExtension = "tsx",
   root = process.cwd(),
 }: {
   config: UserConfig | undefined;
+  configFiles?: string[];
 } & Parameters<typeof initDownwindDeclaration>[0]) => {
   const config = resolveConfig(userConfig);
   const defaults = getDefaults(config);
@@ -543,6 +549,7 @@ export const initDownwindWithConfig = ({
         })
         .join("");
     },
+    configFiles,
   };
 };
 

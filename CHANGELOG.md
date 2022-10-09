@@ -1,9 +1,9 @@
 # Changelog
 
-## Unreleased
+## 0.2.4
 
 - Use Lightning CSS to print utils in dev. This fixes usage of variants in shortcuts
-- Bump config-loader
+- Add `configFiles` to Downwind object
 
 ## 0.2.3
 

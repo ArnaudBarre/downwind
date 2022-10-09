@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Bump config-loader
+
 ## 0.2.3
 
 Add DownwindError to types

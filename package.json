@@ -27,7 +27,7 @@
     ]
   },
   "dependencies": {
-    "@arnaud-barre/config-loader": "^0.4.1",
+    "@arnaud-barre/config-loader": "^0.4.2",
     "lightningcss": "^1.16.0"
   },
   "devDependencies": {

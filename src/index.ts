@@ -471,7 +471,11 @@ export const initDownwindWithConfig = ({
             utilsOutput += `${declaration}\n`;
           }
         }
-        for (const match of matches.sort((a, b) => getOrder(a) - getOrder(b))) {
+        for (const match of matches.sort((a, b) => {
+          const diff = getOrder(a) - getOrder(b);
+          if (diff !== 0) return diff;
+          return a.token.localeCompare(b.token);
+        })) {
           const meta =
             match.type === "Rule"
               ? getRuleMeta(match.ruleEntry.rule)

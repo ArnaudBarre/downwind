@@ -82,7 +82,7 @@ export const config: DownwindConfig = async () => {
 };
 ```
 
-## Differences with Tailwind
+## Differences with Tailwind (as of 3.1)
 
 ### Components
 

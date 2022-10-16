@@ -339,7 +339,7 @@
   border-width: 0 !important;
 }
 
-/* arbitrary-values: inset-[-10px] pt-[100px] w-[45%] text-[#ddd] text-[#f009] text-[10px] */
+/* arbitrary-values: inset-[-10px] pt-[100px] w-[45%] text-[#ddd] text-[#f009] text-[12px] text-[10px] */
 .inset-\[-10px\] {
   inset: -10px;
 }
@@ -354,6 +354,10 @@
 
 .text-\[10px\] {
   font-size: 10px;
+}
+
+.text-\[12px\] {
+  font-size: 12px;
 }
 
 .text-\[\#ddd\] {

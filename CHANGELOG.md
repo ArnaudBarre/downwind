@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.6
+
+Add `scanRegex` option for esbuild plugin
+
 ## 0.2.5
 
 Stable order for arbitrary values of the same rule. It's now based on the string match instead of the scan order

@@ -42,7 +42,7 @@ await build({
 
 Add `import "virtual:@downwind/base.css";` and `import "virtual:@downwind/utils.css";` to your code.
 
-Nesting and CSS modules are directly supported via lightningcss.
+Nesting and CSS modules are directly supported via Lightning CSS.
 
 ## Scanned extension
 
@@ -53,7 +53,10 @@ By default, downwind will only scan the file with matches the `scannedExtension`
 It can be changed in both plugins:
 
 ```ts
+// vite
 plugins: [downwind({ scannedExtension: "vue" })];
+// esbuild
+plugins: [downwind({ scannedExtension: "vue", scanRegex: /\.(vue|ts)$/ })];
 ```
 
 For cases where you need any other file to be scanned, include the `@downwind-scan` pragma in any comment of the file.
@@ -62,7 +65,7 @@ For cases where you need any other file to be scanned, include the `@downwind-sc
 
 This is optional and can be used to customize the default theme, disable core rules, add new rules, shortcuts or a safelist.
 
-The file should be name `downwind.config.ts`.
+The file should be named `downwind.config.ts`.
 
 ```ts
 import { DownwindConfig } from "@arnaud-barre/downwind";

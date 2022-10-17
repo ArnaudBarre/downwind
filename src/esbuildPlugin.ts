@@ -7,7 +7,10 @@ import { cssModuleToJS, initDownwind, convertTargets } from "./index";
 
 export { esbuildPlugin as downwind };
 
-const esbuildPlugin: typeof declaration = ({ scannedExtension } = {}) => ({
+const esbuildPlugin: typeof declaration = ({
+  scannedExtension,
+  scanRegex = /\.[jt]sx?$/,
+} = {}) => ({
   name: "downwind",
   setup: async (build) => {
     const targets = convertTargets(build.initialOptions.target);
@@ -69,7 +72,7 @@ const esbuildPlugin: typeof declaration = ({ scannedExtension } = {}) => ({
     });
 
     // CSS scan
-    build.onLoad({ filter: /\.[jt]sx?$/u }, ({ path }) => {
+    build.onLoad({ filter: scanRegex }, ({ path }) => {
       // https://github.com/evanw/esbuild/issues/1222
       if (path.includes("/node_modules/")) return;
       downwind.scan(path);

@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.3.0
+
+Align with Tailwind 3.2:
+
+- Add `supports-*` and `max-<screen>`
+- Add `collapse`, `place-content-baseline`, `place-items-baseline`, `content-baseline`, `break-keep`, `fill-none`, `stroke-none` & negative values for `outline-offset`
+- Fix some cases for arbitrary variants and handle "arbitrary media" (ex: `[@media(min-width:900px)]:block`)
+
+Other features are not supported, but container queries will probably be added later.
+
 ## 0.2.6
 
 Add `scanRegex` option for esbuild plugin

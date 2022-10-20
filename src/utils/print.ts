@@ -3,7 +3,7 @@ import type { Container, CSSEntries, RuleMeta } from "../types";
 import { Variant } from "../variants";
 
 export const escapeSelector = (selector: string) =>
-  selector.replace(/[.:/[\]!#%&>+~*()]/g, (c) => `\\${c}`);
+  selector.replace(/[.:/[\]!#%&>+~*@()]/g, (c) => `\\${c}`);
 
 export const printBlock = (selector: string, lines: string[]) => {
   let output = `${selector} {\n`;
@@ -58,14 +58,21 @@ export const applyVariants = (
   selector: string,
   variants: Variant[],
   meta: RuleMeta | undefined,
-  mediaScreen: (media: string) => void,
+  onMedia: (media: string) => void,
+  onSupports: (media: string) => void,
 ) => {
   for (let i = variants.length - 1; i >= 0; i--) {
     const variant = variants[i];
-    if (variant.selectorRewrite) {
-      selector = variant.selectorRewrite(selector);
-    } else {
-      mediaScreen(variant.media);
+    switch (variant.type) {
+      case "selectorRewrite":
+        selector = variant.selectorRewrite(selector);
+        break;
+      case "media":
+        onMedia(variant.media);
+        break;
+      case "supports":
+        onSupports(variant.supports);
+        break;
     }
   }
   if (meta?.selectorRewrite) selector = meta.selectorRewrite(selector);

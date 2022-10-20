@@ -7,6 +7,7 @@
 .pointer-events-none{}
 .visible{}
 .invisible{}
+.collapse{}
 .static{}
 .fixed{}
 .absolute{}
@@ -2518,10 +2519,12 @@
 .place-content-between{}
 .place-content-around{}
 .place-content-evenly{}
+.place-content-baseline{}
 .place-content-stretch{}
 .place-items-start{}
 .place-items-end{}
 .place-items-center{}
+.place-items-baseline{}
 .place-items-stretch{}
 .content-start{}
 .content-end{}
@@ -2529,6 +2532,7 @@
 .content-between{}
 .content-around{}
 .content-evenly{}
+.content-baseline{}
 .items-start{}
 .items-end{}
 .items-center{}
@@ -3734,6 +3738,7 @@
 .break-normal{}
 .break-words{}
 .break-all{}
+.break-keep{}
 .rounded-none{}
 .rounded-sm{}
 .rounded{}
@@ -6625,6 +6630,7 @@
 .fill-rose-700{}
 .fill-rose-800{}
 .fill-rose-900{}
+.fill-none{}
 .stroke-inherit{}
 .stroke-current{}
 .stroke-transparent{}
@@ -6850,6 +6856,7 @@
 .stroke-rose-700{}
 .stroke-rose-800{}
 .stroke-rose-900{}
+.stroke-none{}
 .stroke-0{}
 .stroke-1{}
 .stroke-2{}
@@ -8959,12 +8966,15 @@
 .outline-dashed{}
 .outline-dotted{}
 .outline-double{}
-.outline-hidden{}
 .outline-0{}
 .outline-1{}
 .outline-2{}
 .outline-4{}
 .outline-8{}
+.-outline-offset-1{}
+.-outline-offset-2{}
+.-outline-offset-4{}
+.-outline-offset-8{}
 .outline-offset-0{}
 .outline-offset-1{}
 .outline-offset-2{}

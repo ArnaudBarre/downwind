@@ -43,7 +43,7 @@ const arbitraryValueRE = /-\[.+]$/;
 const applyRE = /[{\s]@apply ([^;}\n]+)([;}\n])/g;
 const screenRE = /screen\(([a-z-]+)\)/g;
 const themeRE = /theme\("([^)]+)"\)/g;
-const validSelectorRE = /^[a-z0-9.:/_[\]!#%&>+~*()-]+$/;
+const validSelectorRE = /^[a-z0-9.:/_[\]!#%&>+~*()@-]+$/;
 const arbitraryPropertyRE = /^\[[^[\]:]+:[^[\]:]+]$/;
 
 type Match = {
@@ -121,21 +121,33 @@ export const initDownwindWithConfig = ({
     const variants: Variant[] = [];
     let isArbitraryProperty = false;
 
-    const extractVariant = () => {
+    const extractVariant = (): Variant | "NO_VARIANT" | undefined => {
       if (tokenWithoutVariants.startsWith("[")) {
         if (arbitraryPropertyRE.test(tokenWithoutVariants)) {
           isArbitraryProperty = true;
-          return "NO_VARIANT" as const;
+          return "NO_VARIANT";
         }
         const index = tokenWithoutVariants.indexOf("]:");
         if (index === -1) return;
         const content = tokenWithoutVariants.slice(1, index);
-        if (!content.includes("&")) return;
-        const arbitraryVariant: Variant = {
-          selectorRewrite: (v) => content.replace("&", v),
-        };
         tokenWithoutVariants = tokenWithoutVariants.slice(index + 2);
-        return arbitraryVariant;
+        return content.includes("&")
+          ? {
+              type: "selectorRewrite",
+              selectorRewrite: (v) =>
+                content.replaceAll("_", " ").replace("&", v),
+            }
+          : content.startsWith("@media")
+          ? { type: "media", media: content.slice(6).replaceAll("_", " ") }
+          : undefined;
+      }
+      if (tokenWithoutVariants.startsWith("supports-[")) {
+        const index = tokenWithoutVariants.indexOf("]:");
+        if (index === -1) return;
+        const content = tokenWithoutVariants.slice(10, index);
+        tokenWithoutVariants = tokenWithoutVariants.slice(index + 2);
+        const check = content.includes(":") ? content : `${content}: var(--tw)`;
+        return { type: "supports", supports: `(${check})` };
       }
       const index = tokenWithoutVariants.indexOf(":");
       if (index === -1) return "NO_VARIANT";
@@ -146,11 +158,11 @@ export const initDownwindWithConfig = ({
 
     let variant = extractVariant();
     while (variant !== "NO_VARIANT") {
-      if (!variant || (screen && variant.screen)) {
+      if (!variant || (screen && variant.type === "screen")) {
         blockList.add(token);
         return;
       }
-      if (variant.screen) screen = variant.screen;
+      if (variant.type === "screen") screen = variant.screen;
       else variants.push(variant);
       variant = extractVariant();
     }
@@ -305,11 +317,22 @@ export const initDownwindWithConfig = ({
       }
       const meta = getRuleMeta(match.ruleEntry.rule);
       let hasMedia = !!match.screen;
-      const selector = applyVariants("&", match.variants, meta, () => {
-        hasMedia = true;
-      });
+      let hasSupports = false;
+      const selector = applyVariants(
+        "&",
+        match.variants,
+        meta,
+        () => {
+          hasMedia = true;
+        },
+        () => {
+          hasSupports = true;
+        },
+      );
       if (
         hasMedia ||
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+        hasSupports ||
         !selector.startsWith("&") ||
         meta?.addKeyframes ||
         meta?.addContainer
@@ -360,7 +383,7 @@ export const initDownwindWithConfig = ({
         if (variant === undefined) {
           throw new DownwindError(`No variant matching "${value}"`, substring);
         }
-        if (!variant.media) {
+        if (variant.type !== "media" && variant.type !== "screen") {
           throw new DownwindError(
             `"${value}" is not a media variant`,
             substring,
@@ -465,7 +488,9 @@ export const initDownwindWithConfig = ({
             // Avoid empty "default" media query
             if (!matches.length) return;
           }
-          utilsOutput += `\n@media ${variantsMap.get(screen)!.media!} {\n`;
+          utilsOutput += `\n@media ${
+            (variantsMap.get(screen) as Variant & { type: "screen" }).media
+          } {\n`;
           if (useContainer && min && max === undefined) {
             const declaration = printScreenContainer(config, screen, min);
             utilsOutput += `${declaration}\n`;
@@ -487,21 +512,36 @@ export const initDownwindWithConfig = ({
             }
             continue;
           }
+          let supportsWrapper: string | undefined;
           let mediaWrapper: string | undefined;
-          let selector = escapeSelector(match.token);
-          selector = applyVariants(selector, match.variants, meta, (media) => {
-            mediaWrapper = mediaWrapper
-              ? `${media} and ${mediaWrapper}`
-              : media;
-          });
+          let selector = `.${escapeSelector(match.token)}`;
+          selector = applyVariants(
+            selector,
+            match.variants,
+            meta,
+            (media) => {
+              mediaWrapper = mediaWrapper
+                ? `${media} and ${mediaWrapper}`
+                : media;
+            },
+            (check) => {
+              supportsWrapper = supportsWrapper
+                ? `${check} and ${supportsWrapper}`
+                : check;
+            },
+          );
+          if (supportsWrapper) {
+            utilsOutput += `@supports ${supportsWrapper} {\n`;
+          }
           if (mediaWrapper) utilsOutput += `@media ${mediaWrapper} {\n`;
           utilsOutput += printBlock(
-            `.${selector}`,
+            selector,
             match.type === "Rule"
               ? toCSS(match.ruleEntry, match.important)
               : [arbitraryPropertyMatchToLine(match)],
           );
           if (mediaWrapper) utilsOutput += "}\n";
+          if (supportsWrapper) utilsOutput += "}\n";
         }
         if (screen) utilsOutput += "}\n";
       });

@@ -244,7 +244,10 @@ export const getBaseTheme = (): DownwindTheme => ({
     "2xl": "0 25px 25px rgb(0 0 0 / 0.15)",
     "none": "0 0 #0000",
   },
-  fill: (theme) => theme("colors"),
+  fill: (theme) => ({
+    ...theme("colors"),
+    none: "none",
+  }),
   grayscale: {
     0: "0",
     DEFAULT: "100%",
@@ -712,12 +715,16 @@ export const getBaseTheme = (): DownwindTheme => ({
     12: "12deg",
   },
   space: (theme) => theme("spacing"),
-  stroke: (theme) => theme("colors"),
+  stroke: (theme) => ({
+    ...theme("colors"),
+    none: "none",
+  }),
   strokeWidth: {
     0: "0",
     1: "1",
     2: "2",
   },
+  supports: {},
   textColor: (theme) => theme("colors"),
   textDecorationColor: (theme) => theme("colors"),
   textDecorationThickness: {

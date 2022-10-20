@@ -82,8 +82,11 @@ const cases: [name: string, content: string, config?: UserConfig][] = [
   ["arbitrary-properties", "[mask-type:luminance] hover:[mask-type:alpha]"],
   [
     "arbitrary-variants",
-    "[html:has(&)]:bg-blue-500 [&:nth-child(3)]:underline [&>*]:p-4",
+    "[html:has(&)]:bg-blue-500 [&:nth-child(3)]:underline [&>*]:p-4 [.sidebar:hover_&]:opacity-70",
   ],
+  ["arbitrary-media", "[@media(min-width:900px)]:block"],
+  ["max-screen", "sm:max-md:p-2"],
+  ["supports-*", "supports-[container-type]:grid supports-[display:grid]:grid"],
   ["disable-rule", "p-4 m-4", { coreRules: { padding: false } }],
   [
     "disable-opacity",

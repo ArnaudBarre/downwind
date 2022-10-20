@@ -85,7 +85,7 @@ export const config: DownwindConfig = async () => {
 };
 ```
 
-## Differences with Tailwind (as of 3.1)
+## Differences with Tailwind
 
 ### Components
 
@@ -144,6 +144,19 @@ export const config: DownwindConfig = {
   ],
 };
 ```
+
+### Dynamic variants
+
+`supports-*` is supported.
+
+`max-<screen>` is supported when the screens config is a basic `min-width` only. No sorting is done.
+
+It means `min-*`, `data-*`, `aria-*`, `group-*`, `peer-*` are **not** supported.
+
+Punctual need usage can be accomplished using arbitrary variants: `[@media(min-width:900px)]:block`
+
+Variants modifier (ex. `group/sidebar`) are not supported either. The few cases were there are needed can also be covered with arbitrary variants:
+`group-hover/sidebar:opacity-75 group-hover/navitem:bg-black/75` -> `[.sidebar:hover_&]:opacity-75 group-hover:bg-black/75`
 
 ### Variants
 
@@ -208,17 +221,22 @@ To avoid parsing errors in WebStorm, double quotes are required. And because [th
 
 ### Almost exhaustive list of non-supported features
 
+- Container queries, but this will probably be added later
 - [prefix](https://tailwindcss.com/docs/configuration#prefix), [separator](https://tailwindcss.com/docs/configuration#separator) and [important](https://tailwindcss.com/docs/configuration#important) configuration options
 - These deprecated utils: `transform`, `transform-cpu`, `decoration-slice` `decoration-clone`, `filter`, `backdrop-filter`, `blur-0`
 - These deprecated colors: `lightBlue`, `warmGray`, `trueGray`, `coolGray`, `blueGray`
 - Using multiple group and peer variants (i.e. `group-active:group-hover:bg-blue-200` doesn't work)
-- `@tailwind` and `@layer` directives
+- `@tailwind`, `@config` and `@layer` directives
 - `@apply` for anything else than utils
 - `!important` at the end of `@apply` statement
 - Using pre-processor like `Sass` or `less`
 - `border-spacing` utility
+- Negative utilities when using min/max/clamp
 - `rtl` variant
+- Multi-range breakpoints & custom media queries in screens
+- Sorting of extended screens with default ones
 - Object for keyframes definition
 - Multiple keyframes in animation
-- Letter spacing in fontSize theme
+- Letter spacing & font weight in fontSize theme
+- Font feature settings in fontFamily theme
 - Regular expressions in safelist

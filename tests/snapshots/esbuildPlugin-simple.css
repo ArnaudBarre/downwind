@@ -76,6 +76,7 @@ table {
 button, input, optgroup, select, textarea {
   font-family: inherit;
   font-size: 100%;
+  font-weight: inherit;
   line-height: inherit;
   color: inherit;
   margin: 0;

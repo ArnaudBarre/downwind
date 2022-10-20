@@ -133,7 +133,7 @@ type ResolvedTheme = Record<
   >,
   Record<string, string | undefined>
 > & {
-  screens: Record<string, Screen | undefined>;
+  screens: Record<string, Screen>;
   container: Container;
   fontSize: Record<string, string | [string, string] | undefined>;
   boxShadow: Record<string, BoxShadow | undefined>;
@@ -267,6 +267,7 @@ type ThemeKey =
   | "space"
   | "stroke"
   | "strokeWidth"
+  | "supports"
   | "textColor"
   | "textDecorationColor"
   | "textDecorationThickness"

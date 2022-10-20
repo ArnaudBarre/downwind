@@ -58,6 +58,7 @@ export const getCoreRules = ({
   visibility: [
     ["visible", [["visibility", "visible"]]],
     ["invisible", [["visibility", "hidden"]]],
+    ["collapse", [["visibility", "collapse"]]],
   ],
   position: enumRule("", "position", [
     "static",
@@ -399,19 +400,29 @@ export const getCoreRules = ({
   placeContent: enumRule(
     "place-content-",
     "place-content",
-    ["center", "start", "end", "between", "around", "evenly", "stretch"],
+    [
+      "center",
+      "start",
+      "end",
+      "between",
+      "around",
+      "evenly",
+      "baseline",
+      "stretch",
+    ],
     prefixSpace,
   ),
   placeItems: enumRule("place-items-", "place-items", [
     "start",
     "end",
     "center",
+    "baseline",
     "stretch",
   ]),
   alignContent: enumRule(
     "content-",
     "align-content",
-    ["start", "end", "center", "between", "around", "evenly"],
+    ["start", "end", "center", "between", "around", "evenly", "baseline"],
     (v) => prefixSpace(prefixFlex(v)),
   ),
   alignItems: enumRule(
@@ -575,6 +586,7 @@ export const getCoreRules = ({
     ],
     ["break-words", [["overflow-wrap", "break-word"]]],
     ["break-all", [["word-break", "break-all"]]],
+    ["break-keep", [["word-break", "keep-all"]]],
   ],
   borderRadius: directionThemeRule(
     "rounded",
@@ -929,18 +941,14 @@ export const getCoreRules = ({
       ],
     ],
     ["outline", [["outline-style", "solid"]]],
-    ...enumRule("outline-", "outline-style", [
-      "dashed",
-      "dotted",
-      "double",
-      "hidden",
-    ]),
+    ...enumRule("outline-", "outline-style", ["dashed", "dotted", "double"]),
   ],
   outlineWidth: themeRule("outline", theme.outlineWidth, "outline-width"),
   outlineOffset: themeRule(
     "outline-offset",
     theme.outlineOffset,
     "outline-offset",
+    { supportsNegativeValues: true },
   ),
   outlineColor: themeRule("outline", theme.outlineColor, "outline-color", {
     arbitrary: "color-only",

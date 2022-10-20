@@ -387,8 +387,8 @@
   mask-type: alpha;
 }
 
-/* arbitrary-variants: [html:has(&)]:bg-blue-500 [&:nth-child(3)]:underline [&>*]:p-4 */
-.html:has(\[html\:has\(\&\)\]\:bg-blue-500) {
+/* arbitrary-variants: [html:has(&)]:bg-blue-500 [&:nth-child(3)]:underline [&>*]:p-4 [.sidebar:hover_&]:opacity-70 */
+html:has(.\[html\:has\(\&\)\]\:bg-blue-500) {
   --tw-bg-opacity: 1;
   background-color: rgb(59 130 246 / var(--tw-bg-opacity));
 }
@@ -399,6 +399,39 @@
 
 .\[\&\:nth-child\(3\)\]\:underline:nth-child(3) {
   text-decoration-line: underline;
+}
+
+.sidebar:hover .\[\.sidebar\:hover_\&\]\:opacity-70 {
+  opacity: .7;
+}
+
+/* arbitrary-media: [@media(min-width:900px)]:block */
+@media (min-width: 900px) {
+  .\[\@media\(min-width\:900px\)\]\:block {
+    display: block;
+  }
+}
+
+/* max-screen: sm:max-md:p-2 */
+@media (min-width: 640px) {
+  @media not all and (max-width: 768px) {
+    .sm\:max-md\:p-2 {
+      padding: .5rem;
+    }
+  }
+}
+
+/* supports-*: supports-[container-type]:grid supports-[display:grid]:grid */
+@supports (container-type: var(--tw)) {
+  .supports-\[container-type\]\:grid {
+    display: grid;
+  }
+}
+
+@supports (display:grid) {
+  .supports-\[display\:grid\]\:grid {
+    display: grid;
+  }
 }
 
 /* disable-rule: p-4 m-4 */

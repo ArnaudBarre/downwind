@@ -3,8 +3,10 @@ import { SelectorRewrite } from "./types";
 
 export type VariantsMap = Map<string, Variant>;
 export type Variant =
-  | { selectorRewrite: SelectorRewrite; media?: never; screen?: never }
-  | { selectorRewrite?: never; media: string; screen?: string };
+  | { type: "selectorRewrite"; selectorRewrite: SelectorRewrite }
+  | { type: "media"; media: string }
+  | { type: "screen"; screen: string; media: string }
+  | { type: "supports"; supports: string };
 
 // https://github.com/tailwindlabs/tailwindcss/blob/master/src/corePlugins.js
 export const getVariants = (config: ResolvedConfig) => {
@@ -15,23 +17,30 @@ export const getVariants = (config: ResolvedConfig) => {
     if (values.min) {
       if (values.max) {
         variantsMap.set(screen, {
-          media: `(min-width: ${values.min}) and (max-width: ${values.max})`,
+          type: "screen",
           screen,
+          media: `(min-width: ${values.min}) and (max-width: ${values.max})`,
         });
       } else {
         variantsMap.set(screen, {
-          media: `(min-width: ${values.min})`,
+          type: "screen",
           screen,
+          media: `(min-width: ${values.min})`,
         });
       }
     } else {
-      variantsMap.set(screen, { media: `(max-width: ${values.max!})`, screen });
+      variantsMap.set(screen, {
+        type: "screen",
+        screen,
+        media: `(max-width: ${values.max!})`,
+      });
     }
   }
 
   // Non-compliant: Only support class dark mode
   variantsMap.set("dark", {
-    selectorRewrite: (v) => `dark .${v}`,
+    type: "selectorRewrite",
+    selectorRewrite: (v) => `.dark ${v}`,
   });
 
   [
@@ -47,6 +56,7 @@ export const getVariants = (config: ResolvedConfig) => {
   ].forEach((value) => {
     const [prefix, suffix] = Array.isArray(value) ? value : [value, value];
     variantsMap.set(prefix, {
+      type: "selectorRewrite",
       selectorRewrite: (sel) => `${sel}::${suffix}`,
     });
   });
@@ -98,14 +108,17 @@ export const getVariants = (config: ResolvedConfig) => {
       : [value, `:${value}`];
 
     variantsMap.set(prefix, {
+      type: "selectorRewrite",
       selectorRewrite: (sel) => `${sel}${suffix}`,
     });
     // Non-compliant: Don't support complex stacked variants
     variantsMap.set(`group-${prefix}`, {
-      selectorRewrite: (sel) => `group${suffix} .${sel}`,
+      type: "selectorRewrite",
+      selectorRewrite: (sel) => `.group${suffix} ${sel}`,
     });
     variantsMap.set(`peer-${prefix}`, {
-      selectorRewrite: (sel) => `peer${suffix} ~ .${sel}`,
+      type: "selectorRewrite",
+      selectorRewrite: (sel) => `.peer${suffix} ~ ${sel}`,
     });
   });
 
@@ -118,7 +131,24 @@ export const getVariants = (config: ResolvedConfig) => {
     ["contrast-more", "(prefers-contrast: more)"],
     ["contrast-less", "(prefers-contrast: less)"],
   ].forEach(([prefix, media]) => {
-    variantsMap.set(prefix, { media });
+    variantsMap.set(prefix, { type: "media", media });
+  });
+
+  const screensEntries = Object.entries(config.theme.screens);
+  if (screensEntries.every((e) => e[1].min && !e[1].max)) {
+    screensEntries.forEach(([name, { min }]) => {
+      variantsMap.set(`max-${name}`, {
+        type: "media",
+        media: `not all and (max-width: ${min!})`,
+      });
+    });
+  }
+
+  Object.entries(config.theme.supports).forEach(([key, value]) => {
+    variantsMap.set(`supports-${key}`, {
+      type: "supports",
+      supports: `(${value!})`,
+    });
   });
 
   return variantsMap;

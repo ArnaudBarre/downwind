@@ -1,8 +1,9 @@
 # Changelog
 
-## Unreleased
+## 0.4.0
 
 - Support [Design in devtools](https://twitter.com/antfu7/status/1372244287975387145) in the Vite plugin
+- Always group tokens per media query and sort variants with a deterministic order
 - Breaking: Change codegen API to include a `DEVTOOLS` mode
 - esbuild plugin throw instead of adding an error to ensure proper logging to the console ([esbuild#2625](https://github.com/evanw/esbuild/issues/2625))
 

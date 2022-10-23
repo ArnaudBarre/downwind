@@ -4,37 +4,51 @@ import { SelectorRewrite } from "./types";
 export type VariantsMap = Map<string, Variant>;
 export type Variant =
   | { type: "selectorRewrite"; selectorRewrite: SelectorRewrite }
-  | { type: "media"; media: string }
-  | { type: "screen"; screen: string; media: string }
+  | { type: "media"; key: string; order: number; media: string }
   | { type: "supports"; supports: string };
 
 // https://github.com/tailwindlabs/tailwindcss/blob/master/src/corePlugins.js
 export const getVariants = (config: ResolvedConfig) => {
   const variantsMap: VariantsMap = new Map();
+  let mediaOrder = 0;
 
-  for (const screen in config.theme.screens) {
-    const values = config.theme.screens[screen]!;
+  const screensEntries = Object.entries(config.theme.screens);
+  for (const [screen, values] of screensEntries) {
     if (values.min) {
       if (values.max) {
         variantsMap.set(screen, {
-          type: "screen",
-          screen,
+          type: "media",
+          key: screen,
+          order: mediaOrder++,
           media: `(min-width: ${values.min}) and (max-width: ${values.max})`,
         });
       } else {
         variantsMap.set(screen, {
-          type: "screen",
-          screen,
+          type: "media",
+          key: screen,
+          order: mediaOrder++,
           media: `(min-width: ${values.min})`,
         });
       }
     } else {
       variantsMap.set(screen, {
-        type: "screen",
-        screen,
+        type: "media",
+        key: screen,
+        order: mediaOrder++,
         media: `(max-width: ${values.max!})`,
       });
     }
+  }
+
+  if (screensEntries.every((e) => e[1].min && !e[1].max)) {
+    screensEntries.forEach(([name, { min }]) => {
+      variantsMap.set(`max-${name}`, {
+        type: "media",
+        key: `max-${name}`,
+        order: mediaOrder++,
+        media: `not all and (max-width: ${min!})`,
+      });
+    });
   }
 
   // Non-compliant: Only support class dark mode
@@ -130,19 +144,9 @@ export const getVariants = (config: ResolvedConfig) => {
     ["landscape", "(orientation: landscape)"],
     ["contrast-more", "(prefers-contrast: more)"],
     ["contrast-less", "(prefers-contrast: less)"],
-  ].forEach(([prefix, media]) => {
-    variantsMap.set(prefix, { type: "media", media });
+  ].forEach(([key, media]) => {
+    variantsMap.set(key, { type: "media", key, order: mediaOrder++, media });
   });
-
-  const screensEntries = Object.entries(config.theme.screens);
-  if (screensEntries.every((e) => e[1].min && !e[1].max)) {
-    screensEntries.forEach(([name, { min }]) => {
-      variantsMap.set(`max-${name}`, {
-        type: "media",
-        media: `not all and (max-width: ${min!})`,
-      });
-    });
-  }
 
   Object.entries(config.theme.supports).forEach(([key, value]) => {
     variantsMap.set(`supports-${key}`, {

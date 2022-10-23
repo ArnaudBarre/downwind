@@ -309,9 +309,11 @@
 }
 
 @media (min-width: 768px) {
-  @media print and (orientation: landscape) {
-    .md\:print\:landscape\:first\:p-8:first-child {
-      padding: 2rem;
+  @media print {
+    @media (orientation: landscape) {
+      .md\:print\:landscape\:first\:p-8:first-child {
+        padding: 2rem;
+      }
     }
   }
 }
@@ -418,6 +420,61 @@ html:has(.\[html\:has\(\&\)\]\:bg-blue-500) {
     .sm\:max-md\:p-2 {
       padding: .5rem;
     }
+  }
+}
+
+/* group-nested-media: p-1 sm:p-3 sm:print:p-2 m-1 sm:m-3 sm:print:m-2 */
+.m-1 {
+  margin: .25rem;
+}
+
+.p-1 {
+  padding: .25rem;
+}
+
+@media (min-width: 640px) {
+  .sm\:m-3 {
+    margin: .75rem;
+  }
+
+  .sm\:p-3 {
+    padding: .75rem;
+  }
+
+  @media print {
+    .sm\:print\:m-2 {
+      margin: .5rem;
+    }
+
+    .sm\:print\:p-2 {
+      padding: .5rem;
+    }
+  }
+}
+
+/* media-order-stable-1: portrait:p-1 landscape:p-1 */
+@media (orientation: portrait) {
+  .portrait\:p-1 {
+    padding: .25rem;
+  }
+}
+
+@media (orientation: landscape) {
+  .landscape\:p-1 {
+    padding: .25rem;
+  }
+}
+
+/* media-order-stable-2: landscape:p-1 portrait:p-1 */
+@media (orientation: portrait) {
+  .portrait\:p-1 {
+    padding: .25rem;
+  }
+}
+
+@media (orientation: landscape) {
+  .landscape\:p-1 {
+    padding: .25rem;
   }
 }
 

@@ -86,6 +86,9 @@ const cases: [name: string, content: string, config?: UserConfig][] = [
   ],
   ["arbitrary-media", "[@media(min-width:900px)]:block"],
   ["max-screen", "sm:max-md:p-2"],
+  ["group-nested-media", "p-1 sm:p-3 sm:print:p-2 m-1 sm:m-3 sm:print:m-2"],
+  ["media-order-stable-1", "portrait:p-1 landscape:p-1"],
+  ["media-order-stable-2", "landscape:p-1 portrait:p-1"],
   ["supports-*", "supports-[container-type]:grid supports-[display:grid]:grid"],
   ["disable-rule", "p-4 m-4", { coreRules: { padding: false } }],
   [

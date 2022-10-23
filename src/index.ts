@@ -18,6 +18,7 @@ import {
   staticRules as staticRulesDeclaration,
   CSSEntries,
   Default,
+  Screen,
   initDownwind as initDownwindDeclaration,
   UserConfig,
 } from "./types";
@@ -49,12 +50,12 @@ const arbitraryPropertyRE = /^\[[^[\]:]+:[^[\]:]+]$/;
 type Match = {
   token: string;
   variants: Variant[];
-  screen: string;
   important: boolean;
 } & (
   | { type: "Rule"; ruleEntry: RuleEntry }
   | { type: "Arbitrary property"; content: string }
 );
+type MatchMap = { matches: Match[]; medias: Map<string, MatchMap> };
 
 export const initDownwind: typeof initDownwindDeclaration = async (opts) => {
   const loadedConfig = globalThis.TEST_CONFIG
@@ -84,19 +85,33 @@ export const initDownwindWithConfig = ({
 
   const usedKeyframes = new Set<string>();
   const usedDefaults = new Set<Default>();
-  const allMatches = new Map<string, Match[]>([
-    ["", [] as Match[]],
-    ...Object.keys(config.theme.screens).map((screen): [string, Match[]] => [
-      screen,
-      [],
-    ]),
-  ]);
+  const allMatches: MatchMap = {
+    matches: [],
+    medias: new Map(
+      // This init is for the `container` edge case
+      Object.keys(config.theme.screens).map((screen) => [
+        screen,
+        { matches: [], medias: new Map() },
+      ]),
+    ),
+  };
   const allClasses = new Set<string>();
   const blockList = new Set<string>();
   const addMatch = (match: Match): boolean /* isNew */ => {
     if (allClasses.has(match.token)) return false;
     allClasses.add(match.token);
-    allMatches.get(match.screen)!.push(match);
+    let map = allMatches;
+    for (const variant of match.variants) {
+      if (variant.type === "media") {
+        let mediaMap = map.medias.get(variant.key);
+        if (!mediaMap) {
+          mediaMap = { matches: [], medias: new Map() };
+          map.medias.set(variant.key, mediaMap);
+        }
+        map = mediaMap;
+      }
+    }
+    map.matches.push(match);
     if (match.type === "Rule") {
       const meta = getRuleMeta(match.ruleEntry.rule);
       if (meta?.addDefault) usedDefaults.add(meta.addDefault);
@@ -117,7 +132,6 @@ export const initDownwindWithConfig = ({
 
     const important = token.startsWith("!");
     let tokenWithoutVariants = important ? token.slice(1) : token;
-    let screen = "";
     const variants: Variant[] = [];
     let isArbitraryProperty = false;
 
@@ -131,15 +145,18 @@ export const initDownwindWithConfig = ({
         if (index === -1) return;
         const content = tokenWithoutVariants.slice(1, index);
         tokenWithoutVariants = tokenWithoutVariants.slice(index + 2);
-        return content.includes("&")
-          ? {
-              type: "selectorRewrite",
-              selectorRewrite: (v) =>
-                content.replaceAll("_", " ").replace("&", v),
-            }
-          : content.startsWith("@media")
-          ? { type: "media", media: content.slice(6).replaceAll("_", " ") }
-          : undefined;
+        if (content.includes("&")) {
+          return {
+            type: "selectorRewrite",
+            selectorRewrite: (v) =>
+              content.replaceAll("_", " ").replace("&", v),
+          };
+        }
+        if (content.startsWith("@media")) {
+          const media = content.slice(6).replaceAll("_", " ");
+          return { type: "media", key: media, order: Infinity, media };
+        }
+        return undefined;
       }
       if (tokenWithoutVariants.startsWith("supports-[")) {
         const index = tokenWithoutVariants.indexOf("]:");
@@ -158,12 +175,11 @@ export const initDownwindWithConfig = ({
 
     let variant = extractVariant();
     while (variant !== "NO_VARIANT") {
-      if (!variant || (screen && variant.type === "screen")) {
+      if (!variant) {
         blockList.add(token);
         return;
       }
-      if (variant.type === "screen") screen = variant.screen;
-      else variants.push(variant);
+      variants.push(variant);
       variant = extractVariant();
     }
 
@@ -172,7 +188,6 @@ export const initDownwindWithConfig = ({
       const result: Match = {
         token,
         variants,
-        screen,
         important,
         type: "Arbitrary property",
         content: tokenWithoutVariants.slice(1, -1),
@@ -252,7 +267,6 @@ export const initDownwindWithConfig = ({
     const result: Match = {
       token,
       variants,
-      screen,
       important,
       type: "Rule",
       ruleEntry,
@@ -316,30 +330,28 @@ export const initDownwindWithConfig = ({
         continue;
       }
       const meta = getRuleMeta(match.ruleEntry.rule);
-      let hasMedia = !!match.screen;
-      let hasSupports = false;
+      const flags = { hasMedia: false, hasSupports: false };
       const selector = applyVariants(
         "&",
         match.variants,
         meta,
         () => {
-          hasMedia = true;
+          flags.hasMedia = true;
         },
         () => {
-          hasSupports = true;
+          flags.hasSupports = true;
         },
       );
       if (
-        hasMedia ||
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-        hasSupports ||
+        flags.hasMedia ||
+        flags.hasSupports ||
         !selector.startsWith("&") ||
         meta?.addKeyframes ||
         meta?.addContainer
       ) {
         throw new DownwindError(
           `Complex utils like "${token}" are not supported.${
-            hasMedia && from === "CSS"
+            flags.hasMedia && from === "CSS"
               ? " You can use @media screen(...) for media variants."
               : ""
           }`,
@@ -383,7 +395,7 @@ export const initDownwindWithConfig = ({
         if (variant === undefined) {
           throw new DownwindError(`No variant matching "${value}"`, substring);
         }
-        if (variant.type !== "media" && variant.type !== "screen") {
+        if (variant.type !== "media") {
           throw new DownwindError(
             `"${value}" is not a media variant`,
             substring,
@@ -477,53 +489,32 @@ export const initDownwindWithConfig = ({
     generate: (opts?: { skipLightningCSS?: boolean }) => {
       let useContainer = false;
       let utilsOutput = "";
-      allMatches.forEach((matches, screen) => {
-        if (!matches.length && !useContainer) return;
-        if (screen) {
-          const { min, max } = config.theme.screens[screen]!;
-          if (useContainer && min && max !== undefined) {
-            // If max is defined, we need to use a separate media query
-            const declaration = printScreenContainer(config, screen, min);
-            utilsOutput += `\n@media (min-width: ${min}) {\n${declaration}\n}`;
-            // Avoid empty "default" media query
-            if (!matches.length) return;
-          }
-          utilsOutput += `\n@media ${
-            (variantsMap.get(screen) as Variant & { type: "screen" }).media
-          } {\n`;
-          if (useContainer && min && max === undefined) {
-            const declaration = printScreenContainer(config, screen, min);
-            utilsOutput += `${declaration}\n`;
-          }
-        }
-        for (const match of matches.sort((a, b) => {
+
+      const printMatchMap = (map: MatchMap, baseLevel: boolean) => {
+        map.matches.sort((a, b) => {
           const diff = getOrder(a) - getOrder(b);
           if (diff !== 0) return diff;
           return a.token.localeCompare(b.token);
-        })) {
+        });
+        for (const match of map.matches) {
           const meta =
             match.type === "Rule"
               ? getRuleMeta(match.ruleEntry.rule)
               : undefined;
           if (meta?.addContainer) {
-            if (!screen) {
+            if (baseLevel) {
               useContainer = true;
               utilsOutput += printContainerClass(config.theme.container);
             }
             continue;
           }
           let supportsWrapper: string | undefined;
-          let mediaWrapper: string | undefined;
           let selector = `.${escapeSelector(match.token)}`;
           selector = applyVariants(
             selector,
             match.variants,
             meta,
-            (media) => {
-              mediaWrapper = mediaWrapper
-                ? `${media} and ${mediaWrapper}`
-                : media;
-            },
+            () => undefined,
             (check) => {
               supportsWrapper = supportsWrapper
                 ? `${check} and ${supportsWrapper}`
@@ -533,18 +524,63 @@ export const initDownwindWithConfig = ({
           if (supportsWrapper) {
             utilsOutput += `@supports ${supportsWrapper} {\n`;
           }
-          if (mediaWrapper) utilsOutput += `@media ${mediaWrapper} {\n`;
           utilsOutput += printBlock(
             selector,
             match.type === "Rule"
               ? toCSS(match.ruleEntry, match.important)
               : [arbitraryPropertyMatchToLine(match)],
           );
-          if (mediaWrapper) utilsOutput += "}\n";
           if (supportsWrapper) utilsOutput += "}\n";
         }
-        if (screen) utilsOutput += "}\n";
-      });
+
+        const medias: {
+          key: string;
+          matchMap: MatchMap;
+          order: number;
+          media: string;
+        }[] = [];
+        for (const [key, matchMap] of map.medias) {
+          const variant = variantsMap.get(key) as
+            | (Variant & { type: "media" })
+            | undefined;
+          medias.push({
+            key,
+            matchMap,
+            order: variant?.order ?? Infinity,
+            media: variant?.media ?? key,
+          });
+        }
+        medias.sort((a, b) => {
+          const diff = a.order - b.order;
+          if (diff !== 0) return diff;
+          return a.media.localeCompare(b.media);
+        });
+        for (const { key, media, matchMap } of medias) {
+          const screenConf = config.theme.screens[key] as Screen | undefined;
+          if (useContainer && screenConf?.min && screenConf.max !== undefined) {
+            // If max is defined, we need to use a separate media query
+            const declaration = printScreenContainer(
+              config,
+              key,
+              screenConf.min,
+            );
+            utilsOutput += `\n@media (min-width: ${screenConf.min}) {\n${declaration}\n}`;
+          }
+          utilsOutput += `\n@media ${media} {\n`;
+          if (useContainer && screenConf?.min && screenConf.max === undefined) {
+            const declaration = printScreenContainer(
+              config,
+              key,
+              screenConf.min,
+            );
+            utilsOutput += `${declaration}\n`;
+          }
+          printMatchMap(matchMap, false);
+          utilsOutput += "}\n";
+        }
+      };
+
+      printMatchMap(allMatches, true);
 
       let header = "";
       if (usedDefaults.size) {

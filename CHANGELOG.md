@@ -1,11 +1,18 @@
 # Changelog
 
+## Unreleased
+
+- Support [Design in devtools](https://twitter.com/antfu7/status/1372244287975387145) in the Vite plugin
+- Breaking: Change codegen API to include a `DEVTOOLS` mode
+- esbuild plugin throw instead of adding an error to ensure proper logging to the console ([esbuild#2625](https://github.com/evanw/esbuild/issues/2625))
+
 ## 0.3.0
 
 Align with Tailwind 3.2:
 
-- Add `supports-*` and `max-<screen>`
-- Add `collapse`, `place-content-baseline`, `place-items-baseline`, `content-baseline`, `break-keep`, `fill-none`, `stroke-none` & negative values for `outline-offset`
+- Add `supports-*` and `max-<screen>` dynamic variants
+- Add `collapse`, `place-content-baseline`, `place-items-baseline`, `content-baseline`, `break-keep`, `fill-none` & `stroke-none` utilities
+- Support negative values for `outline-offset` utility
 - Fix some cases for arbitrary variants and handle "arbitrary media" (ex: `[@media(min-width:900px)]:block`)
 
 Other features are not supported, but container queries will probably be added later.

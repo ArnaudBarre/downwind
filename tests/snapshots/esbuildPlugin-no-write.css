@@ -179,22 +179,24 @@ img, video {
 
 html {
   height: 100%;
+  --tw-bg-opacity: 1;
+  background-color: rgb(38 38 38 / var(--tw-bg-opacity));
   --tw-text-opacity: 1;
-  color: rgb(51 65 85 / var(--tw-text-opacity));
-  flex-direction: column;
-  font-size: 1.125rem;
-  line-height: 1.75rem;
-  display: flex;
+  color: rgb(248 250 252 / var(--tw-text-opacity));
   overflow: hidden;
-}
-
-body {
-  margin: 0;
 }
 
 ._6vyDYG_container {
   text-align: center;
   padding: 3rem;
+}
+
+*, :before, :after, ::backdrop {
+  --tw-ordinal: ;
+  --tw-slashed-zero: ;
+  --tw-numeric-figure: ;
+  --tw-numeric-spacing: ;
+  --tw-numeric-fraction: ;
 }
 
 .btn {
@@ -214,7 +216,7 @@ body {
 
 .btn-green:hover {
   --tw-bg-opacity: 1;
-  background-color: rgb(21 128 61 / var(--tw-bg-opacity));
+  background-color: rgb(22 163 74 / var(--tw-bg-opacity));
 }
 
 .mt-4 {
@@ -225,6 +227,11 @@ body {
   padding: 1rem;
 }
 
+.text-lg {
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+}
+
 .text-xl {
   font-size: 1.25rem;
   line-height: 1.75rem;
@@ -232,4 +239,9 @@ body {
 
 .font-bold {
   font-weight: 700;
+}
+
+.tabular-nums {
+  --tw-numeric-spacing: tabular-nums;
+  font-variant-numeric: var(--tw-ordinal) var(--tw-slashed-zero) var(--tw-numeric-figure) var(--tw-numeric-spacing) var(--tw-numeric-fraction);
 }

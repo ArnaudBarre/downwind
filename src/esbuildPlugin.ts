@@ -48,6 +48,8 @@ const esbuildPlugin: typeof declaration = ({
         case "utils.css":
           hasUtils = true;
           return { contents: getPlaceholder(), loader: "css" };
+        case "devtools":
+          return { contents: "" };
         default:
           throw new Error(`Unexpected virtual entry: @downwind/${args.path}`);
       }
@@ -80,24 +82,16 @@ const esbuildPlugin: typeof declaration = ({
     });
     build.onEnd((result) => {
       if (!hasBase || !hasUtils) {
-        result.errors.push({
-          pluginName: "downwind",
-          id: "missing-entry-point",
-          text: `Import virtual:@downwind/${
+        throw new Error(
+          `Import virtual:@downwind/${
             hasUtils ? "base.css" : "utils.css"
           } was not found in the bundle. Downwind can't work without both virtual:@downwind/base.css and virtual:@downwind/utils.css.`,
-          detail: null,
-          notes: [],
-          location: null,
-        });
+        );
       }
-      if (result.errors.length) return;
 
       const transform = (cssPath: string, content: string) => {
         if (!content.includes(getPlaceholder())) {
-          throw new Error(
-            "Downwind: Could not inject CSS utils in build output",
-          );
+          throw new Error("Could not inject CSS utils in build output");
         }
         const withUtils = content.replace(
           getPlaceholder(),

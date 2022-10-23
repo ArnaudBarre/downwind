@@ -572,11 +572,16 @@ export const initDownwindWithConfig = ({
         targets,
       }).code.toString();
     },
-    codegen: ({ omitContent }: { omitContent: boolean }) => {
-      if (omitContent) {
+    codegen: ({
+      mode,
+    }: {
+      mode: "WITH_CONTENT" | "OMIT_CONTENT" | "DEVTOOLS";
+    }) => {
+      if (mode !== "WITH_CONTENT") {
+        const prefix = mode === "DEVTOOLS" ? ".downwind" : "";
         return Array.from(rulesEntries.keys())
-          .map((name) => `.${escapeSelector(name)}{}`)
-          .join("\n");
+          .map((name) => `${prefix}.${escapeSelector(name)}{}`)
+          .join(mode === "DEVTOOLS" ? "" : "\n");
       }
 
       return Array.from(rulesEntries.entries())
@@ -585,11 +590,11 @@ export const initDownwindWithConfig = ({
           if (ruleMeta?.addContainer) {
             return printContainerClass(config.theme.container);
           }
-          let selector = escapeSelector(name);
+          let selector = `.${escapeSelector(name)}`;
           if (ruleMeta?.selectorRewrite) {
             selector = ruleMeta.selectorRewrite(selector);
           }
-          return printBlock(`.${selector}`, toCSS(ruleEntry, false));
+          return printBlock(selector, toCSS(ruleEntry, false));
         })
         .join("");
     },

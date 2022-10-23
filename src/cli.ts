@@ -21,7 +21,9 @@ if (firstArg === "--help" || firstArg === undefined) {
   process.exit();
 }
 
-const omitContent = process.argv.includes("--omit-content");
+const mode = process.argv.includes("--omit-content")
+  ? "OMIT_CONTENT"
+  : "WITH_CONTENT";
 let outputIndex = process.argv.indexOf("-o");
 if (outputIndex === -1) outputIndex = process.argv.indexOf("--output");
 const output = outputIndex === -1 ? undefined : process.argv[outputIndex + 1];
@@ -35,5 +37,5 @@ if (!output) {
 require("./index")
   .initDownwind()
   .then((downwind: Downwind) => {
-    require("fs").writeFileSync(output, downwind.codegen({ omitContent }));
+    require("fs").writeFileSync(output, downwind.codegen({ mode }));
   });

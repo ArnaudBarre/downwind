@@ -3,14 +3,7 @@ import { execSync } from "child_process";
 import { copyFileSync, readFileSync, rmSync, writeFileSync } from "fs";
 import { build, BuildOptions } from "esbuild";
 
-import {
-  author,
-  dependencies,
-  description,
-  license,
-  name,
-  version,
-} from "../package.json";
+import * as packageJSON from "../package.json";
 
 const dev = process.argv.includes("--dev");
 
@@ -20,7 +13,10 @@ const commonOptions: BuildOptions = {
   outdir: "dist",
   platform: "node",
   target: "node16",
-  define: { "__VERSION__": `"${version}"`, "global.TEST_CONFIG": "undefined" },
+  define: {
+    "__VERSION__": `"${packageJSON.version}"`,
+    "global.TEST_CONFIG": "undefined",
+  },
   watch: dev,
 };
 
@@ -59,7 +55,7 @@ Promise.all([
   build({
     bundle: true,
     entryPoints: ["src/index.ts"],
-    external: Object.keys(dependencies),
+    external: Object.keys(packageJSON.dependencies),
     // V8 has a performance issue with object spread: https://bugs.chromium.org/p/v8/issues/detail?id=11536
     // It's used a lot for theme merging, so for now we force esbuild to polyfill it
     // (which was the behaviour pre 14.46: https://github.com/evanw/esbuild/releases/tag/v0.14.46)
@@ -72,11 +68,12 @@ Promise.all([
   copyFileSync("src/types.d.ts", "dist/index.d.ts");
 
   if (
+    !dev &&
     // https://github.com/ArnaudBarre/github-release/blob/main/index.ts#L10-L11
     readFileSync("CHANGELOG.md", "utf-8")
       .split("##")[1]
       .split("\n")[0]
-      .trim() !== version
+      .trim() !== packageJSON.version
   ) {
     throw new Error("Missing changelog");
   }
@@ -85,15 +82,15 @@ Promise.all([
     "dist/package.json",
     JSON.stringify(
       {
-        name,
-        description,
-        version,
-        author,
-        license,
+        name: packageJSON.name,
+        description: packageJSON.description,
+        version: packageJSON.version,
+        author: packageJSON.author,
+        license: packageJSON.license,
         repository: "ArnaudBarre/downwind",
         bin: { downwind: "cli.js" },
         keywords: ["tailwind", "lightningcss"],
-        dependencies,
+        dependencies: packageJSON.dependencies,
       },
       null,
       2,

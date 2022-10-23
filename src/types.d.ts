@@ -42,7 +42,9 @@ export type Downwind = {
   };
   scan: (path: string, content?: string) => boolean /* hasNew */;
   generate: (opts?: { skipLightningCSS?: boolean }) => string;
-  codegen: (opts: { omitContent: boolean }) => string;
+  codegen: (opts: {
+    mode: "WITH_CONTENT" | "OMIT_CONTENT" | "DEVTOOLS";
+  }) => string;
   configFiles: string[];
 };
 

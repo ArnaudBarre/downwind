@@ -1,3 +1,4 @@
+import { IncomingMessage } from "http";
 import { getHash } from "@arnaud-barre/config-loader";
 import { transform as lightningCSSTransform } from "lightningcss";
 import { ViteDevServer, Plugin, ResolvedConfig, Logger } from "vite";
@@ -15,10 +16,13 @@ const vitePlugin: typeof declaration = ({
 } = {}): Plugin[] => {
   let downwind: Downwind;
   let targets: LightningCSSTargets | undefined;
+  let devtoolsPostPath: string;
 
   // Common
   const configResolved = async (config: ResolvedConfig) => {
     targets = convertTargets(config.build.cssTarget);
+    const origin = config.server.origin ?? "";
+    devtoolsPostPath = `${origin}/@downwind-devtools-update`;
     downwind = await initDownwind({
       targets,
       scannedExtension,
@@ -34,6 +38,8 @@ const vitePlugin: typeof declaration = ({
   const baseModuleId = `/${baseVirtual}`;
   const utilsVirtual = "virtual:@downwind/utils.css";
   const utilsModuleId = `/${utilsVirtual}`;
+  const devtoolsVirtual = "virtual:@downwind/devtools";
+  const devtoolsModuleId = `/${devtoolsVirtual}`;
   const resolveId = (id: string) => {
     if (id === baseVirtual) {
       hasBase = true;
@@ -43,6 +49,7 @@ const vitePlugin: typeof declaration = ({
       hasUtils = true;
       return utilsModuleId;
     }
+    if (id === devtoolsVirtual) return devtoolsModuleId;
   };
 
   // Dev
@@ -90,6 +97,27 @@ const vitePlugin: typeof declaration = ({
         server.ws.on(hmrEvent, (servedTime: number) => {
           if (servedTime < lastUpdate) sendUpdate();
         });
+        server.middlewares.use((req, res, next) => {
+          if (req.url !== devtoolsPostPath) {
+            next();
+            return;
+          }
+          getBodyJson<string[]>(res.req)
+            .then((classes) => {
+              const hasNew = downwind.scan(
+                "devtools-update",
+                `@downwind-scan ${classes.join(" ")}`,
+              );
+              if (hasNew) sendUpdate();
+              res.writeHead(200);
+              res.end();
+            })
+            .catch((err) => {
+              logger.error(err);
+              res.writeHead(500);
+              res.end(err.message);
+            });
+        });
       },
       transformIndexHtml() {
         if (!hasWarn) {
@@ -111,6 +139,11 @@ const vitePlugin: typeof declaration = ({
         if (id === utilsModuleId) {
           lastServed = Date.now();
           return downwind.generate();
+        }
+        if (id === devtoolsModuleId) {
+          return devtoolsClient
+            .replace("__POST_PATH__", devtoolsPostPath)
+            .replace("__CSS__", downwind.codegen({ mode: "DEVTOOLS" }));
         }
       },
       transform(code, id) {
@@ -149,6 +182,7 @@ const vitePlugin: typeof declaration = ({
       load(id) {
         if (id === baseModuleId) return downwind.getBase();
         if (id === utilsModuleId) return placeholder;
+        if (id === devtoolsModuleId) return "";
       },
       transform(code, id) {
         if (cssRE.test(id)) {
@@ -225,3 +259,64 @@ const vitePlugin: typeof declaration = ({
     },
   ];
 };
+
+const getBodyJson = <T>(req: IncomingMessage) =>
+  new Promise<T>((resolve, reject) => {
+    let body = "";
+    req.on("data", (chunk: string) => {
+      body += chunk;
+    });
+    req.on("error", reject);
+    req.on("end", () => {
+      try {
+        resolve(JSON.parse(body));
+      } catch (e) {
+        reject(e);
+      }
+    });
+  });
+
+/**
+ * From https://github.com/ArnaudBarre/rds/blob/main/src/client/css-devtools.ts
+ * Adapted from https://github.com/unocss/unocss/blob/main/packages/vite/src/client.ts
+ */
+const devtoolsClient = `
+const sentClasses = new Set();
+const pendingClasses = new Set();
+let timeoutId;
+
+new MutationObserver((mutations) => {
+  mutations.forEach((mutation) => {
+    Array.from(mutation.target.classList).forEach((i) => {
+      if (!sentClasses.has(i)) pendingClasses.add(i);
+    });
+  });
+  if (pendingClasses.size) {
+    if (timeoutId !== undefined) clearTimeout(timeoutId);
+    const payload = Array.from(pendingClasses);
+    timeoutId = setTimeout(() => {
+      fetch("__POST_PATH__", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      }).then((res) => {
+        if (res.ok) {
+          for (const el of payload) {
+            sentClasses.add(el);
+            pendingClasses.delete(el);
+          }
+        }
+      });
+    }, 10);
+  }
+}).observe(document.documentElement, {
+  subtree: true,
+  attributeFilter: ["class"],
+});
+
+const style = document.createElement("style");
+style.setAttribute("type", "text/css");
+style.setAttribute("data-vite-dev-id", "@downwind/devtools");
+style.innerHTML = "__CSS__";
+document.head.appendChild(style);
+`;

@@ -79,7 +79,10 @@ const cases: [name: string, content: string, config?: UserConfig][] = [
     "inset-[-10px] pt-[100px] w-[45%] text-[#ddd] text-[#f009] text-[12px] text-[10px]",
   ],
   ["arbitrary-values-with-spaces", "grid grid-cols-[1fr_500px_2fr]"],
-  ["arbitrary-properties", "[mask-type:luminance] hover:[mask-type:alpha]"],
+  [
+    "arbitrary-properties",
+    "[mask-type:luminance] hover:[mask-type:alpha] [background:repeating-linear-gradient(45deg,#606dbc,#606dbc_10px,#465298_10px,#465298_20px)]",
+  ],
   [
     "arbitrary-variants",
     "[html:has(&)]:bg-blue-500 [&:nth-child(3)]:underline [&>*]:p-4 [.sidebar:hover_&]:opacity-70",

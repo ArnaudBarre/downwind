@@ -380,13 +380,17 @@
   grid-template-columns: 1fr 500px 2fr;
 }
 
-/* arbitrary-properties: [mask-type:luminance] hover:[mask-type:alpha] */
+/* arbitrary-properties: [mask-type:luminance] hover:[mask-type:alpha] [background:repeating-linear-gradient(45deg,#606dbc,#606dbc_10px,#465298_10px,#465298_20px)] */
 .\[mask-type\:luminance\] {
   mask-type: luminance;
 }
 
 .hover\:\[mask-type\:alpha\]:hover {
   mask-type: alpha;
+}
+
+.\[background\:repeating-linear-gradient\(45deg\,\#606dbc\,\#606dbc_10px\,\#465298_10px\,\#465298_20px\)\] {
+  background: repeating-linear-gradient(45deg, #606dbc, #606dbc 10px, #465298 10px 20px);
 }
 
 /* arbitrary-variants: [html:has(&)]:bg-blue-500 [&:nth-child(3)]:underline [&>*]:p-4 [.sidebar:hover_&]:opacity-70 */

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.1
+
+- Fix: Allow `,` in selectors
+- Fix: Map `_` to spaces in arbitrary properties
+
 ## 0.4.0
 
 - Support [Design in devtools](https://twitter.com/antfu7/status/1372244287975387145) in the Vite plugin

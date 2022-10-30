@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Fix crash when using arbitrary values for `animate` rule
+
 ## 0.4.1
 
 - Fix: Allow `,` in selectors

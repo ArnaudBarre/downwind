@@ -116,7 +116,9 @@ export const initDownwindWithConfig = ({
       const meta = getRuleMeta(match.ruleEntry.rule);
       if (meta?.addDefault) usedDefaults.add(meta.addDefault);
       if (meta?.addKeyframes) {
-        const animationProperty = config.theme.animation[match.ruleEntry.key]!;
+        const animationProperty = match.ruleEntry.isArbitrary
+          ? match.ruleEntry.key
+          : config.theme.animation[match.ruleEntry.key]!;
         const name = animationProperty.slice(0, animationProperty.indexOf(" "));
         if (config.theme.keyframes[name]) usedKeyframes.add(name);
       }

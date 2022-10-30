@@ -341,13 +341,17 @@
   border-width: 0 !important;
 }
 
-/* arbitrary-values: inset-[-10px] pt-[100px] w-[45%] text-[#ddd] text-[#f009] text-[12px] text-[10px] */
+/* arbitrary-values: inset-[-10px] pt-[100px] w-[45%] text-[#ddd] text-[#f009] text-[12px] text-[10px] animate-[highlight_1s_ease-in-out_1] */
 .inset-\[-10px\] {
   inset: -10px;
 }
 
 .w-\[45\%\] {
   width: 45%;
+}
+
+.animate-\[highlight_1s_ease-in-out_1\] {
+  animation: 1s ease-in-out highlight;
 }
 
 .pt-\[100px\] {

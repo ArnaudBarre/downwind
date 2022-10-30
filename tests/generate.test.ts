@@ -76,7 +76,7 @@ const cases: [name: string, content: string, config?: UserConfig][] = [
   ["important modifier", "!border-0 !rounded-l-none"],
   [
     "arbitrary-values",
-    "inset-[-10px] pt-[100px] w-[45%] text-[#ddd] text-[#f009] text-[12px] text-[10px]",
+    "inset-[-10px] pt-[100px] w-[45%] text-[#ddd] text-[#f009] text-[12px] text-[10px] animate-[highlight_1s_ease-in-out_1]",
   ],
   ["arbitrary-values-with-spaces", "grid grid-cols-[1fr_500px_2fr]"],
   [

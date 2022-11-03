@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fix crash when using arbitrary values for `animate` rule
+- esbuild plugin: Skip postprocessing when build contains errors to avoid crash
 
 ## 0.4.1
 

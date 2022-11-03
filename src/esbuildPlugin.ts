@@ -88,6 +88,7 @@ const esbuildPlugin: typeof declaration = ({
           } was not found in the bundle. Downwind can't work without both virtual:@downwind/base.css and virtual:@downwind/utils.css.`,
         );
       }
+      if (result.errors.length) return;
 
       const transform = (cssPath: string, content: string) => {
         if (!content.includes(getPlaceholder())) {

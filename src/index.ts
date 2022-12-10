@@ -37,7 +37,7 @@ import { themeGet } from "./utils/themeGet";
 import { getVariants, Variant } from "./variants";
 
 export const VERSION = __VERSION__;
-export { cssModuleToJS } from "./utils/modules";
+export { cssModuleToJS } from "./utils/cssModuleToJS";
 export { convertTargets } from "./utils/convertTargets";
 
 const arbitraryValueRE = /-\[.+]$/;

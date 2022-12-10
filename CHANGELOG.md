@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Fix cssModuleToJS with kebab case classes
+
 ## 0.4.2
 
 - Fix crash when using arbitrary values for `animate` rule

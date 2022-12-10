@@ -12,6 +12,7 @@ declare global {
 require("./generate.test");
 require("./preTransform.test");
 require("./convertTargets.test");
+require("./cssModuleToJS.test");
 require("./codegen.test");
 require("./esbuildPlugin.test");
 require("./vitePlugin.test");

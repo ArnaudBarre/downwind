@@ -183,6 +183,12 @@
   --tw-shadow-color: #dd2;
 }
 
+/* transition: transition-opacity */
+.transition-opacity {
+  transition-property: opacity;
+  transition-duration: .15s;
+}
+
 /* container: container md:p-6 */
 .container {
   width: 100%;

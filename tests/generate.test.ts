@@ -31,6 +31,11 @@ const cases: [name: string, content: string, config?: UserConfig][] = [
     "box-shadow colors",
     "shadow shadow-lg shadow-none shadow-teal-800 shadow-[#dd2] shadow-[5px_10px_teal]",
   ],
+  [
+    "transition",
+    "transition-opacity",
+    { theme: { transitionTimingFunction: {} } },
+  ],
   ["container", "container md:p-6"],
   [
     "container-with-screen-max",

@@ -1063,17 +1063,20 @@ export const getCoreRules = ({
   transitionProperty: themeRule(
     "transition",
     theme.transitionProperty,
-    (value) =>
-      value === "none"
-        ? [["transition-property", "none"]]
-        : [
-            ["transition-property", value],
-            [
-              "transition-timing-function",
-              theme.transitionTimingFunction.DEFAULT!,
-            ],
-            ["transition-duration", theme.transitionDuration.DEFAULT!],
-          ],
+    (value) => {
+      if (value === "none") return [["transition-property", "none"]];
+      const entries: CSSEntries = [["transition-property", value]];
+      if (theme.transitionTimingFunction.DEFAULT) {
+        entries.push([
+          "transition-timing-function",
+          theme.transitionTimingFunction.DEFAULT,
+        ]);
+      }
+      if (theme.transitionDuration.DEFAULT) {
+        entries.push(["transition-duration", theme.transitionDuration.DEFAULT]);
+      }
+      return entries;
+    },
   ),
   transitionDelay: themeRule(
     "delay",

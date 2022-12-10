@@ -1,8 +1,9 @@
 # Changelog
 
-## Unreleased
+## 0.4.3
 
 - Fix cssModuleToJS with kebab case classes
+- Fix transition rule without DEFAULT
 
 ## 0.4.2
 

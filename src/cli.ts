@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-
 import type { Downwind } from "./types";
 
 const firstArg = process.argv[2] as string | undefined;

@@ -4,7 +4,6 @@ import { createRoot } from "react-dom/client";
 import "virtual:@downwind/devtools";
 import "virtual:@downwind/base.css";
 import "./index.css";
-
 import { App } from "./App";
 import "virtual:@downwind/utils.css";
 

@@ -201,7 +201,6 @@ export const initDownwindWithConfig = ({
     let ruleEntry = rulesEntries.get(tokenWithoutVariants);
     if (!ruleEntry) {
       let start = tokenWithoutVariants.indexOf("/");
-      // eslint-disable-next-line no-negated-condition
       if (start !== -1) {
         const prefix = tokenWithoutVariants.slice(0, start);
         const entry = rulesEntries.get(prefix);
@@ -376,7 +375,7 @@ export const initDownwindWithConfig = ({
     let invalidateUtils = false;
     const hasApply = content.includes("@apply ");
     if (hasApply) {
-      content = content.replace(
+      content = content.replaceAll(
         applyRE,
         (substring, tokens: string, endChar: string) => {
           const result = apply({ tokens, context: substring, from: "CSS" });
@@ -392,7 +391,7 @@ export const initDownwindWithConfig = ({
 
     const hasScreen = content.includes("screen(");
     if (hasScreen) {
-      content = content.replace(screenRE, (substring, value: string) => {
+      content = content.replaceAll(screenRE, (substring, value: string) => {
         const variant = variantsMap.get(value);
         if (variant === undefined) {
           throw new DownwindError(`No variant matching "${value}"`, substring);
@@ -409,7 +408,7 @@ export const initDownwindWithConfig = ({
 
     const hasTheme = content.includes('theme("');
     if (hasTheme) {
-      content = content.replace(themeRE, (_, path: string) => {
+      content = content.replaceAll(themeRE, (_, path: string) => {
         if (path.includes(" / ")) {
           const [key, alpha] = path.split(" / ");
           const color = themeGet(config.theme, key);

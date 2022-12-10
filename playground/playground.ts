@@ -2,7 +2,6 @@
 import { writeFileSync, existsSync } from "node:fs";
 
 import "./set-version";
-
 import { initDownwindWithConfig } from "../src";
 
 if (!existsSync("./config.ts")) {

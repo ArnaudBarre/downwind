@@ -1,7 +1,7 @@
 {
   "name": "@arnaud-barre/downwind",
   "description": "A PostCSS-less implementation of Tailwind based on Lightning CSS",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "author": "Arnaud Barré (https://github.com/ArnaudBarre)",
   "license": "MIT",
   "scripts": {
@@ -27,17 +27,17 @@
     ]
   },
   "dependencies": {
-    "@arnaud-barre/config-loader": "^0.5.1",
-    "lightningcss": "^1.16.0"
+    "@arnaud-barre/config-loader": "^0.5.2",
+    "lightningcss": "^1.17.1"
   },
   "devDependencies": {
-    "@arnaud-barre/eslint-config": "^1.0.13",
-    "@ianvs/prettier-plugin-sort-imports": "^3.4.2",
-    "@nabla/tnode": "^0.7.0",
-    "@types/node": "^18.11.3",
-    "eslint": "^8.26.0",
-    "prettier": "^2.7.1",
-    "typescript": "^4.8.4",
-    "vite": "^3.1.8"
+    "@arnaud-barre/eslint-config": "^1.0.18",
+    "@ianvs/prettier-plugin-sort-imports": "^3.7.1",
+    "@nabla/tnode": "^0.8.0",
+    "@types/node": "^18.11.12",
+    "eslint": "^8.29.0",
+    "prettier": "^2.8.1",
+    "typescript": "^4.9.4",
+    "vite": "^4.0.0"
   }
 }

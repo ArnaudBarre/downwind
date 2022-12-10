@@ -1,5 +1,4 @@
 #!/usr/bin/env tnode
-
 import type { UserConfig } from "../src/types";
 
 declare global {

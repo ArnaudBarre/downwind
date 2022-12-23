@@ -8559,7 +8559,7 @@
   list-style-type: decimal;
 }
 .appearance-none {
-  appearance-none: none;
+  appearance: none;
 }
 .columns-1 {
   columns: 1;

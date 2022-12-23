@@ -322,7 +322,7 @@ export const getCoreRules = ({
     "outside",
   ]),
   listStyleType: themeRule("list", theme.listStyleType, "list-style-type"),
-  appearance: ["appearance-none", [["appearance-none", "none"]]],
+  appearance: ["appearance-none", [["appearance", "none"]]],
   columns: themeRule("columns", theme.columns, "columns"),
   breakBefore: enumRule("break-before-", "break-before", breaks),
   breakInside: enumRule("break-inside-", "break-inside", [

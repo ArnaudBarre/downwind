@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.4
+
+Fix `apparence-none`
+
 ## 0.4.3
 
 - Fix cssModuleToJS with kebab case classes

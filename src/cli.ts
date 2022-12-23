@@ -36,5 +36,8 @@ if (!output) {
 require("./index")
   .initDownwind()
   .then((downwind: Downwind) => {
-    require("fs").writeFileSync(output, downwind.codegen({ mode }));
+    const { writeFileSync, existsSync, mkdirSync } = require("fs");
+    const dir = require("path").dirname(output);
+    if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+    writeFileSync(output, downwind.codegen({ mode }));
   });

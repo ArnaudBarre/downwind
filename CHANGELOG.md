@@ -1,8 +1,12 @@
 # Changelog
 
+## Unreleased
+
+Fix generate CLI when output doesn't exist
+
 ## 0.4.4
 
-Fix `apparence-none`
+Fix `appearance-none`
 
 ## 0.4.3
 

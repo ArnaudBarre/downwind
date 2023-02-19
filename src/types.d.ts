@@ -1,5 +1,10 @@
 import { DefineConfig } from "@arnaud-barre/config-loader";
-import { CSSModuleExports, Dependency, TransformOptions } from "lightningcss";
+import {
+  CSSModuleExports,
+  CustomAtRules,
+  Dependency,
+  TransformOptions,
+} from "lightningcss";
 
 export declare const VERSION: string;
 
@@ -18,7 +23,9 @@ export type DownwindConfig = DefineConfig<UserConfig>;
 /**
  * API
  */
-type LightningCSSTargets = NonNullable<TransformOptions["targets"]>;
+type LightningCSSTargets = NonNullable<
+  TransformOptions<CustomAtRules>["targets"]
+>;
 export declare const initDownwind: (opts?: {
   targets?: LightningCSSTargets;
   scannedExtension?: string;

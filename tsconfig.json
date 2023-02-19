@@ -1,9 +1,10 @@
 {
-  "include": ["bench", "playground", "scripts", "src", "tests"],
+  "include": ["**/*.ts", "**/*.tsx"],
   "exclude": ["playground/vite"],
   "compilerOptions": {
     "target": "ES2021", // Target node 16
     "noEmit": true, // Compile via esbuild
+    "skipLibCheck": true,
 
     /* Imports */
     "moduleResolution": "node", // Allow `index` imports

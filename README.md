@@ -2,9 +2,9 @@
 
 A PostCSS-less implementation of Tailwind based on [Lightning CSS](https://github.com/parcel-bundler/lightningcss) with an API optimized for dev server like [Vite](https://github.com/vitejs/vite).
 
-Inspired by [unocss](https://github.com/unocss/unocss).
+Inspired by [UnoCSS](https://github.com/unocss/unocss).
 
-## Usage with [vite](https://vitejs.dev/)
+## Usage with [Vite](https://vitejs.dev/)
 
 ```ts
 // vite.config.ts
@@ -192,7 +192,7 @@ For colored box shadows, you need to use this config format:
 
 ### Space utility
 
-Can be overridden by margin utility and doesn't work for flex-reverse.
+Can be overridden by margin utility and doesn't work for flex-reverse. I highly recommend migrating to [flex gap](https://caniuse.com/flexbox-gap).
 
 ### Inset utility
 

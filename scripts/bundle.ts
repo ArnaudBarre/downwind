@@ -1,7 +1,7 @@
 #!/usr/bin/env tnode
 import { execSync } from "child_process";
 import { copyFileSync, readFileSync, rmSync, writeFileSync } from "fs";
-import { build, BuildOptions } from "esbuild";
+import { build, BuildOptions, context } from "esbuild";
 
 import * as packageJSON from "../package.json";
 
@@ -17,11 +17,15 @@ const commonOptions: BuildOptions = {
     "__VERSION__": `"${packageJSON.version}"`,
     "global.TEST_CONFIG": "undefined",
   },
-  watch: dev,
+};
+
+const buildOrWatch = async (options: BuildOptions) => {
+  if (dev) await (await context(options)).watch();
+  else await build(options);
 };
 
 Promise.all([
-  build({
+  buildOrWatch({
     entryPoints: ["src/cli.ts", "src/esbuildPlugin.ts", "src/vitePlugin.ts"],
     ...commonOptions,
     plugins: [
@@ -52,7 +56,7 @@ Promise.all([
       },
     ],
   }),
-  build({
+  buildOrWatch({
     bundle: true,
     entryPoints: ["src/index.ts"],
     external: Object.keys(packageJSON.dependencies),
@@ -71,7 +75,7 @@ Promise.all([
     !dev &&
     // https://github.com/ArnaudBarre/github-release/blob/main/index.ts#L10-L11
     readFileSync("CHANGELOG.md", "utf-8")
-      .split("##")[1]
+      .split("##")[2]
       .split("\n")[0]
       .trim() !== packageJSON.version
   ) {

@@ -499,7 +499,7 @@ html:has(.\[html\:has\(\&\)\]\:bg-blue-500) {
   }
 }
 
-@supports (display:grid) {
+@supports (display: grid) {
   .supports-\[display\:grid\]\:grid {
     display: grid;
   }

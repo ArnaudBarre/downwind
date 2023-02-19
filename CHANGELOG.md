@@ -2,7 +2,8 @@
 
 ## Unreleased
 
-Fix generate CLI when output doesn't exist
+- Fix generate CLI when output doesn't exist
+- Fix: Throw when using invalid rule in `@apply` that was previously scanned
 
 ## 0.4.4
 

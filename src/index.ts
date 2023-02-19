@@ -127,8 +127,8 @@ export const initDownwindWithConfig = ({
   };
 
   const parseCache = new Map<string, Match>();
-  const parse = (token: string): Match | undefined => {
-    if (blockList.has(token)) return;
+  const parse = (token: string, skipBlockList?: boolean): Match | undefined => {
+    if (!skipBlockList && blockList.has(token)) return;
     const cachedValue = parseCache.get(token);
     if (cachedValue) return cachedValue;
 
@@ -322,7 +322,7 @@ export const initDownwindWithConfig = ({
     let invalidateUtils = false;
     for (const token of tokens.split(" ")) {
       if (!token) continue;
-      const match = parse(token);
+      const match = parse(token, true);
       if (!match) {
         throw new DownwindError(`No rule matching "${token}"`, context);
       }
@@ -429,7 +429,7 @@ export const initDownwindWithConfig = ({
   };
 
   for (const token of config.safelist) {
-    const match = parse(token);
+    const match = parse(token, true);
     if (!match) {
       throw new Error(`downwind: No rule matching "${token}" in safelist`);
     }

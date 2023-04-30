@@ -10,12 +10,19 @@ import {
 type AnyThemeRule = ThemeRule<any> | DirectionThemeRule;
 export type RuleEntry = {
   rule: Rule;
-  key: string; // "" for static rules & shortcuts, the theme key for theme rules or the actual value for arbitrary entries
   direction: string;
   negative: boolean;
   order: number;
-  isArbitrary: boolean;
-};
+} & (
+  | {
+      key: string; // "" for static rules & shortcuts, the theme key for theme rules
+      isArbitrary: false;
+    }
+  | {
+      value: string | string[];
+      isArbitrary: true;
+    }
+);
 type ArbitraryEntry = {
   rule: AnyThemeRule;
   direction: string;
@@ -27,7 +34,7 @@ const allowNegativeRE = /^[1-9]|^0\./;
 
 export const getEntries = (config: ResolvedConfig) => {
   const rules = getRules(config);
-  const rulesEntries = new Map<string, RuleEntry>();
+  const rulesEntries = new Map<string, RuleEntry & { isArbitrary: false }>();
   const arbitraryEntries = new Map<string, ArbitraryEntry[]>();
   let order = 0;
   let nbArbitraryRules = 0;

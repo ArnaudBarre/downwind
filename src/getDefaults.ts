@@ -22,6 +22,11 @@ export const getDefaults = ({ theme }: ResolvedConfig): Defaults => {
       ["--tw-scale-x", "1"],
       ["--tw-scale-y", "1"],
     ],
+    "gradient-color-stops": [
+      ["--tw-gradient-from", " "],
+      ["--tw-gradient-stops", " "],
+      ["--tw-gradient-to", " "],
+    ],
     "touch-action": [
       ["--tw-pan-x", " "],
       ["--tw-pan-y", " "],

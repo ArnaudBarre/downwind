@@ -96,7 +96,7 @@ export const initDownwindWithConfig = ({
     ),
   };
   const allClasses = new Set<string>();
-  const blockList = new Set<string>();
+  const blockList = new Set<string>(config.blocklist);
   const addMatch = (match: Match): boolean /* isNew */ => {
     if (allClasses.has(match.token)) return false;
     allClasses.add(match.token);
@@ -117,13 +117,47 @@ export const initDownwindWithConfig = ({
       if (meta?.addDefault) usedDefaults.add(meta.addDefault);
       if (meta?.addKeyframes) {
         const animationProperty = match.ruleEntry.isArbitrary
-          ? match.ruleEntry.key
+          ? (match.ruleEntry.value as string)
           : config.theme.animation[match.ruleEntry.key]!;
         const name = animationProperty.slice(0, animationProperty.indexOf(" "));
         if (config.theme.keyframes[name]) usedKeyframes.add(name);
       }
     }
     return true;
+  };
+
+  const normalizeArbitraryValue = (raw: string) =>
+    raw.startsWith("--") ? `var(${raw})` : raw.replaceAll("_", " ");
+
+  const parseArbitrary = (tokenPart: string) => {
+    const start = tokenPart.indexOf("[");
+    if (start !== -1 && arbitraryValueRE.test(tokenPart)) {
+      const prefix = tokenPart.slice(0, start - 1);
+      const entries = arbitraryEntries.get(prefix);
+      if (entries) {
+        const value = tokenPart.slice(start + 1, -1);
+        const entry =
+          entries.length > 1
+            ? entries.find((e) =>
+                e.validation === "color-only"
+                  ? isColor(value) || value.startsWith("--")
+                  : true,
+              )!
+            : entries[0];
+        return { ...entry, value: normalizeArbitraryValue(value) };
+      }
+    }
+  };
+
+  const getModifierValue = (
+    rawModifier: string,
+    themeMap: Record<string, any>,
+  ) => {
+    if (rawModifier.startsWith("[")) {
+      if (!rawModifier.endsWith("]")) return;
+      return normalizeArbitraryValue(rawModifier.slice(1, -1));
+    }
+    return themeMap[rawModifier];
   };
 
   const parseCache = new Map<string, Match>();
@@ -198,38 +232,61 @@ export const initDownwindWithConfig = ({
       return result;
     }
 
-    let ruleEntry = rulesEntries.get(tokenWithoutVariants);
+    let ruleEntry: RuleEntry | undefined =
+      rulesEntries.get(tokenWithoutVariants);
     if (!ruleEntry) {
       let start = tokenWithoutVariants.indexOf("/");
       if (start !== -1) {
+        // Has modifier
         const prefix = tokenWithoutVariants.slice(0, start);
-        const entry = rulesEntries.get(prefix);
-        if (entry && (isThemeRule(entry.rule) || isDirectionRule(entry.rule))) {
-          const alphaModifiers = (
-            isThemeRule(entry.rule) ? entry.rule[3] : entry.rule[4]
-          )?.alphaModifiers;
-          if (alphaModifiers) {
-            const alphaModifier = tokenWithoutVariants.slice(start + 1);
-            const alpha = alphaModifier.startsWith("[")
-              ? alphaModifier.endsWith("]")
-                ? alphaModifier.slice(1, -1)
-                : undefined
-              : alphaModifiers[alphaModifier];
-            if (alpha) {
-              const parsed = parseColor(
-                (isThemeRule(entry.rule) ? entry.rule[1] : entry.rule[2])[
-                  entry.key
+        const entry = rulesEntries.get(prefix) ?? parseArbitrary(prefix);
+        if (entry) {
+          if (isThemeRule(entry.rule) && entry.rule[3]?.lineHeightModifiers) {
+            const rawModifier = tokenWithoutVariants.slice(start + 1);
+            const modifier = getModifierValue(
+              rawModifier,
+              config.theme.lineHeight,
+            );
+            if (modifier) {
+              const fontSize =
+                "value" in entry ? entry.value : entry.rule[1][entry.key];
+              ruleEntry = {
+                rule: entry.rule,
+                isArbitrary: true,
+                value: [
+                  Array.isArray(fontSize) ? fontSize[0] : fontSize,
+                  modifier,
                 ],
-              );
-              if (parsed && !parsed.alpha) {
-                ruleEntry = {
-                  rule: entry.rule,
-                  key: formatColor({ ...parsed, alpha }),
-                  direction: entry.direction,
-                  negative: false,
-                  order: entry.order,
-                  isArbitrary: true,
-                };
+                direction: entry.direction,
+                negative: false,
+                order: entry.order,
+              };
+            }
+          } else if (isThemeRule(entry.rule) || isDirectionRule(entry.rule)) {
+            const alphaModifiers = (
+              isThemeRule(entry.rule) ? entry.rule[3] : entry.rule[4]
+            )?.alphaModifiers;
+            if (alphaModifiers) {
+              const alphaModifier = tokenWithoutVariants.slice(start + 1);
+              const alpha = getModifierValue(alphaModifier, alphaModifiers);
+              if (alpha) {
+                const parsed = parseColor(
+                  "value" in entry
+                    ? entry.value
+                    : (isThemeRule(entry.rule) ? entry.rule[1] : entry.rule[2])[
+                        entry.key
+                      ],
+                );
+                if (parsed && !parsed.alpha) {
+                  ruleEntry = {
+                    rule: entry.rule,
+                    isArbitrary: true,
+                    value: formatColor({ ...parsed, alpha }),
+                    direction: entry.direction,
+                    negative: false,
+                    order: entry.order,
+                  };
+                }
               }
             }
           }
@@ -237,23 +294,15 @@ export const initDownwindWithConfig = ({
       } else {
         start = tokenWithoutVariants.indexOf("[");
         if (start !== -1 && arbitraryValueRE.test(tokenWithoutVariants)) {
-          const prefix = tokenWithoutVariants.slice(0, start - 1);
-          const entries = arbitraryEntries.get(prefix);
-          if (entries) {
-            const value = tokenWithoutVariants.slice(start + 1, -1);
-            const entry =
-              entries.length > 1
-                ? entries.find((e) =>
-                    e.validation === "color-only" ? isColor(value) : true,
-                  )!
-                : entries[0];
+          const entry = parseArbitrary(tokenWithoutVariants);
+          if (entry) {
             ruleEntry = {
               rule: entry.rule,
-              key: value.replaceAll("_", " "),
+              isArbitrary: true,
+              value: entry.value,
               direction: entry.direction,
               negative: false,
               order: entry.order,
-              isArbitrary: true,
             };
           }
         }
@@ -290,7 +339,7 @@ export const initDownwindWithConfig = ({
     const cssEntries: CSSEntries = isThemeRule(rule)
       ? rule[2](
           ruleEntry.isArbitrary
-            ? ruleEntry.key
+            ? ruleEntry.value
             : ruleEntry.negative
             ? `-${(rule[1] as Record<string, string>)[ruleEntry.key]}`
             : rule[1][ruleEntry.key]!,
@@ -299,7 +348,7 @@ export const initDownwindWithConfig = ({
       ? rule[3](
           ruleEntry.direction,
           ruleEntry.isArbitrary
-            ? ruleEntry.key
+            ? (ruleEntry.value as string)
             : ruleEntry.negative
             ? `-${rule[2][ruleEntry.key]!}`
             : rule[2][ruleEntry.key]!,

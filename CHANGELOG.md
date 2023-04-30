@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+## 0.5.0
+
+Align with Tailwind 3.3:
+
+- Extend default color palette with new 950 shades
+- Add line-height modifier support to font-size utilities
+- Add support for using variables as arbitrary values without `var(...)`
+- Added utilities: `hyphens`, `from-{position}`, `via-{position}`, `to-{position}`, `list-style-image`, `caption-side`, `delay-0`, `duration-0`, `justify-normal`,`justify-stretch`, `content-normal`, `content-stretch`, `whitespace-break-spaces`
+- Add blocklist option to prevent generating unwanted CSS
+- Use inset instead of top, right, bottom, and left properties
+- Reset all properties when using `line-clamp-none`
+
+The main potential breaking change is that gradient steps for arbitrary values can now become position if not detected as a color.
+
+Logical properties & font-variation-settings are currently out of scope.
+
 ## 0.4.5
 
 - Fix generate CLI when output doesn't exist

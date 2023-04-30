@@ -26,7 +26,8 @@ const cases: [name: string, content: string, config?: UserConfig][] = [
   ["direction mandatory rules", "space-2 space-y-4"],
   ["with-default", "rotate-12"],
   ["with-keyframes", "animate-spin"],
-  ["gradients", "from-orange-200 via-purple-400 to-red-600"],
+  ["gradients", "from-orange-200 via-purple-400 via-40% to-red-600"],
+  ["line-height modifier", "text-lg/8"],
   [
     "box-shadow colors",
     "shadow shadow-lg shadow-none shadow-teal-800 shadow-[#dd2] shadow-[5px_10px_teal]",
@@ -81,7 +82,7 @@ const cases: [name: string, content: string, config?: UserConfig][] = [
   ["important modifier", "!border-0 !rounded-l-none"],
   [
     "arbitrary-values",
-    "inset-[-10px] pt-[100px] w-[45%] text-[#ddd] text-[#f009] text-[12px] text-[10px] animate-[highlight_1s_ease-in-out_1]",
+    "inset-[-10px] pt-[100px] w-[45%] text-[#ddd] text-[#f009] text-[12px] text-[10px] animate-[highlight_1s_ease-in-out_1] bg-[#ddd]/50 bg-[--primary] bg-red-500/[--opacity] text-[19px]/7 text-[19px]/[27px]",
   ],
   ["arbitrary-values-with-spaces", "grid grid-cols-[1fr_500px_2fr]"],
   [
@@ -172,6 +173,7 @@ const cases: [name: string, content: string, config?: UserConfig][] = [
     "m-4",
     { safelist: (theme) => Object.keys(theme.padding).map((v) => `p-${v}`) },
   ],
+  ["blocklist", "m-4 invisible", { blocklist: ["invisible"] }],
 ];
 
 const snapshots = Object.fromEntries(

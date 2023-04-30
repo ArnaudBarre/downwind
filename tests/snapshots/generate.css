@@ -142,18 +142,36 @@
   animation: 1s linear infinite spin;
 }
 
-/* gradients: from-orange-200 via-purple-400 to-red-600 */
+/* gradients: from-orange-200 via-purple-400 via-40% to-red-600 */
+*, :before, :after, ::backdrop {
+  --tw-gradient-from: ;
+  --tw-gradient-stops: ;
+  --tw-gradient-to: ;
+}
+
 .from-orange-200 {
-  --tw-gradient-from: #fed7aa;
-  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, #fed7aa00);
+  --tw-gradient-from: #fed7aa var(--tw-gradient-from-position);
+  --tw-gradient-to: #fed7aa00 var(--tw-gradient-to-position);
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
 }
 
 .via-purple-400 {
-  --tw-gradient-stops: var(--tw-gradient-from), #c084fc, var(--tw-gradient-to, #c084fc00);
+  --tw-gradient-to: #c084fc00 var(--tw-gradient-to-position);
+  --tw-gradient-stops: var(--tw-gradient-from), #c084fc var(--tw-gradient-via-position), var(--tw-gradient-to);
+}
+
+.via-40\% {
+  --tw-gradient-via-position: 40%;
 }
 
 .to-red-600 {
-  --tw-gradient-to: #dc2626;
+  --tw-gradient-to: #dc2626 var(--tw-gradient-to-position);
+}
+
+/* line-height modifier: text-lg/8 */
+.text-lg\/8 {
+  font-size: 1.125rem;
+  line-height: 2rem;
 }
 
 /* box-shadow colors: shadow shadow-lg shadow-none shadow-teal-800 shadow-[#dd2] shadow-[5px_10px_teal] */
@@ -347,7 +365,7 @@
   border-width: 0 !important;
 }
 
-/* arbitrary-values: inset-[-10px] pt-[100px] w-[45%] text-[#ddd] text-[#f009] text-[12px] text-[10px] animate-[highlight_1s_ease-in-out_1] */
+/* arbitrary-values: inset-[-10px] pt-[100px] w-[45%] text-[#ddd] text-[#f009] text-[12px] text-[10px] animate-[highlight_1s_ease-in-out_1] bg-[#ddd]/50 bg-[--primary] bg-red-500/[--opacity] text-[19px]/7 text-[19px]/[27px] */
 .inset-\[-10px\] {
   inset: -10px;
 }
@@ -360,6 +378,18 @@
   animation: 1s ease-in-out highlight;
 }
 
+.bg-red-500\/\[--opacity\] {
+  background-color: rgb(239 68 68 / var(--opacity));
+}
+
+.bg-\[--primary\] {
+  background-color: var(--primary);
+}
+
+.bg-\[\#ddd\]\/50 {
+  background-color: #dddddd80;
+}
+
 .pt-\[100px\] {
   padding-top: 100px;
 }
@@ -370,6 +400,16 @@
 
 .text-\[12px\] {
   font-size: 12px;
+}
+
+.text-\[19px\]\/\[27px\] {
+  font-size: 19px;
+  line-height: 27px;
+}
+
+.text-\[19px\]\/7 {
+  font-size: 19px;
+  line-height: 1.75rem;
 }
 
 .text-\[\#ddd\] {
@@ -740,5 +780,10 @@ html:has(.\[html\:has\(\&\)\]\:bg-blue-500) {
 
 .p-3\.5 {
   padding: .875rem;
+}
+
+/* blocklist: m-4 invisible */
+.m-4 {
+  margin: 1rem;
 }
 

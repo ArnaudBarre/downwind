@@ -74,7 +74,7 @@ export const getCoreRules = ({
       theme.inset,
       (d) =>
         ({
-          all: ["top", "right", "bottom", "left"],
+          all: ["inset"],
           x: ["left", "right"],
           y: ["top", "bottom"],
           tr: ["top", "right"],
@@ -154,6 +154,7 @@ export const getCoreRules = ({
   flexGrow: themeRule("grow", theme.flexGrow, "flex-grow"),
   flexBasis: themeRule("basis", theme.flexBasis, "flex-basis"),
   tableLayout: enumRule("table-", "table-layout", ["auto", "fixed"]),
+  captionSide: enumRule("caption-", "caption-side", ["top", "bottom"]),
   borderCollapse: enumRule("border-", "border-collapse", [
     "collapse",
     "separate",
@@ -322,6 +323,11 @@ export const getCoreRules = ({
     "outside",
   ]),
   listStyleType: themeRule("list", theme.listStyleType, "list-style-type"),
+  listStyleImage: themeRule(
+    "list-image",
+    theme.listStyleImage,
+    "list-style-image",
+  ),
   appearance: ["appearance-none", [["appearance", "none"]]],
   columns: themeRule("columns", theme.columns, "columns"),
   breakBefore: enumRule("break-before-", "break-before", breaks),
@@ -422,7 +428,17 @@ export const getCoreRules = ({
   alignContent: enumRule(
     "content-",
     "align-content",
-    ["start", "end", "center", "between", "around", "evenly", "baseline"],
+    [
+      "normal",
+      "start",
+      "end",
+      "center",
+      "between",
+      "around",
+      "evenly",
+      "baseline",
+      "stretch",
+    ],
     (v) => prefixSpace(prefixFlex(v)),
   ),
   alignItems: enumRule(
@@ -434,7 +450,16 @@ export const getCoreRules = ({
   justifyContent: enumRule(
     "justify-",
     "justify-content",
-    ["start", "end", "center", "between", "around", "evenly"],
+    [
+      "normal",
+      "start",
+      "end",
+      "center",
+      "between",
+      "around",
+      "evenly",
+      "stretch",
+    ],
     (v) => prefixSpace(prefixFlex(v)),
   ),
   justifyItems: enumRule("justify-items-", "justify-items", [
@@ -569,12 +594,14 @@ export const getCoreRules = ({
     ["text-ellipsis", [["text-overflow", "ellipsis"]]],
     ["text-clip", [["text-overflow", "clip"]]],
   ],
+  hyphens: enumRule("hyphens-", "hyphens", ["none", "manual", "auto"]),
   whitespace: enumRule("whitespace-", "white-space", [
     "normal",
     "nowrap",
     "pre",
     "pre-line",
     "pre-wrap",
+    "break-spaces",
   ]),
   wordBreak: [
     [
@@ -662,32 +689,68 @@ export const getCoreRules = ({
       "from",
       theme.gradientColorStops,
       (value) => [
-        ["--tw-gradient-from", value],
+        ["--tw-gradient-from", `${value} var(--tw-gradient-from-position)`],
+        [
+          "--tw-gradient-to",
+          `${transparentTo(value)} var(--tw-gradient-to-position)`,
+        ],
         [
           "--tw-gradient-stops",
-          `var(--tw-gradient-from), var(--tw-gradient-to, ${transparentTo(
-            value,
-          )})`,
+          "var(--tw-gradient-from), var(--tw-gradient-to)",
         ],
       ],
-      { alphaModifiers: theme.opacity },
+      {
+        arbitrary: "color-only",
+        alphaModifiers: theme.opacity,
+        addDefault: "gradient-color-stops",
+      },
+    ),
+    themeRule(
+      "from",
+      theme.gradientColorStopPositions,
+      "--tw-gradient-from-position",
     ),
     themeRule(
       "via",
       theme.gradientColorStops,
       (value) => [
         [
+          "--tw-gradient-to",
+          `${transparentTo(value)} var(--tw-gradient-to-position)`,
+        ],
+        [
           "--tw-gradient-stops",
-          `var(--tw-gradient-from), ${value}, var(--tw-gradient-to, ${transparentTo(
-            value,
-          )})`,
+          `var(--tw-gradient-from), ${value} var(--tw-gradient-via-position), var(--tw-gradient-to)`,
         ],
       ],
-      { alphaModifiers: theme.opacity },
+      {
+        arbitrary: "color-only",
+        alphaModifiers: theme.opacity,
+        addDefault: "gradient-color-stops",
+      },
     ),
-    themeRule("to", theme.gradientColorStops, "--tw-gradient-to", {
-      alphaModifiers: theme.opacity,
-    }),
+    themeRule(
+      "via",
+      theme.gradientColorStopPositions,
+      "--tw-gradient-via-position",
+    ),
+    themeRule(
+      "to",
+      theme.gradientColorStops,
+      (value) => [
+        ["--tw-gradient-to", `${value} var(--tw-gradient-to-position)`],
+      ],
+      {
+        arbitrary: "color-only",
+        alphaModifiers: theme.opacity,
+        addDefault: "gradient-color-stops",
+      },
+    ),
+    themeRule(
+      "to",
+      theme.gradientColorStopPositions,
+      "--tw-gradient-to-position",
+    ),
   ],
   // Non-compliant: Remove deprecated decoration-(slice|clone)
   boxDecorationBreak: enumRule("box-decoration-", "box-decoration-break", [
@@ -765,15 +828,20 @@ export const getCoreRules = ({
     arbitrary: null,
   }),
   // Non-compliant: Doesn't handle { lineHeight, letterSpacing } format
-  fontSize: complexThemeRule("text", theme.fontSize, (value) => {
-    if (Array.isArray(value)) {
-      return [
-        ["font-size", value[0]],
-        ["line-height", value[1]],
-      ];
-    }
-    return [["font-size", value]];
-  }),
+  fontSize: complexThemeRule(
+    "text",
+    theme.fontSize,
+    (value) => {
+      if (Array.isArray(value)) {
+        return [
+          ["font-size", value[0]],
+          ["line-height", value[1]],
+        ];
+      }
+      return [["font-size", value]];
+    },
+    { lineHeightModifiers: true },
+  ),
   fontWeight: themeRule("font", theme.fontWeight, "font-weight"),
   textTransform: enumRule(
     "",
@@ -1105,7 +1173,15 @@ export const getCoreRules = ({
       ["-webkit-box-orient", "vertical"],
       "-webkit-line-clamp",
     ]),
-    ["line-clamp-none", [["-webkit-line-clamp", "unset"]]],
+    [
+      "line-clamp-none",
+      [
+        ["overflow", "visible"],
+        ["display", "block"],
+        ["-webkit-box-orient", "horizontal"],
+        ["-webkit-line-clamp", "none"],
+      ],
+    ],
   ],
 });
 

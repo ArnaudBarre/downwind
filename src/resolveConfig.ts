@@ -16,6 +16,7 @@ export type ResolvedConfig = {
   rules: BaseRule[];
   shortcuts: Record<string, string>;
   safelist: string[];
+  blocklist: string[];
 };
 
 export const resolveConfig = (
@@ -75,5 +76,6 @@ export const resolveConfig = (
         : config?.rules ?? [],
     shortcuts: config?.shortcuts ?? {},
     safelist: config?.safelist?.(theme as ResolvedTheme) ?? [],
+    blocklist: config?.blocklist ?? [],
   };
 };

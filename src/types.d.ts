@@ -17,6 +17,7 @@ type UserConfig = Partial<{
   rules: BaseRule[] | ((theme: ResolvedTheme) => BaseRule[]);
   shortcuts: Record<string, string>;
   safelist: (theme: ResolvedTheme) => string[];
+  blocklist: string[];
 }>;
 export type DownwindConfig = DefineConfig<UserConfig>;
 
@@ -127,6 +128,10 @@ type ThemeRuleMeta = RuleMeta & {
    * Opacity theme to enable opacity shortcut like text-blue-200/20
    */
   alphaModifiers?: Record<string, string | undefined>;
+  /**
+   * @internal
+   */
+  lineHeightModifiers?: boolean;
 };
 type SelectorRewrite = (value: string) => string;
 type CSSEntries = CSSEntry[];
@@ -230,6 +235,7 @@ type ThemeKey =
   | "fontWeight"
   | "gap"
   | "gradientColorStops"
+  | "gradientColorStopPositions"
   | "gridAutoColumns"
   | "gridAutoRows"
   | "gridColumn"
@@ -247,6 +253,7 @@ type ThemeKey =
   | "lineClamp"
   | "lineHeight"
   | "listStyleType"
+  | "listStyleImage"
   | "margin"
   | "maxHeight"
   | "maxWidth"
@@ -296,6 +303,7 @@ type ThemeKey =
 
 type Default =
   | "transform"
+  | "gradient-color-stops"
   | "touch-action"
   | "scroll-snap-type"
   | "font-variant-numeric"
@@ -335,6 +343,7 @@ type CoreRule =
   | "flexGrow"
   | "flexBasis"
   | "tableLayout"
+  | "captionSide"
   | "borderCollapse"
   | "transformOrigin"
   | "translate"
@@ -354,6 +363,7 @@ type CoreRule =
   | "scrollPadding"
   | "listStylePosition"
   | "listStyleType"
+  | "listStyleImage"
   | "appearance"
   | "columns"
   | "breakBefore"
@@ -386,6 +396,7 @@ type CoreRule =
   | "overscrollBehavior"
   | "scrollBehavior"
   | "textOverflow"
+  | "hyphens"
   | "whitespace"
   | "wordBreak"
   | "borderRadius"

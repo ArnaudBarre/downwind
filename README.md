@@ -114,7 +114,7 @@ export const config: DownwindConfig = {
 The implementation would work most of the time, but some shortcuts have been made to keep the implementation lean and fast:
 
 - `backgroundImage`, `backgroundPosition` and `fontFamily` are not supported
-- For prefix with collision (divide, border, bg, stroke, text, decoration, outline, ring, ring-offset), if the value doesn't match a CSS color (hex, rgb\[a], hsl\[a]) it's interpreted as the "size" version. Using data types is not supported
+- For prefix with collision (divide, border, bg, gradient steps, stroke, text, decoration, outline, ring, ring-offset), if the value doesn't match a CSS color (hex, rgb\[a], hsl\[a]) or a CSS variable it's interpreted as the "size" version. Using data types is not supported
 - Underscore are always mapped to space
 - Values with quotes are not possible (by design for fast scanning)
 - The theme function is not supported
@@ -211,10 +211,6 @@ Can be customized via theme. Mostly useful to allow arbitrary values without a s
 
 The possible values are not configurable via theme.
 
-### [Line clamp utility](https://tailwindcss.com/docs/plugins#line-clamp)
-
-Included by default
-
 ### Theme function
 
 To avoid parsing errors in WebStorm, double quotes are required. And because [the palette color is flat](#theme-colors), any configuration value is accessed via `theme("key.value")`:
@@ -236,11 +232,11 @@ To avoid parsing errors in WebStorm, double quotes are required. And because [th
 - Using pre-processor like `Sass` or `less`
 - `border-spacing` utility
 - Negative utilities when using min/max/clamp
-- `rtl` variant
+- `rtl` variant & logical properties for inline direction
 - Multi-range breakpoints & custom media queries in screens
 - Sorting of extended screens with default ones
 - Object for keyframes definition
 - Multiple keyframes in animation
 - Letter spacing & font weight in fontSize theme
-- Font feature settings in fontFamily theme
+- Font feature & variation settings in fontFamily theme
 - Regular expressions in safelist

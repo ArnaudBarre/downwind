@@ -46,7 +46,7 @@ Promise.all([
                       `const {${specifiers.replaceAll(
                         " as ",
                         ": ",
-                      )}} = require("${from}");`,
+                      )}} = require("${from.replace(".ts", ".js")}");`,
                   )
                   .replace(`export { ${tool}Plugin as downwind };\n`, "")
                   .concat(`module.exports.downwind = ${tool}Plugin;\n`),

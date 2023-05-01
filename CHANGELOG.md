@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 0.5.1
+
+Fix TS imports in bundle
+
 ## 0.5.0
 
 Align with Tailwind 3.3:

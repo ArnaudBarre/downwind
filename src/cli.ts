@@ -33,7 +33,7 @@ if (!output) {
 }
 
 /* eslint-disable @typescript-eslint/no-require-imports */
-require("./index.ts")
+require("./index.js")
   .initDownwind()
   .then((downwind: Downwind) => {
     const { writeFileSync, existsSync, mkdirSync } =

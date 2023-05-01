@@ -1,4 +1,4 @@
-import { ResolvedTheme, ThemeKey } from "../types";
+import type { ResolvedTheme, ThemeKey } from "../types.d.ts";
 
 export const themeGet = (theme: ResolvedTheme, path: string) => {
   const dotIndex = path.indexOf(".");

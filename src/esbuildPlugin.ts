@@ -2,8 +2,8 @@ import { createHash } from "crypto";
 import { readFileSync, rmSync, writeFileSync } from "fs";
 import { transform as lightningCSSTransform } from "lightningcss";
 
-import { downwind as declaration } from "./esbuildPlugin.d";
-import { cssModuleToJS, initDownwind, convertTargets } from "./index";
+import type { downwind as declaration } from "./esbuildPlugin.d";
+import { cssModuleToJS, initDownwind, convertTargets } from "./index.ts";
 
 export { esbuildPlugin as downwind };
 

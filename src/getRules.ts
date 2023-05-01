@@ -1,8 +1,8 @@
-import { BaseRuleOrBaseRules, getCoreRules } from "./coreRules";
-import { getRuleMeta } from "./getEntries";
-import { ResolvedConfig } from "./resolveConfig";
-import { BaseRule, CoreRule } from "./types";
-import { split } from "./utils/helpers";
+import { BaseRuleOrBaseRules, getCoreRules } from "./coreRules.ts";
+import { getRuleMeta } from "./getEntries.ts";
+import { ResolvedConfig } from "./resolveConfig.ts";
+import type { BaseRule, CoreRule } from "./types.d.ts";
+import { split } from "./utils/helpers.ts";
 
 export type Shortcut = [string, string];
 export type Rule = BaseRule | Shortcut;

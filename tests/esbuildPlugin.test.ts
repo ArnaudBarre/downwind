@@ -1,8 +1,8 @@
 import { readFileSync, rmSync } from "fs";
 import { build, BuildOptions, formatMessagesSync } from "esbuild";
 
-import { downwind } from "../src/esbuildPlugin";
-import { pluginSnapshotTest } from "./test-utils";
+import { downwind } from "../src/esbuildPlugin.ts";
+import { pluginSnapshotTest } from "./test-utils.ts";
 
 const esbuildPluginTest = (name: string, opts?: BuildOptions) => {
   pluginSnapshotTest(`esbuildPlugin-${name}`, async () => {

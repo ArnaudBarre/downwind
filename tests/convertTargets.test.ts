@@ -1,7 +1,7 @@
 import * as assert from "node:assert";
 import test from "node:test";
 
-import { convertTargets } from "../src/utils/convertTargets";
+import { convertTargets } from "../src/utils/convertTargets.ts";
 
 test("convertTargets", () => {
   assert.deepStrictEqual(convertTargets("es2018"), {

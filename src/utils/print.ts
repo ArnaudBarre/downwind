@@ -1,6 +1,6 @@
 import type { ResolvedConfig } from "../resolveConfig";
 import type { Container, CSSEntries, RuleMeta } from "../types";
-import { Variant } from "../variants";
+import { Variant } from "../variants.ts";
 
 export const escapeSelector = (selector: string) =>
   selector.replaceAll(/[.:/[\]!#,%&>+~*@()]/g, (c) => `\\${c}`);
@@ -16,7 +16,7 @@ export const printContainerClass = (config: Container) => {
   const defaultPadding =
     typeof config.padding === "string"
       ? config.padding
-      : config.padding?.DEFAULT;
+      : config.padding?.["DEFAULT"];
 
   const entries: CSSEntries = [["width", "100%"]];
   if (config.center) {

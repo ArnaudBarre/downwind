@@ -24,6 +24,7 @@ const buildOrWatch = async (options: BuildOptions) => {
   else await build(options);
 };
 
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
 Promise.all([
   buildOrWatch({
     entryPoints: ["src/cli.ts", "src/esbuildPlugin.ts", "src/vitePlugin.ts"],

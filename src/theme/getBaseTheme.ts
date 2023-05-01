@@ -1,7 +1,7 @@
 import type { DownwindTheme } from "../types";
-import { mapObject } from "../utils/helpers";
-import { getBaseColors } from "./getBaseColors";
-import { getBaseFonts } from "./getBaseFonts";
+import { mapObject } from "../utils/helpers.ts";
+import { getBaseColors } from "./getBaseColors.ts";
+import { getBaseFonts } from "./getBaseFonts.ts";
 
 // https://github.com/tailwindlabs/tailwindcss/blob/master/stubs/defaultConfig.stub.js
 export const getBaseTheme = (): DownwindTheme => ({

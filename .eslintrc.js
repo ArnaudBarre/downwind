@@ -8,4 +8,12 @@ module.exports = {
     "require-unicode-regexp": "off",
     "no-param-reassign": "off",
   },
+  overrides: [
+    {
+      files: ["tests/**"],
+      rules: {
+        "@typescript-eslint/no-floating-promises": "off",
+      },
+    },
+  ],
 };

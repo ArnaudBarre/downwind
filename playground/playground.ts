@@ -1,8 +1,8 @@
 #!/usr/bin/env tnode
 import { writeFileSync, existsSync } from "node:fs";
 
-import "./set-version";
-import { initDownwindWithConfig } from "../src";
+import "./set-version.ts";
+import { initDownwindWithConfig } from "../src/index.ts";
 
 if (!existsSync("./config.ts")) {
   writeFileSync(
@@ -33,8 +33,10 @@ console.warn = (message: string) => warnings.push(message);
 console.log = (...args: any[]) =>
   logs.push(args.map((v) => (typeof v === "object" ? JSON.stringify(v) : v)));
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const downwind = initDownwindWithConfig({ config: require("./config").config });
+const downwind = initDownwindWithConfig({
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  config: require("./config.ts").config,
+});
 downwind.scan("./input.ts");
 
 const transform = downwind.transform("./input.module.css").code;

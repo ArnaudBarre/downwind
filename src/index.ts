@@ -3,8 +3,8 @@ import { relative } from "node:path";
 import { loadConfig } from "@arnaud-barre/config-loader";
 import { Dependency, transform } from "lightningcss";
 
-import { getBase } from "./base/getBase";
-import { getDefaults } from "./getDefaults";
+import { getBase } from "./base/getBase.ts";
+import { getDefaults } from "./getDefaults.ts";
 import {
   getRuleMeta,
   getEntries,
@@ -12,18 +12,18 @@ import {
   isShortcut,
   isThemeRule,
   RuleEntry,
-} from "./getEntries";
-import { resolveConfig } from "./resolveConfig";
-import {
+} from "./getEntries.ts";
+import { resolveConfig } from "./resolveConfig.ts";
+import type {
   staticRules as staticRulesDeclaration,
   CSSEntries,
   Default,
   Screen,
   initDownwind as initDownwindDeclaration,
   UserConfig,
-} from "./types";
-import { formatColor, isColor, parseColor } from "./utils/colors";
-import { forceDownlevelNesting } from "./utils/convertTargets";
+} from "./types.d.ts";
+import { formatColor, isColor, parseColor } from "./utils/colors.ts";
+import { forceDownlevelNesting } from "./utils/convertTargets.ts";
 import {
   applyVariants,
   arbitraryPropertyMatchToLine,
@@ -32,13 +32,13 @@ import {
   printBlock,
   printContainerClass,
   printScreenContainer,
-} from "./utils/print";
-import { themeGet } from "./utils/themeGet";
-import { getVariants, Variant } from "./variants";
+} from "./utils/print.ts";
+import { themeGet } from "./utils/themeGet.ts";
+import { getVariants, Variant } from "./variants.ts";
 
 export const VERSION = __VERSION__;
-export { cssModuleToJS } from "./utils/cssModuleToJS";
-export { convertTargets } from "./utils/convertTargets";
+export { cssModuleToJS } from "./utils/cssModuleToJS.ts";
+export { convertTargets } from "./utils/convertTargets.ts";
 
 const arbitraryValueRE = /-\[.+]$/;
 const applyRE = /[{\s]@apply ([^;}\n]+)([;}\n])/g;

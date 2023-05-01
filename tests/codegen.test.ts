@@ -1,4 +1,4 @@
-import { snapshotTest } from "./test-utils";
+import { snapshotTest } from "./test-utils.ts";
 
 snapshotTest("codegen", (downwind) =>
   downwind.codegen({ mode: "WITH_CONTENT" }),

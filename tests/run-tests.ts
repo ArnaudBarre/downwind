@@ -1,5 +1,5 @@
 #!/usr/bin/env tnode
-import type { UserConfig } from "../src/types";
+import type { UserConfig } from "../src/types.d.ts";
 
 declare global {
   // eslint-disable-next-line no-var

@@ -1,8 +1,8 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { build } from "vite";
 
-import { downwind } from "../src/vitePlugin";
-import { pluginSnapshotTest } from "./test-utils";
+import { downwind } from "../src/vitePlugin.ts";
+import { pluginSnapshotTest } from "./test-utils.ts";
 
 const root = "playground/vite";
 const assets = `${root}/dist/assets`;

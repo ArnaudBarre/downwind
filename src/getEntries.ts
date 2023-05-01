@@ -1,11 +1,11 @@
-import { getRules, Rule, Shortcut } from "./getRules";
-import { ResolvedConfig } from "./resolveConfig";
-import {
+import { getRules, Rule, Shortcut } from "./getRules.ts";
+import { ResolvedConfig } from "./resolveConfig.ts";
+import type {
   DirectionThemeRule,
   RuleMeta,
   ThemeRule,
   ThemeRuleMeta,
-} from "./types";
+} from "./types.d.ts";
 
 type AnyThemeRule = ThemeRule<any> | DirectionThemeRule;
 export type RuleEntry = {

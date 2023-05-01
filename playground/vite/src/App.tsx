@@ -6,7 +6,7 @@ export const App = () => {
   const [count, setCount] = useState(0);
 
   return (
-    <div className={styles.container}>
+    <div className={styles["container"]}>
       <h1 className="font-bold text-xl">Vite + React</h1>
       <div className="p-4 text-lg">
         <button

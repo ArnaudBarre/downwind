@@ -1,7 +1,7 @@
 import * as assert from "node:assert";
 import test from "node:test";
 
-import { cssModuleToJS } from "../src/utils/cssModuleToJS";
+import { cssModuleToJS } from "../src/utils/cssModuleToJS.ts";
 
 test("convertTargets", () => {
   assert.equal(

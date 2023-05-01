@@ -1,5 +1,5 @@
-import { getBaseTheme } from "./theme/getBaseTheme";
-import {
+import { getBaseTheme } from "./theme/getBaseTheme.ts";
+import type {
   DownwindTheme,
   CoreRule,
   UserConfig,
@@ -7,8 +7,8 @@ import {
   BaseRule,
   ThemeCallback,
   ThemeKey,
-} from "./types";
-import { mapObjectValue, run } from "./utils/helpers";
+} from "./types.d.ts";
+import { mapObjectValue, run } from "./utils/helpers.ts";
 
 export type ResolvedConfig = {
   theme: ResolvedTheme;
@@ -31,7 +31,7 @@ export const resolveConfig = (
         const ext = extend[key as ThemeKey];
         if (!ext) continue;
         const current = baseTheme[key as ThemeKey];
-        // @ts-ignore
+        // @ts-expect-error
         baseTheme[key] =
           typeof current === "object" && typeof ext === "object"
             ? { ...current, ...ext }
@@ -60,7 +60,7 @@ export const resolveConfig = (
   for (const key in theme) {
     const value = theme[key as ThemeKey];
     if (typeof value === "function") {
-      // @ts-ignore
+      // @ts-expect-error
       theme[key] =
         // Avoid being under ts-ignore
         value(themeCallback);

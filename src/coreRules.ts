@@ -1,5 +1,5 @@
-import { ResolvedConfig } from "./resolveConfig";
-import {
+import { ResolvedConfig } from "./resolveConfig.ts";
+import type {
   CoreRule,
   CSSEntries,
   CSSEntry,
@@ -9,8 +9,8 @@ import {
   StaticRule,
   ThemeRule,
   ThemeRuleMeta,
-} from "./types";
-import { withAlphaValue, withAlphaVariable } from "./utils/colors";
+} from "./types.d.ts";
+import { withAlphaValue, withAlphaVariable } from "./utils/colors.ts";
 
 export type BaseRuleOrBaseRules = BaseRule | BaseRule[];
 
@@ -1134,14 +1134,17 @@ export const getCoreRules = ({
     (value) => {
       if (value === "none") return [["transition-property", "none"]];
       const entries: CSSEntries = [["transition-property", value]];
-      if (theme.transitionTimingFunction.DEFAULT) {
+      if (theme.transitionTimingFunction["DEFAULT"]) {
         entries.push([
           "transition-timing-function",
-          theme.transitionTimingFunction.DEFAULT,
+          theme.transitionTimingFunction["DEFAULT"],
         ]);
       }
-      if (theme.transitionDuration.DEFAULT) {
-        entries.push(["transition-duration", theme.transitionDuration.DEFAULT]);
+      if (theme.transitionDuration["DEFAULT"]) {
+        entries.push([
+          "transition-duration",
+          theme.transitionDuration["DEFAULT"],
+        ]);
       }
       return entries;
     },

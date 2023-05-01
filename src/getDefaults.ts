@@ -1,13 +1,13 @@
-import { ResolvedConfig } from "./resolveConfig";
-import { Default, CSSEntries } from "./types";
-import { withAlphaValue } from "./utils/colors";
+import { ResolvedConfig } from "./resolveConfig.ts";
+import type { Default, CSSEntries } from "./types.d.ts";
+import { withAlphaValue } from "./utils/colors.ts";
 
 export type Defaults = Record<Default, CSSEntries>;
 
 export const getDefaults = ({ theme }: ResolvedConfig): Defaults => {
-  const ringOpacityDefault = theme.ringOpacity.DEFAULT ?? "0.5";
+  const ringOpacityDefault = theme.ringOpacity["DEFAULT"] ?? "0.5";
   const ringColorDefault = withAlphaValue(
-    theme.ringColor.DEFAULT ?? "",
+    theme.ringColor["DEFAULT"] ?? "",
     ringOpacityDefault,
     `rgb(147 197 253 / ${ringOpacityDefault})`,
   );
@@ -42,8 +42,8 @@ export const getDefaults = ({ theme }: ResolvedConfig): Defaults => {
     ],
     "ring-width": [
       ["--tw-ring-inset", " "],
-      ["--tw-ring-offset-width", theme.ringOffsetWidth.DEFAULT ?? "0px"],
-      ["--tw-ring-offset-color", theme.ringOffsetColor.DEFAULT ?? "#fff"],
+      ["--tw-ring-offset-width", theme.ringOffsetWidth["DEFAULT"] ?? "0px"],
+      ["--tw-ring-offset-color", theme.ringOffsetColor["DEFAULT"] ?? "#fff"],
       ["--tw-ring-color", ringColorDefault],
       ["--tw-ring-offset-shadow", "0 0 #0000"],
       ["--tw-ring-shadow", "0 0 #0000"],

@@ -1,25 +1,26 @@
 {
   "include": ["**/*.ts", "**/*.tsx"],
   "compilerOptions": {
-    "target": "ESNext",
-    "lib": ["DOM", "DOM.Iterable", "ESNext"],
-    "module": "ESNext",
-
-    /* Options for bundlers & React integration  */
+    "target": "ES2020",
+    "useDefineForClassFields": true,
     "jsx": "react-jsx",
-    "skipLibCheck": true, // Report mostly false positive
-    "moduleResolution": "node", // Allow `index` imports
-    "resolveJsonModule": true, // Allow json import
-    "forceConsistentCasingInFileNames": true, // Avoid difference in case between filename and import
-    "allowSyntheticDefaultImports": true, // Required for json import
-    "noEmit": true, // Transpilation done by SWC or esbuild
-    "isolatedModules": true, // Required by esbuild for parallelization
+    "module": "ES2020",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
 
     /* Linting */
+    "skipLibCheck": true,
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "useUnknownInCatchVariables": true
+    "useUnknownInCatchVariables": true,
+    "noPropertyAccessFromIndexSignature": true
   }
 }

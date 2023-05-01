@@ -2,9 +2,9 @@ import * as assert from "node:assert";
 import { writeFileSync, readFileSync } from "node:fs";
 import test from "node:test";
 
-import { initDownwindWithConfig } from "../src";
-import { UserConfig } from "../src/types";
-import { shouldUpdateSnapshots } from "./test-utils";
+import { initDownwindWithConfig } from "../src/index.ts";
+import type { UserConfig } from "../src/types.d.ts";
+import { shouldUpdateSnapshots } from "./test-utils.ts";
 
 const cases: [name: string, content: string, config?: UserConfig][] = [
   ["simple", "m-4 p-4"],

@@ -3,9 +3,9 @@ import { writeFileSync } from "node:fs";
 import { readMaybeFileSync } from "@arnaud-barre/config-loader";
 import { test } from "node:test";
 
-import { config } from "../playground/vite/downwind.config";
-import { initDownwindWithConfig } from "../src";
-import { Downwind } from "../src/types";
+import { config } from "../playground/vite/downwind.config.ts";
+import { initDownwindWithConfig } from "../src/index.ts";
+import type { Downwind } from "../src/types.d.ts";
 
 export const shouldUpdateSnapshots =
   process.argv.includes("--update-snapshots");

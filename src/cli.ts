@@ -33,10 +33,11 @@ if (!output) {
 }
 
 /* eslint-disable @typescript-eslint/no-require-imports */
-require("./index")
+require("./index.ts")
   .initDownwind()
   .then((downwind: Downwind) => {
-    const { writeFileSync, existsSync, mkdirSync } = require("fs");
+    const { writeFileSync, existsSync, mkdirSync } =
+      require("fs") as typeof import("fs");
     const dir = require("path").dirname(output);
     if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
     writeFileSync(output, downwind.codegen({ mode }));

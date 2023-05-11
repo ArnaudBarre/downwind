@@ -5,7 +5,6 @@
     /* Target node 16 */
     "target": "ES2022",
     "module": "ES2022",
-    "useDefineForClassFields": true,
     "lib": ["ES2022"],
 
     /* Bundler mode */

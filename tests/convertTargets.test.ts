@@ -1,6 +1,5 @@
 import * as assert from "node:assert";
 import test from "node:test";
-
 import { convertTargets } from "../src/utils/convertTargets.ts";
 
 test("convertTargets", () => {

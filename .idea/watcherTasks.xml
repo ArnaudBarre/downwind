@@ -14,7 +14,7 @@
         <array />
       </option>
       <option name="outputFromStdout" value="false" />
-      <option name="program" value="tnode" />
+      <option name="program" value="$PROJECT_DIR$/node_modules/@arnaud-barre/tnode/tnode.cjs" />
       <option name="runOnExternalChanges" value="true" />
       <option name="scopeName" value="playground" />
       <option name="trackOnlyRoot" value="false" />

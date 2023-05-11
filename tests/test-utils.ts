@@ -1,8 +1,7 @@
 import * as assert from "node:assert";
 import { writeFileSync } from "node:fs";
-import { readMaybeFileSync } from "@arnaud-barre/config-loader";
 import { test } from "node:test";
-
+import { readMaybeFileSync } from "@arnaud-barre/config-loader";
 import { config } from "../playground/vite/downwind.config.ts";
 import { initDownwindWithConfig } from "../src/index.ts";
 import type { Downwind } from "../src/types.d.ts";

@@ -1,6 +1,5 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { build } from "vite";
-
 import { downwind } from "../src/vitePlugin.ts";
 import { pluginSnapshotTest } from "./test-utils.ts";
 

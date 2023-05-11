@@ -1,11 +1,14 @@
-import { readFileSync } from "fs";
-import { join } from "path";
-
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { getBaseFonts } from "../theme/getBaseFonts.ts";
 import type { ResolvedTheme } from "../types";
 
 export const getBase = (theme: ResolvedTheme) => {
-  const rawCSS = readFileSync(join(__dirname, "base.css"), "utf-8");
+  const rawCSS = readFileSync(
+    join(fileURLToPath(import.meta.url), "..", "base.css"),
+    "utf-8",
+  );
   const getBaseFont = getBaseFonts();
   return rawCSS
     .replace("__BORDER_COLOR__", theme.borderColor["DEFAULT"] ?? "currentColor")

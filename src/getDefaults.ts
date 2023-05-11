@@ -1,5 +1,5 @@
 import { ResolvedConfig } from "./resolveConfig.ts";
-import type { Default, CSSEntries } from "./types.d.ts";
+import type { CSSEntries, Default } from "./types.d.ts";
 import { withAlphaValue } from "./utils/colors.ts";
 
 export type Defaults = Record<Default, CSSEntries>;

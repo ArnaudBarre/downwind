@@ -1,10 +1,10 @@
 import { ResolvedConfig } from "./resolveConfig.ts";
 import type {
+  BaseRule,
   CoreRule,
   CSSEntries,
   CSSEntry,
   DirectionThemeRule,
-  BaseRule,
   SelectorRewrite,
   StaticRule,
   ThemeRule,
@@ -81,7 +81,7 @@ export const getCoreRules = ({
           br: ["bottom", "right"],
           bl: ["bottom", "left"],
           tl: ["top", "left"],
-        }[d]),
+        })[d],
       { supportsNegativeValues: true },
     ),
     themeRule("top", theme.inset, "top", { supportsNegativeValues: true }),

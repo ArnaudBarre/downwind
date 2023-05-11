@@ -1,7 +1,8 @@
 {
   "name": "@arnaud-barre/downwind",
   "description": "A PostCSS-less implementation of Tailwind based on Lightning CSS",
-  "version": "0.5.1",
+  "type": "module",
+  "version": "0.6.0",
   "author": "Arnaud Barré (https://github.com/ArnaudBarre)",
   "license": "MIT",
   "scripts": {
@@ -11,34 +12,26 @@
     "tsc": "tsc && tsc -p playground/vite",
     "test": "tests/run-tests.ts --update-snapshots",
     "test-ci": "tests/run-tests.ts",
-    "lint": "bun run lint-ci --fix --cache",
     "lint-ci": "eslint ./ --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "prettier": "bun run prettier-ci --write",
-    "prettier-ci": "prettier --check '**/*.{js,ts,tsx,html,css,json,md,yml}'",
+    "prettier-ci": "prettier --cache --check '**/*.{cjs,ts,tsx,html,css,json,md,yml}'",
     "ci": "bun run build && bun tsc && bun test-ci && bun lint-ci && bun prettier-ci"
   },
   "prettier": {
-    "trailingComma": "all",
-    "quoteProps": "consistent",
-    "importOrderBuiltinModulesToTop": true,
-    "importOrder": [
-      "<THIRD_PARTY_MODULES>",
-      "",
-      "^[./]"
-    ]
+    "quoteProps": "consistent"
   },
   "dependencies": {
-    "@arnaud-barre/config-loader": "^0.5.3",
+    "@arnaud-barre/config-loader": "^0.6.1",
     "lightningcss": "^1.20.0"
   },
   "devDependencies": {
-    "@arnaud-barre/eslint-config": "^2.0.2",
-    "@ianvs/prettier-plugin-sort-imports": "^3.7.2",
-    "@nabla/tnode": "^0.9.0",
-    "@types/node": "^18.16.3",
-    "eslint": "^8.39.0",
-    "prettier": "^2.8.8",
+    "@arnaud-barre/prettier-plugin-sort-imports": "^0.1.0",
+    "@arnaud-barre/eslint-config": "^2.0.3",
+    "@arnaud-barre/tnode": "^0.17.1",
+    "@types/node": "^16.18.30",
+    "eslint": "^8.40.0",
+    "prettier": "^3.0.0-alpha.11",
     "typescript": "^5.0.4",
-    "vite": "^4.3.3"
+    "vite": "^4.3.5"
   }
 }

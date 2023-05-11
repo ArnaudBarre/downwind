@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 0.6.0
+
+Publish as ESM
+
 ## 0.5.1
 
 Fix TS imports in bundle

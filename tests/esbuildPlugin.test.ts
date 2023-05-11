@@ -1,6 +1,5 @@
-import { readFileSync, rmSync } from "fs";
+import { readFileSync, rmSync } from "node:fs";
 import { build, BuildOptions, formatMessagesSync } from "esbuild";
-
 import { downwind } from "../src/esbuildPlugin.ts";
 import { pluginSnapshotTest } from "./test-utils.ts";
 

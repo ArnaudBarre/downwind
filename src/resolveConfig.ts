@@ -1,12 +1,12 @@
 import { getBaseTheme } from "./theme/getBaseTheme.ts";
 import type {
-  DownwindTheme,
-  CoreRule,
-  UserConfig,
-  ResolvedTheme,
   BaseRule,
+  CoreRule,
+  DownwindTheme,
+  ResolvedTheme,
   ThemeCallback,
   ThemeKey,
+  UserConfig,
 } from "./types.d.ts";
 import { mapObjectValue, run } from "./utils/helpers.ts";
 

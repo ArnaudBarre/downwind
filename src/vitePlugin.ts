@@ -1,10 +1,9 @@
-import { IncomingMessage } from "http";
+import { IncomingMessage } from "node:http";
 import { getHash } from "@arnaud-barre/config-loader";
-import { transform as lightningCSSTransform } from "lightningcss";
-import { ViteDevServer, Plugin, ResolvedConfig, Logger } from "vite";
-
-import { initDownwind, convertTargets } from "./index.ts";
-import type { Downwind, LightningCSSTargets } from "./types.d.ts";
+import { transform as lightningCSSTransform, Targets } from "lightningcss";
+import { Logger, Plugin, ResolvedConfig, ViteDevServer } from "vite";
+import { convertTargets, initDownwind } from "./index.ts";
+import type { Downwind } from "./types.d.ts";
 import type { downwind as declaration } from "./vitePlugin.d";
 
 const cssRE = /\.css(\?.+)?$/;
@@ -15,7 +14,7 @@ const vitePlugin: typeof declaration = ({
   scannedExtension,
 } = {}): Plugin[] => {
   let downwind: Downwind;
-  let targets: LightningCSSTargets | undefined;
+  let targets: Targets | undefined;
   let devtoolsPostPath: string;
 
   // Common

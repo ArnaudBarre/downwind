@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { dirname } from "node:path";
 import type { Downwind } from "./types";
 
 const firstArg = process.argv[2] as string | undefined;
@@ -32,13 +34,8 @@ if (!output) {
   process.exit(1);
 }
 
-/* eslint-disable @typescript-eslint/no-require-imports */
-require("./index.js")
-  .initDownwind()
-  .then((downwind: Downwind) => {
-    const { writeFileSync, existsSync, mkdirSync } =
-      require("fs") as typeof import("fs");
-    const dir = require("path").dirname(output);
-    if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
-    writeFileSync(output, downwind.codegen({ mode }));
-  });
+const module = await import("./index.ts");
+const downwind: Downwind = await module.initDownwind();
+const dir = dirname(output);
+if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+writeFileSync(output, downwind.codegen({ mode }));

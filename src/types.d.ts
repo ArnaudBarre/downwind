@@ -1,10 +1,5 @@
 import { DefineConfig } from "@arnaud-barre/config-loader";
-import {
-  CSSModuleExports,
-  CustomAtRules,
-  Dependency,
-  TransformOptions,
-} from "lightningcss";
+import { CSSModuleExports, Dependency, Targets } from "lightningcss";
 
 export declare const VERSION: string;
 
@@ -24,11 +19,8 @@ export type DownwindConfig = DefineConfig<UserConfig>;
 /**
  * API
  */
-type LightningCSSTargets = NonNullable<
-  TransformOptions<CustomAtRules>["targets"]
->;
 export declare const initDownwind: (opts?: {
-  targets?: LightningCSSTargets;
+  targets?: Targets;
   scannedExtension?: string;
   root?: string;
 }) => Promise<Downwind>;
@@ -170,10 +162,9 @@ export type DownwindTheme = {
 };
 
 type ThemeCallback = {
-  (key: Exclude<ThemeKey, "container" | "boxShadow" | "dropShadow">): Record<
-    string,
-    string
-  >;
+  (
+    key: Exclude<ThemeKey, "container" | "boxShadow" | "dropShadow">,
+  ): Record<string, string>;
   (key: "screens"): Record<string, Screen>;
 };
 

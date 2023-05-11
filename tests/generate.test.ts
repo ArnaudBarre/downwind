@@ -1,7 +1,6 @@
 import * as assert from "node:assert";
-import { writeFileSync, readFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import test from "node:test";
-
 import { initDownwindWithConfig } from "../src/index.ts";
 import type { UserConfig } from "../src/types.d.ts";
 import { shouldUpdateSnapshots } from "./test-utils.ts";

@@ -1,5 +1,5 @@
 #!/usr/bin/env tnode
-import { writeFileSync, existsSync } from "node:fs";
+import { existsSync, writeFileSync } from "node:fs";
 
 import "./set-version.ts";
 import { initDownwindWithConfig } from "../src/index.ts";
@@ -34,8 +34,10 @@ console.log = (...args: any[]) =>
   logs.push(args.map((v) => (typeof v === "object" ? JSON.stringify(v) : v)));
 
 const downwind = initDownwindWithConfig({
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  config: require("./config.ts").config,
+  // eslint-disable-next-line @typescript-eslint/prefer-ts-expect-error
+  // @ts-ignore (file exist locally but not on CI)
+  // eslint-disable-next-line import/no-unresolved
+  config: (await import("./config.ts")).config,
 });
 downwind.scan("./input.ts");
 

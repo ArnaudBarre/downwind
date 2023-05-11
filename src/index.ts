@@ -1,13 +1,12 @@
-import { readFileSync } from "fs";
+import { readFileSync } from "node:fs";
 import { relative } from "node:path";
 import { loadConfig } from "@arnaud-barre/config-loader";
 import { Dependency, transform } from "lightningcss";
-
 import { getBase } from "./base/getBase.ts";
 import { getDefaults } from "./getDefaults.ts";
 import {
-  getRuleMeta,
   getEntries,
+  getRuleMeta,
   isDirectionRule,
   isShortcut,
   isThemeRule,
@@ -15,11 +14,11 @@ import {
 } from "./getEntries.ts";
 import { resolveConfig } from "./resolveConfig.ts";
 import type {
-  staticRules as staticRulesDeclaration,
   CSSEntries,
   Default,
-  Screen,
   initDownwind as initDownwindDeclaration,
+  Screen,
+  staticRules as staticRulesDeclaration,
   UserConfig,
 } from "./types.d.ts";
 import { formatColor, isColor, parseColor } from "./utils/colors.ts";

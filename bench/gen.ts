@@ -1,6 +1,7 @@
 #!/usr/bin/env tnode
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 const map = (a: string[], b: string[], separator = "-") => {
   const classes = [];
@@ -70,7 +71,7 @@ const getContent = () =>
   `// @downwind-scan
 document.getElementById('app').className = "${shuffle(classes).join(" ")}"`;
 
-const sourceDir = join(__dirname, "source");
+const sourceDir = join(dirname(fileURLToPath(import.meta.url)), "source");
 if (!existsSync(sourceDir)) mkdirSync(sourceDir);
 writeFileSync(
   join(sourceDir, "gen.js"),

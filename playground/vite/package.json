@@ -1,6 +1,7 @@
 {
   "name": "vite-playground",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "tsc": "tsc",

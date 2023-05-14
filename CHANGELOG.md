@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 0.6.1
+
+Use exports map
+
 ## 0.6.0
 
 Publish as ESM

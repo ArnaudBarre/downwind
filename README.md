@@ -23,7 +23,7 @@ Add `import "virtual:@downwind/base.css";` and `import "virtual:@downwind/utils.
 To use nesting, install [postcss-nested](https://github.com/postcss/postcss-nested) and add it to the postcss config:
 
 ```js
-// postcss.config.js
+// postcss.config.cjs
 module.exports = {
   plugins: {
     "postcss-nested": {},

@@ -1,8 +1,9 @@
 {
   "name": "@arnaud-barre/downwind",
   "description": "A PostCSS-less implementation of Tailwind based on Lightning CSS",
+  "private": true,
   "type": "module",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "author": "Arnaud Barré (https://github.com/ArnaudBarre)",
   "license": "MIT",
   "scripts": {
@@ -21,7 +22,7 @@
     "quoteProps": "consistent"
   },
   "dependencies": {
-    "@arnaud-barre/config-loader": "^0.6.1",
+    "@arnaud-barre/config-loader": "^0.6.2",
     "lightningcss": "^1.20.0"
   },
   "devDependencies": {

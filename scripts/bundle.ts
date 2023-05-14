@@ -39,13 +39,11 @@ await buildOrWatch({
   supported: { "object-rest-spread": false },
 });
 
-execSync("cp -r LICENSE README.md dist/");
+execSync(
+  "cp -r LICENSE README.md src/esbuildPlugin.d.ts src/vitePlugin.d.ts dist/",
+);
 copyFileSync("src/base/base.css", "dist/base.css");
 copyFileSync("src/types.d.ts", "dist/index.d.ts");
-for (const tool of ["esbuild", "vite"]) {
-  copyFileSync(`src/${tool}Plugin.d.ts`, `dist/${tool}.d.ts`);
-  execSync(`mv dist/${tool}Plugin.js dist/${tool}.js`);
-}
 
 if (
   !dev &&
@@ -70,7 +68,11 @@ writeFileSync(
       license: packageJSON.license,
       repository: "ArnaudBarre/downwind",
       keywords: ["tailwind", "lightningcss"],
-      main: "index.js",
+      exports: {
+        ".": "./index.js",
+        "./esbuild": "./esbuildPlugin.js",
+        "./vite": "./vitePlugin.js",
+      },
       bin: { downwind: "cli.js" },
       dependencies: packageJSON.dependencies,
     },

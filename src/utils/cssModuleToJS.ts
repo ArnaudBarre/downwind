@@ -1,4 +1,4 @@
-import type { cssModuleToJS as cssModuleToJSDeclaration } from "../types";
+import type { cssModuleToJS as cssModuleToJSDeclaration } from "../types.d.ts";
 
 export const cssModuleToJS: typeof cssModuleToJSDeclaration = (cssModule) => {
   let namedExport = "";

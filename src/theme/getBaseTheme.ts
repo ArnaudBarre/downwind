@@ -1,4 +1,4 @@
-import type { DownwindTheme } from "../types";
+import type { DownwindTheme } from "../types.d.ts";
 import { mapObject } from "../utils/helpers.ts";
 import { getBaseColors } from "./getBaseColors.ts";
 import { getBaseFonts } from "./getBaseFonts.ts";

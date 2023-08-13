@@ -144,9 +144,9 @@
 
 /* gradients: from-orange-200 via-purple-400 via-40% to-red-600 */
 *, :before, :after, ::backdrop {
-  --tw-gradient-from: ;
-  --tw-gradient-stops: ;
-  --tw-gradient-to: ;
+  --tw-gradient-from-position: ;
+  --tw-gradient-via-position: ;
+  --tw-gradient-to-position: ;
 }
 
 .from-orange-200 {

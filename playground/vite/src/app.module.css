@@ -1,3 +1,7 @@
 .container {
   @apply p-12 text-center;
+
+  & .title {
+    @apply font-bold text-xl;
+  }
 }

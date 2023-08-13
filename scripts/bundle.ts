@@ -1,7 +1,7 @@
 #!/usr/bin/env tnode
 import { execSync } from "node:child_process";
 import { copyFileSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { build, BuildOptions, context } from "esbuild";
+import { build, type BuildOptions, context } from "esbuild";
 import packageJSON from "../package.json";
 
 const dev = process.argv.includes("--dev");
@@ -18,16 +18,16 @@ const buildOrWatch = async (options: BuildOptions) => {
 await buildOrWatch({
   bundle: true,
   splitting: true,
-  entryPoints: [
-    "src/index.ts",
-    "src/cli.ts",
-    "src/esbuildPlugin.ts",
-    "src/vitePlugin.ts",
-  ],
+  entryPoints: {
+    index: "src/index.ts",
+    cli: "src/cli.ts",
+    esbuild: "src/esbuildPlugin.ts",
+    vite: "src/vitePlugin.ts",
+  },
   outdir: "dist",
   platform: "node",
   format: "esm",
-  target: "node16",
+  target: "node18",
   define: {
     "__VERSION__": `"${packageJSON.version}"`,
     "globalThis.TEST_CONFIG": "undefined",
@@ -39,9 +39,7 @@ await buildOrWatch({
   supported: { "object-rest-spread": false },
 });
 
-execSync(
-  "cp -r LICENSE README.md src/esbuildPlugin.d.ts src/vitePlugin.d.ts dist/",
-);
+execSync("cp -r LICENSE README.md src/esbuild.d.ts src/vite.d.ts dist/");
 copyFileSync("src/base/base.css", "dist/base.css");
 copyFileSync("src/types.d.ts", "dist/index.d.ts");
 
@@ -70,8 +68,8 @@ writeFileSync(
       keywords: ["tailwind", "lightningcss"],
       exports: {
         ".": "./index.js",
-        "./esbuild": "./esbuildPlugin.js",
-        "./vite": "./vitePlugin.js",
+        "./esbuild": "./esbuild.js",
+        "./vite": "./vite.js",
       },
       bin: { downwind: "cli.js" },
       dependencies: packageJSON.dependencies,

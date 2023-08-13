@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { readFileSync, rmSync, writeFileSync } from "node:fs";
 import { transform as lightningCSSTransform } from "lightningcss";
-import type { downwind as declaration } from "./esbuildPlugin.d";
+import type { downwind as declaration } from "./esbuild.d.ts";
 import { convertTargets, cssModuleToJS, initDownwind } from "./index.ts";
 
 export { esbuildPlugin as downwind };

@@ -11,7 +11,16 @@ Inspired by [UnoCSS](https://github.com/unocss/unocss).
 import { downwind } from "@arnaud-barre/downwind/vite";
 import { defineConfig } from "vite";
 
-export default defineConfig({ plugins: [downwind()] });
+export default defineConfig({
+  plugins: [downwind()],
+  css: {
+    transformer: "lightningcss",
+    lightningcss: { drafts: { nesting: true } },
+  },
+  build: {
+    cssMinify: "lightningcss",
+  },
+});
 ```
 
 Add `import "virtual:@downwind/base.css";` and `import "virtual:@downwind/utils.css";` to your code.
@@ -19,17 +28,6 @@ Add `import "virtual:@downwind/base.css";` and `import "virtual:@downwind/utils.
 [Like unocss](https://github.com/unocss/unocss/tree/main/packages/vite#design-in-devtools), you can also add `import "virtual:@downwind/devtools";` to get autocomplete and on-demand CSS in the browser. The same warning apply:
 
 > ⚠️ Please use it with caution, under the hood we use [MutationObserver](https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver) to detect the class changes. Which means not only your manual changes but also the changes made by your scripts will be detected and included in the stylesheet. This could cause some misalignment between dev and the production build when you add dynamic classes based on some logic in script tags. We recommended adding your dynamic parts to the safelist or setup UI regression tests for your production build if possible.
-
-To use nesting, install [postcss-nested](https://github.com/postcss/postcss-nested) and add it to the postcss config:
-
-```js
-// postcss.config.cjs
-module.exports = {
-  plugins: {
-    "postcss-nested": {},
-  },
-};
-```
 
 ## Usage with [esbuild](https://github.com/evanw/esbuild)
 
@@ -222,6 +220,7 @@ To avoid parsing errors in WebStorm, double quotes are required. And because [th
 ### Almost exhaustive list of non-supported features
 
 - Container queries, but this will probably be added later
+- Some `addVariant` capabilities like generating at-rules. Also something useful to support in the future
 - [prefix](https://tailwindcss.com/docs/configuration#prefix), [separator](https://tailwindcss.com/docs/configuration#separator) and [important](https://tailwindcss.com/docs/configuration#important) configuration options
 - These deprecated utils: `transform`, `transform-cpu`, `decoration-slice` `decoration-clone`, `filter`, `backdrop-filter`, `blur-0`
 - These deprecated colors: `lightBlue`, `warmGray`, `trueGray`, `coolGray`, `blueGray`

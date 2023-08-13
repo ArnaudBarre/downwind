@@ -1,4 +1,4 @@
-import { ResolvedConfig } from "./resolveConfig.ts";
+import { type ResolvedConfig } from "./resolveConfig.ts";
 import type { CSSEntries, Default } from "./types.d.ts";
 import { withAlphaValue } from "./utils/colors.ts";
 
@@ -23,9 +23,9 @@ export const getDefaults = ({ theme }: ResolvedConfig): Defaults => {
       ["--tw-scale-y", "1"],
     ],
     "gradient-color-stops": [
-      ["--tw-gradient-from", " "],
-      ["--tw-gradient-stops", " "],
-      ["--tw-gradient-to", " "],
+      ["--tw-gradient-from-position", " "],
+      ["--tw-gradient-via-position", " "],
+      ["--tw-gradient-to-position", " "],
     ],
     "touch-action": [
       ["--tw-pan-x", " "],

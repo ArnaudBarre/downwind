@@ -36,7 +36,6 @@ console.log = (...args: any[]) =>
 const downwind = initDownwindWithConfig({
   // eslint-disable-next-line @typescript-eslint/prefer-ts-expect-error
   // @ts-ignore (file exist locally but not on CI)
-  // eslint-disable-next-line import/no-unresolved
   config: (await import("./config.ts")).config,
 });
 downwind.scan("./input.ts");

@@ -4,7 +4,7 @@
  * https://github.com/tailwindlabs/tailwindcss/blob/master/src/util/withAlphaVariable.js
  */
 
-import type { CSSEntries, CSSEntry } from "../types";
+import type { CSSEntries, CSSEntry } from "../types.d.ts";
 
 const HEX = /^#([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})?$/i;
 const SHORT_HEX = /^#([a-f\d])([a-f\d])([a-f\d])([a-f\d])?$/i;

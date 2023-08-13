@@ -1,10 +1,10 @@
 import { IncomingMessage } from "node:http";
 import { getHash } from "@arnaud-barre/config-loader";
-import { transform as lightningCSSTransform, Targets } from "lightningcss";
-import { Logger, Plugin, ResolvedConfig, ViteDevServer } from "vite";
+import { transform as lightningCSSTransform, type Targets } from "lightningcss";
+import type { Logger, Plugin, ResolvedConfig, ViteDevServer } from "vite";
 import { convertTargets, initDownwind } from "./index.ts";
 import type { Downwind } from "./types.d.ts";
-import type { downwind as declaration } from "./vitePlugin.d";
+import type { downwind as declaration } from "./vite.d.ts";
 
 const cssRE = /\.css(\?.+)?$/;
 

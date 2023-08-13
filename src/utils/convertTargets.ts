@@ -1,5 +1,5 @@
-import { Targets } from "lightningcss";
-import type { convertTargets as convertTargetsDeclaration } from "../types";
+import type { Targets } from "lightningcss";
+import type { convertTargets as convertTargetsDeclaration } from "../types.d.ts";
 
 // Convert https://esbuild.github.io/api/#target
 // To https://github.com/parcel-bundler/lightningcss/blob/master/node/targets.d.ts

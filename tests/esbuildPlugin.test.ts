@@ -1,5 +1,5 @@
 import { readFileSync, rmSync } from "node:fs";
-import { build, BuildOptions, formatMessagesSync } from "esbuild";
+import { build, type BuildOptions, formatMessagesSync } from "esbuild";
 import { downwind } from "../src/esbuildPlugin.ts";
 import { pluginSnapshotTest } from "./test-utils.ts";
 
@@ -14,10 +14,11 @@ const esbuildPluginTest = (name: string, opts?: BuildOptions) => {
       ...opts,
     });
     if (result.warnings.length) {
-      formatMessagesSync(result.warnings, {
+      const messages = formatMessagesSync(result.warnings, {
         kind: "warning",
         color: true,
-      }).forEach((m) => console.log(m));
+      });
+      for (const message of messages) console.log(message);
     }
 
     if (opts?.write === false) {

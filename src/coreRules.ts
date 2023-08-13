@@ -1,4 +1,4 @@
-import { ResolvedConfig } from "./resolveConfig.ts";
+import { type ResolvedConfig } from "./resolveConfig.ts";
 import type {
   BaseRule,
   CoreRule,
@@ -283,7 +283,7 @@ export const getCoreRules = ({
       "snap-x",
       [["scroll-snap-type", "x var(--tw-scroll-snap-strictness)"]],
       { addDefault: "scroll-snap-type" },
-    ],
+    ] satisfies BaseRule,
     [
       "snap-y",
       [["scroll-snap-type", "y var(--tw-scroll-snap-strictness)"]],

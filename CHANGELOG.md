@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+## 0.6.2
+
+Align with Tailwind 3.3.3:
+
+- Updated preflight with reset of dialog padding
+- Fix gradients implementation
+
 ## 0.6.1
 
 Use exports map

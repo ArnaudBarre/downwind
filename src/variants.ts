@@ -1,4 +1,4 @@
-import { ResolvedConfig } from "./resolveConfig.ts";
+import { type ResolvedConfig } from "./resolveConfig.ts";
 import type { SelectorRewrite } from "./types.d.ts";
 
 export type VariantsMap = Map<string, Variant>;
@@ -41,14 +41,14 @@ export const getVariants = (config: ResolvedConfig) => {
   }
 
   if (screensEntries.every((e) => e[1].min && !e[1].max)) {
-    screensEntries.forEach(([name, { min }]) => {
+    for (const [name, { min }] of screensEntries) {
       variantsMap.set(`max-${name}`, {
         type: "media",
         key: `max-${name}`,
         order: mediaOrder++,
         media: `not all and (max-width: ${min!})`,
       });
-    });
+    }
   }
 
   // Non-compliant: Only support class dark mode
@@ -57,7 +57,7 @@ export const getVariants = (config: ResolvedConfig) => {
     selectorRewrite: (v) => `.dark ${v}`,
   });
 
-  [
+  for (const value of [
     "first-letter",
     "first-line",
     "marker", // Non-compliant: No children selector
@@ -67,15 +67,15 @@ export const getVariants = (config: ResolvedConfig) => {
     "backdrop",
     "before", // Non-compliant: Don't add content property if not present
     "after", // Non-compliant: Don't add content property if not present
-  ].forEach((value) => {
+  ]) {
     const [prefix, suffix] = Array.isArray(value) ? value : [value, value];
     variantsMap.set(prefix, {
       type: "selectorRewrite",
       selectorRewrite: (sel) => `${sel}::${suffix}`,
     });
-  });
+  }
 
-  [
+  for (const value of [
     // Positional
     ["first", ":first-child"],
     ["last", ":last-child"],
@@ -116,7 +116,7 @@ export const getVariants = (config: ResolvedConfig) => {
     "enabled",
     "enabled",
     "disabled",
-  ].forEach((value) => {
+  ]) {
     const [prefix, suffix] = Array.isArray(value)
       ? value
       : [value, `:${value}`];
@@ -134,9 +134,9 @@ export const getVariants = (config: ResolvedConfig) => {
       type: "selectorRewrite",
       selectorRewrite: (sel) => `.peer${suffix} ~ ${sel}`,
     });
-  });
+  }
 
-  [
+  for (const [key, media] of [
     ["motion-safe", "(prefers-reduced-motion: no-preference)"],
     ["motion-reduce", "(prefers-reduced-motion: reduce)"],
     ["print", "print"],
@@ -144,16 +144,16 @@ export const getVariants = (config: ResolvedConfig) => {
     ["landscape", "(orientation: landscape)"],
     ["contrast-more", "(prefers-contrast: more)"],
     ["contrast-less", "(prefers-contrast: less)"],
-  ].forEach(([key, media]) => {
+  ]) {
     variantsMap.set(key, { type: "media", key, order: mediaOrder++, media });
-  });
+  }
 
-  Object.entries(config.theme.supports).forEach(([key, value]) => {
+  for (const [key, value] of Object.entries(config.theme.supports)) {
     variantsMap.set(`supports-${key}`, {
       type: "supports",
       supports: `(${value!})`,
     });
-  });
+  }
 
   return variantsMap;
 };

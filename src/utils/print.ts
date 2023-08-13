@@ -1,6 +1,6 @@
-import type { ResolvedConfig } from "../resolveConfig";
-import type { Container, CSSEntries, RuleMeta } from "../types";
-import { Variant } from "../variants.ts";
+import type { ResolvedConfig } from "../resolveConfig.ts";
+import type { Container, CSSEntries, RuleMeta } from "../types.d.ts";
+import { type Variant } from "../variants.ts";
 
 export const escapeSelector = (selector: string) =>
   selector.replaceAll(/[.:/[\]!#,%&>+~*@()]/g, (c) => `\\${c}`);

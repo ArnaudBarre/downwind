@@ -1,5 +1,5 @@
-import { getRules, Rule, Shortcut } from "./getRules.ts";
-import { ResolvedConfig } from "./resolveConfig.ts";
+import { getRules, type Rule, type Shortcut } from "./getRules.ts";
+import { type ResolvedConfig } from "./resolveConfig.ts";
 import type {
   DirectionThemeRule,
   RuleMeta,

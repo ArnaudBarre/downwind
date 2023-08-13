@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { getBaseFonts } from "../theme/getBaseFonts.ts";
-import type { ResolvedTheme } from "../types";
+import type { ResolvedTheme } from "../types.d.ts";
 
 export const getBase = (theme: ResolvedTheme) => {
   const rawCSS = readFileSync(

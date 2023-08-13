@@ -1,4 +1,4 @@
-import type { DownwindConfig } from "../../src/types";
+import type { DownwindConfig } from "../../src/types.d.ts";
 
 export const config: DownwindConfig = {
   blocklist: ["container"],

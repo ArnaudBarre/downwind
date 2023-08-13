@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { relative } from "node:path";
 import { loadConfig } from "@arnaud-barre/config-loader";
-import { Dependency, transform } from "lightningcss";
+import { type Dependency, transform } from "lightningcss";
 import { getBase } from "./base/getBase.ts";
 import { getDefaults } from "./getDefaults.ts";
 import {
@@ -10,7 +10,7 @@ import {
   isDirectionRule,
   isShortcut,
   isThemeRule,
-  RuleEntry,
+  type RuleEntry,
 } from "./getEntries.ts";
 import { resolveConfig } from "./resolveConfig.ts";
 import type {
@@ -33,7 +33,7 @@ import {
   printScreenContainer,
 } from "./utils/print.ts";
 import { themeGet } from "./utils/themeGet.ts";
-import { getVariants, Variant } from "./variants.ts";
+import { getVariants, type Variant } from "./variants.ts";
 
 export const VERSION = __VERSION__;
 export { cssModuleToJS } from "./utils/cssModuleToJS.ts";
@@ -395,7 +395,7 @@ export const initDownwindWithConfig = ({
         flags.hasMedia ||
         flags.hasSupports ||
         !selector.startsWith("&") ||
-        meta?.addKeyframes ||
+        (meta?.addKeyframes ?? false) ||
         meta?.addContainer
       ) {
         throw new DownwindError(
@@ -642,11 +642,11 @@ export const initDownwindWithConfig = ({
         );
         header += "\n";
       }
-      usedKeyframes.forEach((name) => {
+      for (const name of usedKeyframes) {
         header += `@keyframes ${name} {\n  ${config.theme.keyframes[
           name
         ]!}\n}\n`;
-      });
+      }
       if (usedKeyframes.size) header += "\n";
 
       if (opts?.skipLightningCSS) return header + utilsOutput;

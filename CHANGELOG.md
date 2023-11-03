@@ -2,6 +2,34 @@
 
 ## Unreleased
 
+### Remove dependency on LightningCSS
+
+This was here mostly because I wanted to get CSS modules and Tailwind working with esbuild. Now that esbuild support CSS modules, I can remove this coupling and makes this repo easier to re-use in other bundlers. This also mean I'm dropping from this repo features related to build tools, like `downwind.transform`, `cssModuleToJS` & `convertTargets`.
+
+For usage Vite, you can get back the same behaviour by using the builtin support for lightningCSS:
+
+```js
+export default defineConfig({
+  plugins: [downwind()],
+  css: {
+    transformer: "lightningcss",
+  },
+  build: {
+    cssMinify: "lightningcss",
+  },
+});
+```
+
+### Interval check during builds for plugins
+
+Using the bundler to discover file to scan is the main reason of this fork. But it poses a problem for builds: we need to be sure to have scan every UI files before generating the output.
+
+Previously this was done line in unocss by injecting a placeholder, and inside the "onEnd" callback, replacing it with the generated output. But this mess up with sourcemap and content hashing, and the plugins where doing some hack around this.
+
+To simplify the code, I now delayed the generation the virtual utils module until other files are scanned. But there is no API to be sure every other files is processed, so for now the build is checking at a fixed interval if some work was done in the previous Xms and if not, generate the utils. This interval is configurable and default to `50ms` for the esbuild plugin and `200ms` for the Vite plugin.
+
+This is not perfect, but I think that the cost of waiting few hundred milliseconds in a build is better than having utils not bing processed and minified like the rest of the CSS files.
+
 ## 0.6.2
 
 Align with Tailwind 3.3.3:

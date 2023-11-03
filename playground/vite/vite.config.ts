@@ -7,7 +7,6 @@ export default defineConfig({
   plugins: [react(), downwind()],
   css: {
     transformer: "lightningcss",
-    lightningcss: { drafts: { nesting: true } },
   },
   build: {
     cssMinify: "lightningcss",

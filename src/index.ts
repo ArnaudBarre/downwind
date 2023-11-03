@@ -1,7 +1,5 @@
 import { readFileSync } from "node:fs";
-import { relative } from "node:path";
 import { loadConfig } from "@arnaud-barre/config-loader";
-import { type Dependency, transform } from "lightningcss";
 import { getBase } from "./base/getBase.ts";
 import { getDefaults } from "./getDefaults.ts";
 import {
@@ -17,12 +15,10 @@ import type {
   CSSEntries,
   Default,
   initDownwind as initDownwindDeclaration,
-  Screen,
   staticRules as staticRulesDeclaration,
   UserConfig,
 } from "./types.d.ts";
 import { formatColor, isColor, parseColor } from "./utils/colors.ts";
-import { forceDownlevelNesting } from "./utils/convertTargets.ts";
 import {
   applyVariants,
   arbitraryPropertyMatchToLine,
@@ -36,8 +32,6 @@ import { themeGet } from "./utils/themeGet.ts";
 import { getVariants, type Variant } from "./variants.ts";
 
 export const VERSION = __VERSION__;
-export { cssModuleToJS } from "./utils/cssModuleToJS.ts";
-export { convertTargets } from "./utils/convertTargets.ts";
 
 const arbitraryValueRE = /-\[.+]$/;
 const applyRE = /[{\s]@apply ([^;}\n]+)([;}\n])/g;
@@ -70,9 +64,7 @@ export const initDownwind: typeof initDownwindDeclaration = async (opts) => {
 export const initDownwindWithConfig = ({
   config: userConfig,
   configFiles = [],
-  targets = forceDownlevelNesting,
   scannedExtension = "tsx",
-  root = process.cwd(),
 }: {
   config: UserConfig | undefined;
   configFiles?: string[];
@@ -419,63 +411,6 @@ export const initDownwindWithConfig = ({
     return { cssLines, invalidateUtils };
   };
 
-  const preTransform = (content: string) => {
-    let invalidateUtils = false;
-    const hasApply = content.includes("@apply ");
-    if (hasApply) {
-      content = content.replaceAll(
-        applyRE,
-        (substring, tokens: string, endChar: string) => {
-          const result = apply({ tokens, context: substring, from: "CSS" });
-          if (result.invalidateUtils && !invalidateUtils) {
-            invalidateUtils = true;
-          }
-          return `${substring[0]}${result.cssLines.join("\n  ")}${
-            endChar === ";" ? "" : endChar
-          }`;
-        },
-      );
-    }
-
-    const hasScreen = content.includes("screen(");
-    if (hasScreen) {
-      content = content.replaceAll(screenRE, (substring, value: string) => {
-        const variant = variantsMap.get(value);
-        if (variant === undefined) {
-          throw new DownwindError(`No variant matching "${value}"`, substring);
-        }
-        if (variant.type !== "media") {
-          throw new DownwindError(
-            `"${value}" is not a media variant`,
-            substring,
-          );
-        }
-        return variant.media;
-      });
-    }
-
-    const hasTheme = content.includes('theme("');
-    if (hasTheme) {
-      content = content.replaceAll(themeRE, (_, path: string) => {
-        if (path.includes(" / ")) {
-          const [key, alpha] = path.split(" / ");
-          const color = themeGet(config.theme, key);
-          const parsed = color ? parseColor(color) : undefined;
-          if (parsed) return formatColor({ ...parsed, alpha });
-        } else {
-          const value = themeGet(config.theme, path);
-          if (value) return value;
-        }
-        throw new DownwindError(
-          `Could not resolve "${path}" in current theme`,
-          `theme(${path})`,
-        );
-      });
-    }
-
-    return { content, invalidateUtils };
-  };
-
   for (const token of config.safelist) {
     const match = parse(token, true);
     if (!match) {
@@ -486,37 +421,64 @@ export const initDownwindWithConfig = ({
 
   return {
     getBase: () => getBase(config.theme),
-    preTransform,
-    transform: <AnalyzeDependencies extends boolean>(
-      path: string,
-      opts?: { analyzeDependencies: AnalyzeDependencies },
-    ) => {
-      const { content, invalidateUtils } = preTransform(
-        readFileSync(path, "utf-8"),
-      );
-      const result = transform({
-        filename: relative(root, path),
-        code: Buffer.from(content),
-        analyzeDependencies: opts?.analyzeDependencies,
-        cssModules: path.endsWith(".module.css"),
-        drafts: { nesting: true },
-        targets,
-      });
-      return {
-        invalidateUtils,
-        code: result.code.toString(),
-        exports: result.exports
-          ? // https://github.com/parcel-bundler/lightningcss/issues/291
-            Object.fromEntries(
-              Object.entries(result.exports).sort((a, b) =>
-                a[0].localeCompare(b[0]),
-              ),
-            )
-          : undefined,
-        dependencies: result.dependencies as AnalyzeDependencies extends true
-          ? Dependency[]
-          : never,
-      };
+    preTransform: (content: string) => {
+      let invalidateUtils = false;
+      const hasApply = content.includes("@apply ");
+      if (hasApply) {
+        content = content.replaceAll(
+          applyRE,
+          (substring, tokens: string, endChar: string) => {
+            const result = apply({ tokens, context: substring, from: "CSS" });
+            if (result.invalidateUtils && !invalidateUtils) {
+              invalidateUtils = true;
+            }
+            return `${substring[0]}${result.cssLines.join("\n  ")}${
+              endChar === ";" ? "" : endChar
+            }`;
+          },
+        );
+      }
+
+      const hasScreen = content.includes("screen(");
+      if (hasScreen) {
+        content = content.replaceAll(screenRE, (substring, value: string) => {
+          const variant = variantsMap.get(value);
+          if (variant === undefined) {
+            throw new DownwindError(
+              `No variant matching "${value}"`,
+              substring,
+            );
+          }
+          if (variant.type !== "media") {
+            throw new DownwindError(
+              `"${value}" is not a media variant`,
+              substring,
+            );
+          }
+          return variant.media;
+        });
+      }
+
+      const hasTheme = content.includes('theme("');
+      if (hasTheme) {
+        content = content.replaceAll(themeRE, (_, path: string) => {
+          if (path.includes(" / ")) {
+            const [key, alpha] = path.split(" / ");
+            const color = themeGet(config.theme, key);
+            const parsed = color ? parseColor(color) : undefined;
+            if (parsed) return formatColor({ ...parsed, alpha });
+          } else {
+            const value = themeGet(config.theme, path);
+            if (value) return value;
+          }
+          throw new DownwindError(
+            `Could not resolve "${path}" in current theme`,
+            `theme(${path})`,
+          );
+        });
+      }
+
+      return { content, invalidateUtils };
     },
     scan: (
       path: string,
@@ -535,11 +497,11 @@ export const initDownwindWithConfig = ({
       }
       return hasNew;
     },
-    generate: (opts?: { skipLightningCSS?: boolean }) => {
+    generate: () => {
       let useContainer = false;
       let utilsOutput = "";
 
-      const printMatchMap = (map: MatchMap, baseLevel: boolean) => {
+      const printMatchMap = (map: MatchMap, indentation: string) => {
         map.matches.sort((a, b) => {
           const diff = getOrder(a) - getOrder(b);
           if (diff !== 0) return diff;
@@ -551,7 +513,7 @@ export const initDownwindWithConfig = ({
               ? getRuleMeta(match.ruleEntry.rule)
               : undefined;
           if (meta?.addContainer) {
-            if (baseLevel) {
+            if (indentation === "") {
               useContainer = true;
               utilsOutput += printContainerClass(config.theme.container);
             }
@@ -571,15 +533,21 @@ export const initDownwindWithConfig = ({
             },
           );
           if (supportsWrapper) {
-            utilsOutput += `@supports ${supportsWrapper} {\n`;
+            utilsOutput += `${indentation}@supports ${supportsWrapper} {\n`;
+            indentation += "  ";
           }
+
           utilsOutput += printBlock(
             selector,
             match.type === "Rule"
               ? toCSS(match.ruleEntry, match.important)
               : [arbitraryPropertyMatchToLine(match)],
+            indentation,
           );
-          if (supportsWrapper) utilsOutput += "}\n";
+          if (supportsWrapper) {
+            indentation = indentation.slice(2);
+            utilsOutput += `${indentation}}\n`;
+          }
         }
 
         const medias: {
@@ -605,31 +573,38 @@ export const initDownwindWithConfig = ({
           return a.media.localeCompare(b.media);
         });
         for (const { key, media, matchMap } of medias) {
-          const screenConf = config.theme.screens[key] as Screen | undefined;
-          if (useContainer && screenConf?.min && screenConf.max !== undefined) {
+          const screenConf = useContainer
+            ? config.theme.screens[key]
+            : undefined;
+          if (screenConf?.min && screenConf.max !== undefined) {
             // If max is defined, we need to use a separate media query
             const declaration = printScreenContainer(
               config,
               key,
               screenConf.min,
             );
-            utilsOutput += `\n@media (min-width: ${screenConf.min}) {\n${declaration}\n}`;
+            utilsOutput += `@media (min-width: ${screenConf.min}) {\n${declaration}\n}\n`;
           }
-          utilsOutput += `\n@media ${media} {\n`;
-          if (useContainer && screenConf?.min && screenConf.max === undefined) {
+          const printScreenContainerMin =
+            screenConf?.min && screenConf.max === undefined
+              ? screenConf.min
+              : undefined;
+          if (!printScreenContainerMin && isMatchMapEmpty(matchMap)) continue;
+          utilsOutput += `${indentation}@media ${media} {\n`;
+          if (printScreenContainerMin) {
             const declaration = printScreenContainer(
               config,
               key,
-              screenConf.min,
+              printScreenContainerMin,
             );
             utilsOutput += `${declaration}\n`;
           }
-          printMatchMap(matchMap, false);
-          utilsOutput += "}\n";
+          printMatchMap(matchMap, `${indentation}  `);
+          utilsOutput += `${indentation}}\n`;
         }
       };
 
-      printMatchMap(allMatches, true);
+      printMatchMap(allMatches, "");
 
       let header = "";
       if (usedDefaults.size) {
@@ -649,13 +624,7 @@ export const initDownwindWithConfig = ({
       }
       if (usedKeyframes.size) header += "\n";
 
-      if (opts?.skipLightningCSS) return header + utilsOutput;
-      return transform({
-        filename: "@downwind/utils.css",
-        code: Buffer.from(header + utilsOutput),
-        drafts: { nesting: true },
-        targets,
-      }).code.toString();
+      return header + utilsOutput;
     },
     codegen: ({
       mode,
@@ -685,6 +654,14 @@ export const initDownwindWithConfig = ({
     },
     configFiles,
   };
+};
+
+const isMatchMapEmpty = (map: MatchMap) => {
+  if (map.matches.length) return false;
+  for (const subMap of map.medias.values()) {
+    if (!isMatchMapEmpty(subMap)) return false;
+  }
+  return true;
 };
 
 const getOrder = (match: Match) =>

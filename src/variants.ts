@@ -1,4 +1,4 @@
-import { type ResolvedConfig } from "./resolveConfig.ts";
+import type { ResolvedConfig } from "./resolveConfig.ts";
 import type { SelectorRewrite } from "./types.d.ts";
 
 export type VariantsMap = Map<string, Variant>;

@@ -1,14 +1,18 @@
 import type { ResolvedConfig } from "../resolveConfig.ts";
 import type { Container, CSSEntries, RuleMeta } from "../types.d.ts";
-import { type Variant } from "../variants.ts";
+import type { Variant } from "../variants.ts";
 
 export const escapeSelector = (selector: string) =>
   selector.replaceAll(/[.:/[\]!#,%&>+~*@()]/g, (c) => `\\${c}`);
 
-export const printBlock = (selector: string, lines: string[]) => {
-  let output = `${selector} {\n`;
-  for (const line of lines) output += `  ${line}\n`;
-  output += "}\n";
+export const printBlock = (
+  selector: string,
+  lines: string[],
+  indentation = "",
+) => {
+  let output = `${indentation}${selector} {\n`;
+  for (const line of lines) output += `${indentation}  ${line}\n`;
+  output += `${indentation}}\n`;
   return output;
 };
 

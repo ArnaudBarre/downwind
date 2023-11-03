@@ -1,4 +1,4 @@
-import { type ResolvedConfig } from "./resolveConfig.ts";
+import type { ResolvedConfig } from "./resolveConfig.ts";
 import type { CSSEntries, Default } from "./types.d.ts";
 import { withAlphaValue } from "./utils/colors.ts";
 

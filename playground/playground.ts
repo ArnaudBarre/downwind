@@ -1,5 +1,5 @@
 #!/usr/bin/env tnode
-import { existsSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 
 import "./set-version.ts";
 import { initDownwindWithConfig } from "../src/index.ts";
@@ -7,9 +7,9 @@ import { initDownwindWithConfig } from "../src/index.ts";
 if (!existsSync("./config.ts")) {
   writeFileSync(
     "./config.ts",
-    `import type { DownwindConfig } from "../src/types";
+    `import type { DownwindConfig } from "../src/types.d.ts";
 
-export const config: UserConfig = {};
+export const config: DownwindConfig = {};
 `,
   );
   writeFileSync(
@@ -40,7 +40,9 @@ const downwind = initDownwindWithConfig({
 });
 downwind.scan("./input.ts");
 
-const transform = downwind.transform("./input.module.css").code;
+const transform = downwind.preTransform(
+  readFileSync("./input.module.css", "utf-8"),
+).content;
 const utils = downwind.generate();
 
 const warningsHeader = warnings.length

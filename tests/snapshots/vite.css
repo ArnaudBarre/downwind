@@ -9,8 +9,9 @@
 
 html {
   -webkit-text-size-adjust: 100%;
+  -moz-tab-size: 4;
   tab-size: 4;
-  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, Noto Sans, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Noto Sans, Ubuntu, Cantarell, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;
   line-height: 1.5;
 }
 
@@ -26,6 +27,7 @@ hr {
 }
 
 abbr:where([title]) {
+  -webkit-text-decoration: underline dotted;
   text-decoration: underline dotted;
 }
 
@@ -36,6 +38,7 @@ h1, h2, h3, h4, h5, h6 {
 
 a {
   color: inherit;
+  -webkit-text-decoration: inherit;
   text-decoration: inherit;
 }
 
@@ -107,7 +110,11 @@ progress {
   vertical-align: baseline;
 }
 
-:is(::-webkit-inner-spin-button, ::-webkit-outer-spin-button) {
+::-webkit-inner-spin-button {
+  height: auto;
+}
+
+::-webkit-outer-spin-button {
   height: auto;
 }
 
@@ -182,7 +189,6 @@ img, video {
 [hidden] {
   display: none;
 }
-
 html {
   --tw-bg-opacity: 1;
   background-color: rgb(38 38 38 / var(--tw-bg-opacity));
@@ -191,19 +197,33 @@ html {
   height: 100%;
   overflow: hidden;
 }
-
-._6vyDYG_container {
+.WXqopW_container {
   text-align: center;
   padding: 3rem;
 }
 
-._6vyDYG_container ._6vyDYG_title {
+.WXqopW_container .WXqopW_title {
   font-size: 1.25rem;
   font-weight: 700;
   line-height: 1.75rem;
 }
+*, :before, :after {
+  --tw-ordinal: ;
+  --tw-slashed-zero: ;
+  --tw-numeric-figure: ;
+  --tw-numeric-spacing: ;
+  --tw-numeric-fraction: ;
+}
 
-*, :before, :after, ::backdrop {
+::-webkit-backdrop {
+  --tw-ordinal: ;
+  --tw-slashed-zero: ;
+  --tw-numeric-figure: ;
+  --tw-numeric-spacing: ;
+  --tw-numeric-fraction: ;
+}
+
+::backdrop {
   --tw-ordinal: ;
   --tw-slashed-zero: ;
   --tw-numeric-figure: ;

@@ -65,7 +65,7 @@ writeFileSync(
       author: packageJSON.author,
       license: packageJSON.license,
       repository: "ArnaudBarre/downwind",
-      keywords: ["tailwind", "lightningcss"],
+      keywords: ["tailwind"],
       exports: {
         ".": "./index.js",
         "./esbuild": "./esbuild.js",

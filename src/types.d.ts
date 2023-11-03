@@ -1,5 +1,4 @@
 import { DefineConfig } from "@arnaud-barre/config-loader";
-import { CSSModuleExports, Dependency, Targets } from "lightningcss";
 
 export declare const VERSION: string;
 
@@ -20,9 +19,7 @@ export type DownwindConfig = DefineConfig<UserConfig>;
  * API
  */
 export declare const initDownwind: (opts?: {
-  targets?: Targets;
   scannedExtension?: string;
-  root?: string;
 }) => Promise<Downwind>;
 
 export type Downwind = {
@@ -31,17 +28,8 @@ export type Downwind = {
     invalidateUtils: boolean;
     content: string;
   };
-  transform: <AnalyzeDependencies extends boolean = false>(
-    path: string,
-    opts?: { analyzeDependencies: AnalyzeDependencies },
-  ) => {
-    invalidateUtils: boolean;
-    code: string;
-    exports: CSSModuleExports | undefined;
-    dependencies: AnalyzeDependencies extends true ? Dependency[] : never;
-  };
   scan: (path: string, content?: string) => boolean /* hasNew */;
-  generate: (opts?: { skipLightningCSS?: boolean }) => string;
+  generate: () => string;
   codegen: (opts: {
     mode: "WITH_CONTENT" | "OMIT_CONTENT" | "DEVTOOLS";
   }) => string;
@@ -55,12 +43,6 @@ declare class DownwindError extends Error {
 /**
  * Utils
  */
-export declare const cssModuleToJS: (cssModule: CSSModuleExports) => string;
-
-export declare const convertTargets: (
-  esbuildTarget: string | string[] | undefined | false,
-) => LightningCSSTargets;
-
 export declare const staticRules: (
   rules: Record<string, Record<string, string>>,
 ) => StaticRule[];

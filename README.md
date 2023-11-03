@@ -1,6 +1,6 @@
 # downwind [![npm](https://img.shields.io/npm/v/@arnaud-barre/downwind)](https://www.npmjs.com/package/@arnaud-barre/downwind)
 
-A PostCSS-less implementation of Tailwind based on [Lightning CSS](https://github.com/parcel-bundler/lightningcss) with an API optimized for dev server like [Vite](https://github.com/vitejs/vite).
+A bundler-first & PostCSS-independent implementation of Tailwind.
 
 Inspired by [UnoCSS](https://github.com/unocss/unocss).
 
@@ -15,7 +15,6 @@ export default defineConfig({
   plugins: [downwind()],
   css: {
     transformer: "lightningcss",
-    lightningcss: { drafts: { nesting: true } },
   },
   build: {
     cssMinify: "lightningcss",
@@ -43,8 +42,6 @@ await build({
 ```
 
 Add `import "virtual:@downwind/base.css";` and `import "virtual:@downwind/utils.css";` to your code.
-
-Nesting and CSS modules are directly supported via Lightning CSS.
 
 ## Scanned extension
 

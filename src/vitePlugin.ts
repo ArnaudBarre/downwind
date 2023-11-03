@@ -1,9 +1,8 @@
 import { IncomingMessage } from "node:http";
-import { getHash } from "@arnaud-barre/config-loader";
-import { transform as lightningCSSTransform, type Targets } from "lightningcss";
 import type { Logger, Plugin, ResolvedConfig, ViteDevServer } from "vite";
-import { convertTargets, initDownwind } from "./index.ts";
+import { initDownwind } from "./index.ts";
 import type { Downwind } from "./types.d.ts";
+import { intervalCheck } from "./utils/intervalCheck.ts";
 import type { downwind as declaration } from "./vite.d.ts";
 
 const cssRE = /\.css(\?.+)?$/;
@@ -12,21 +11,16 @@ export { vitePlugin as downwind };
 
 const vitePlugin: typeof declaration = ({
   scannedExtension,
+  buildIntervalCheckMs = 200,
 } = {}): Plugin[] => {
   let downwind: Downwind;
-  let targets: Targets | undefined;
   let devtoolsPostPath: string;
 
   // Common
   const configResolved = async (config: ResolvedConfig) => {
-    targets = convertTargets(config.build.cssTarget);
     const origin = config.server.origin ?? "";
     devtoolsPostPath = `${origin}/@downwind-devtools-update`;
-    downwind = await initDownwind({
-      targets,
-      scannedExtension,
-      root: config.root,
-    });
+    downwind = await initDownwind({ scannedExtension });
   };
 
   let hasBase = false;
@@ -77,10 +71,9 @@ const vitePlugin: typeof declaration = ({
   };
 
   // Build
-  let minify = false;
-  let cssPostPlugin: any;
-  const placeholder = "#--downwind-{layer:utils}";
-  let hashPlaceholder: string | undefined;
+  const utilsIntervalCheck = intervalCheck(buildIntervalCheckMs, () =>
+    downwind.generate(),
+  );
 
   return [
     {
@@ -172,86 +165,38 @@ const vitePlugin: typeof declaration = ({
       name: "downwind:build",
       apply: "build",
       enforce: "pre",
-      async configResolved(config) {
-        await configResolved(config);
-        minify = config.build.minify !== false;
-        cssPostPlugin = config.plugins.find((i) => i.name === "vite:css-post");
-      },
+      configResolved,
       resolveId,
       load(id) {
         if (id === baseModuleId) return downwind.getBase();
-        if (id === utilsModuleId) return placeholder;
+        if (id === utilsModuleId) return utilsIntervalCheck.promise;
         if (id === devtoolsModuleId) return "";
       },
       transform(code, id) {
+        if (id === utilsModuleId) return;
         if (cssRE.test(id)) {
-          return { code: downwind.preTransform(code).content, map: null };
-        }
-        if (!id.includes("/node_modules/")) downwind.scan(id, code);
-      },
-      // we inject a hash to chunk before the dist hash calculation to make sure
-      // the hash is different when utils changes
-      // taken from https://github.com/unocss/unocss/blob/main/packages/vite/src/modes/global/build.ts#L111
-      async renderChunk(_, chunk) {
-        const hasUtilsModule = !!chunk.modules[utilsModuleId] as boolean;
-        if (hasUtilsModule) {
-          const fakeId = "downwind-hash.css";
-          chunk.modules[fakeId] = {
-            code: null,
-            originalLength: 0,
-            removedExports: [],
-            renderedExports: [],
-            renderedLength: 0,
+          utilsIntervalCheck.taskRunning();
+          return {
+            code: downwind.preTransform(code).content,
+            map: { mappings: "" },
           };
-          hashPlaceholder = `#--downwind-hash--{content:${getHash(
-            downwind.generate({ skipLightningCSS: true }),
-          )}}`;
-          // fool the css plugin to generate the css in corresponding chunk
-          await cssPostPlugin.transform.call({}, hashPlaceholder, fakeId);
         }
-        return null;
+        if (!id.includes("/node_modules/")) {
+          utilsIntervalCheck.taskRunning();
+          downwind.scan(id, code);
+        }
       },
     },
     {
       name: "downwind:build:post",
       apply: "build",
       enforce: "post",
-      generateBundle(_, bundle) {
+      generateBundle() {
         if (!hasBase || !hasUtils) {
           this.error(
             `Import virtual:@downwind/${
               hasUtils ? "base.css" : "utils.css"
             } was not found in the bundle. Downwind can't work without both virtual:@downwind/base.css and virtual:@downwind/utils.css.`,
-          );
-        }
-
-        let placeholderFound = false;
-        for (const [path, chunk] of Object.entries(bundle)) {
-          if (
-            path.endsWith(".css") &&
-            chunk.type === "asset" &&
-            typeof chunk.source === "string" &&
-            chunk.source.includes(placeholder)
-          ) {
-            const newSource = chunk.source
-              .replace(hashPlaceholder!, "")
-              .replace(
-                placeholder,
-                downwind.generate({ skipLightningCSS: true }),
-              );
-            chunk.source = lightningCSSTransform({
-              filename: path,
-              code: Buffer.from(newSource),
-              drafts: { nesting: true },
-              minify,
-              targets,
-            }).code;
-            placeholderFound = true;
-          }
-        }
-        if (!placeholderFound) {
-          this.error(
-            "Couldn't inject CSS utils into the build output. This is an error in the plugin",
           );
         }
       },

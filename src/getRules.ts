@@ -1,6 +1,6 @@
 import { type BaseRuleOrBaseRules, getCoreRules } from "./coreRules.ts";
 import { getRuleMeta } from "./getEntries.ts";
-import { type ResolvedConfig } from "./resolveConfig.ts";
+import type { ResolvedConfig } from "./resolveConfig.ts";
 import type { BaseRule, CoreRule } from "./types.d.ts";
 import { split } from "./utils/helpers.ts";
 

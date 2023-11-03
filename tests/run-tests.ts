@@ -10,8 +10,6 @@ declare global {
 
 import("./generate.test.ts");
 import("./preTransform.test.ts");
-import("./convertTargets.test.ts");
-import("./cssModuleToJS.test.ts");
 import("./codegen.test.ts");
 import("./esbuildPlugin.test.ts");
 import("./vitePlugin.test.ts");

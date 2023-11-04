@@ -20,6 +20,7 @@ import type {
   UserConfig,
 } from "./types.d.ts";
 import { formatColor, isColor, parseColor } from "./utils/colors.ts";
+import { run } from "./utils/helpers.ts";
 import {
   applyVariants,
   arbitraryPropertyMatchToLine,
@@ -235,92 +236,77 @@ export const initDownwindWithConfig = ({
       return result;
     }
 
-    let ruleEntry: RuleEntry | undefined =
-      rulesEntries.get(tokenWithoutVariants);
-    if (!ruleEntry) {
-      let start = tokenWithoutVariants.indexOf("-[");
-      if (start !== -1) {
+    const ruleEntry =
+      rulesEntries.get(tokenWithoutVariants) ??
+      run((): RuleEntry | undefined => {
+        let start = tokenWithoutVariants.indexOf("-[");
+        if (start === -1) {
+          start = tokenWithoutVariants.indexOf("/");
+          // Neither arbitrary value not modifier and not in map -> not tailwind
+          if (start === -1) return;
+          const prefix = tokenWithoutVariants.slice(0, start);
+          const entry = rulesEntries.get(prefix);
+          if (!entry) return;
+          const value = parseModifier(
+            tokenWithoutVariants.slice(start + 1),
+            entry.rule,
+            entry.key,
+            undefined,
+          );
+          if (!value) return;
+          return {
+            rule: entry.rule,
+            isArbitrary: true,
+            value,
+            direction: entry.direction,
+            negative: false,
+            order: entry.order,
+          };
+        }
+        // Has arbitrary value
         const prefix = tokenWithoutVariants.slice(0, start);
         const entries = arbitraryEntries.get(prefix);
-        if (entries) {
-          const opacityModifierIndex = tokenWithoutVariants.indexOf("]/");
-          const arbitraryValueEnd =
-            opacityModifierIndex !== -1
-              ? opacityModifierIndex
-              : tokenWithoutVariants.endsWith("]")
-              ? -1
-              : undefined;
-          // zero is empty string which it's useless
-          if (arbitraryValueEnd) {
-            const arbitraryValue = tokenWithoutVariants.slice(
-              start + 2,
-              arbitraryValueEnd,
-            );
-            const arbitraryEntry =
-              entries.length > 1
-                ? entries.find((e) =>
-                    e.validation === "color-only"
-                      ? isColor(arbitraryValue) ||
-                        arbitraryValue.startsWith("--")
-                      : true,
-                  )!
-                : entries[0];
-            if (opacityModifierIndex !== -1) {
-              const value = parseModifier(
+        if (!entries) return;
+        const opacityModifierIndex = tokenWithoutVariants.indexOf("]/");
+        const arbitraryValueEnd =
+          opacityModifierIndex !== -1
+            ? opacityModifierIndex
+            : tokenWithoutVariants.endsWith("]")
+            ? -1
+            : undefined;
+        // zero is empty string which it's useless
+        if (!arbitraryValueEnd) return;
+        const arbitraryValue = tokenWithoutVariants.slice(
+          start + 2,
+          arbitraryValueEnd,
+        );
+        const arbitraryEntry =
+          entries.length > 1
+            ? entries.find((e) =>
+                e.validation === "color-only"
+                  ? isColor(arbitraryValue) || arbitraryValue.startsWith("--")
+                  : true,
+              )!
+            : entries[0];
+        const value =
+          opacityModifierIndex !== -1
+            ? parseModifier(
                 tokenWithoutVariants.slice(opacityModifierIndex + 2),
                 arbitraryEntry.rule,
                 "",
                 normalizeArbitraryValue(arbitraryValue),
-              );
-              if (value) {
-                ruleEntry = {
-                  rule: arbitraryEntry.rule,
-                  isArbitrary: true,
-                  value,
-                  direction: arbitraryEntry.direction,
-                  negative: false,
-                  order: arbitraryEntry.order,
-                };
-              }
-            } else {
-              ruleEntry = {
-                rule: arbitraryEntry.rule,
-                isArbitrary: true,
-                value: normalizeArbitraryValue(arbitraryValue),
-                direction: arbitraryEntry.direction,
-                negative: false,
-                order: arbitraryEntry.order,
-              };
-            }
-          }
-        }
-      } else {
-        start = tokenWithoutVariants.indexOf("/");
-        if (start !== -1) {
-          // Has opacity modifier
-          const prefix = tokenWithoutVariants.slice(0, start);
-          const entry = rulesEntries.get(prefix);
-          if (entry) {
-            const value = parseModifier(
-              tokenWithoutVariants.slice(start + 1),
-              entry.rule,
-              entry.key,
-              undefined,
-            );
-            if (value) {
-              ruleEntry = {
-                rule: entry.rule,
-                isArbitrary: true,
-                value,
-                direction: entry.direction,
-                negative: false,
-                order: entry.order,
-              };
-            }
-          }
-        }
-      }
-    }
+              )
+            : normalizeArbitraryValue(arbitraryValue);
+        if (!value) return;
+        return {
+          rule: arbitraryEntry.rule,
+          isArbitrary: true,
+          value,
+          direction: arbitraryEntry.direction,
+          negative: false,
+          order: arbitraryEntry.order,
+        };
+      });
 
     if (!ruleEntry) {
       blockList.add(token);

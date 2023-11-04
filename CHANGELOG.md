@@ -34,6 +34,10 @@ This is not perfect, but I think that the cost of waiting few hundred millisecon
 
 There was a involuntary mismatch with Tailwind when applying the important modifier (`!`) with a variant, the implementation required to use `!hover:font-medium` instead of `hover:!font-medium`. This has been changed to match Tailwind syntax.
 
+### Support `/` in arbitrary values
+
+The parser has been modifier to parse arbitrary values before modifiers (opacity, line height) so that `/` can be used inside arbitrary values. `text-[calc(3rem/5)]/[calc(4rem/5)]` is now supported.
+
 ## 0.6.2
 
 Align with Tailwind 3.3.3:

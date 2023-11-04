@@ -10,6 +10,7 @@ import {
   isThemeRule,
   type RuleEntry,
 } from "./getEntries.ts";
+import type { Rule } from "./getRules.ts";
 import { resolveConfig } from "./resolveConfig.ts";
 import type {
   CSSEntries,
@@ -33,7 +34,6 @@ import { getVariants, type Variant } from "./variants.ts";
 
 export const VERSION = __VERSION__;
 
-const arbitraryValueRE = /-\[.+]$/;
 const applyRE = /[{\s]@apply ([^;}\n]+)([;}\n])/g;
 const screenRE = /screen\(([a-z-]+)\)/g;
 const themeRE = /theme\("([^)]+)"\)/g;
@@ -120,26 +120,6 @@ export const initDownwindWithConfig = ({
   const normalizeArbitraryValue = (raw: string) =>
     raw.startsWith("--") ? `var(${raw})` : raw.replaceAll("_", " ");
 
-  const parseArbitrary = (tokenPart: string) => {
-    const start = tokenPart.indexOf("[");
-    if (start !== -1 && arbitraryValueRE.test(tokenPart)) {
-      const prefix = tokenPart.slice(0, start - 1);
-      const entries = arbitraryEntries.get(prefix);
-      if (entries) {
-        const value = tokenPart.slice(start + 1, -1);
-        const entry =
-          entries.length > 1
-            ? entries.find((e) =>
-                e.validation === "color-only"
-                  ? isColor(value) || value.startsWith("--")
-                  : true,
-              )!
-            : entries[0];
-        return { ...entry, value: normalizeArbitraryValue(value) };
-      }
-    }
-  };
-
   const getModifierValue = (
     rawModifier: string,
     themeMap: Record<string, any>,
@@ -149,6 +129,33 @@ export const initDownwindWithConfig = ({
       return normalizeArbitraryValue(rawModifier.slice(1, -1));
     }
     return themeMap[rawModifier];
+  };
+
+  const parseModifier = (
+    rawModifier: string,
+    rule: Rule,
+    key: string,
+    arbitraryValue: string | undefined,
+  ) => {
+    if (isThemeRule(rule) && rule[3]?.lineHeightModifiers) {
+      const modifier = getModifierValue(rawModifier, config.theme.lineHeight);
+      const fontSize = arbitraryValue ?? rule[1][key];
+      if (modifier) {
+        return [Array.isArray(fontSize) ? fontSize[0] : fontSize, modifier];
+      }
+    } else if (isThemeRule(rule) || isDirectionRule(rule)) {
+      const alphaModifiers = (isThemeRule(rule) ? rule[3] : rule[4])
+        ?.alphaModifiers;
+      if (alphaModifiers) {
+        const alpha = getModifierValue(rawModifier, alphaModifiers);
+        if (alpha) {
+          const parsed = parseColor(
+            arbitraryValue ?? (isThemeRule(rule) ? rule[1] : rule[2])[key],
+          );
+          if (parsed && !parsed.alpha) return formatColor({ ...parsed, alpha });
+        }
+      }
+    }
   };
 
   const parseCache = new Map<string, Match>();
@@ -231,75 +238,85 @@ export const initDownwindWithConfig = ({
     let ruleEntry: RuleEntry | undefined =
       rulesEntries.get(tokenWithoutVariants);
     if (!ruleEntry) {
-      let start = tokenWithoutVariants.indexOf("/");
+      let start = tokenWithoutVariants.indexOf("-[");
       if (start !== -1) {
-        // Has modifier
         const prefix = tokenWithoutVariants.slice(0, start);
-        const entry = rulesEntries.get(prefix) ?? parseArbitrary(prefix);
-        if (entry) {
-          if (isThemeRule(entry.rule) && entry.rule[3]?.lineHeightModifiers) {
-            const rawModifier = tokenWithoutVariants.slice(start + 1);
-            const modifier = getModifierValue(
-              rawModifier,
-              config.theme.lineHeight,
+        const entries = arbitraryEntries.get(prefix);
+        if (entries) {
+          const opacityModifierIndex = tokenWithoutVariants.indexOf("]/");
+          const arbitraryValueEnd =
+            opacityModifierIndex !== -1
+              ? opacityModifierIndex
+              : tokenWithoutVariants.endsWith("]")
+              ? -1
+              : undefined;
+          // zero is empty string which it's useless
+          if (arbitraryValueEnd) {
+            const arbitraryValue = tokenWithoutVariants.slice(
+              start + 2,
+              arbitraryValueEnd,
             );
-            if (modifier) {
-              const fontSize =
-                "value" in entry ? entry.value : entry.rule[1][entry.key];
+            const arbitraryEntry =
+              entries.length > 1
+                ? entries.find((e) =>
+                    e.validation === "color-only"
+                      ? isColor(arbitraryValue) ||
+                        arbitraryValue.startsWith("--")
+                      : true,
+                  )!
+                : entries[0];
+            if (opacityModifierIndex !== -1) {
+              const value = parseModifier(
+                tokenWithoutVariants.slice(opacityModifierIndex + 2),
+                arbitraryEntry.rule,
+                "",
+                normalizeArbitraryValue(arbitraryValue),
+              );
+              if (value) {
+                ruleEntry = {
+                  rule: arbitraryEntry.rule,
+                  isArbitrary: true,
+                  value,
+                  direction: arbitraryEntry.direction,
+                  negative: false,
+                  order: arbitraryEntry.order,
+                };
+              }
+            } else {
+              ruleEntry = {
+                rule: arbitraryEntry.rule,
+                isArbitrary: true,
+                value: normalizeArbitraryValue(arbitraryValue),
+                direction: arbitraryEntry.direction,
+                negative: false,
+                order: arbitraryEntry.order,
+              };
+            }
+          }
+        }
+      } else {
+        start = tokenWithoutVariants.indexOf("/");
+        if (start !== -1) {
+          // Has opacity modifier
+          const prefix = tokenWithoutVariants.slice(0, start);
+          const entry = rulesEntries.get(prefix);
+          if (entry) {
+            const value = parseModifier(
+              tokenWithoutVariants.slice(start + 1),
+              entry.rule,
+              entry.key,
+              undefined,
+            );
+            if (value) {
               ruleEntry = {
                 rule: entry.rule,
                 isArbitrary: true,
-                value: [
-                  Array.isArray(fontSize) ? fontSize[0] : fontSize,
-                  modifier,
-                ],
+                value,
                 direction: entry.direction,
                 negative: false,
                 order: entry.order,
               };
             }
-          } else if (isThemeRule(entry.rule) || isDirectionRule(entry.rule)) {
-            const alphaModifiers = (
-              isThemeRule(entry.rule) ? entry.rule[3] : entry.rule[4]
-            )?.alphaModifiers;
-            if (alphaModifiers) {
-              const alphaModifier = tokenWithoutVariants.slice(start + 1);
-              const alpha = getModifierValue(alphaModifier, alphaModifiers);
-              if (alpha) {
-                const parsed = parseColor(
-                  "value" in entry
-                    ? entry.value
-                    : (isThemeRule(entry.rule) ? entry.rule[1] : entry.rule[2])[
-                        entry.key
-                      ],
-                );
-                if (parsed && !parsed.alpha) {
-                  ruleEntry = {
-                    rule: entry.rule,
-                    isArbitrary: true,
-                    value: formatColor({ ...parsed, alpha }),
-                    direction: entry.direction,
-                    negative: false,
-                    order: entry.order,
-                  };
-                }
-              }
-            }
-          }
-        }
-      } else {
-        start = tokenWithoutVariants.indexOf("[");
-        if (start !== -1 && arbitraryValueRE.test(tokenWithoutVariants)) {
-          const entry = parseArbitrary(tokenWithoutVariants);
-          if (entry) {
-            ruleEntry = {
-              rule: entry.rule,
-              isArbitrary: true,
-              value: entry.value,
-              direction: entry.direction,
-              negative: false,
-              order: entry.order,
-            };
           }
         }
       }

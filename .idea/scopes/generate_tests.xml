@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="generate-tests" pattern="file:tests/generate.test.ts" />
+</component>

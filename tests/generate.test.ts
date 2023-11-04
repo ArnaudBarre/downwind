@@ -1,6 +1,7 @@
 import * as assert from "node:assert";
 import { readFileSync, writeFileSync } from "node:fs";
 import test from "node:test";
+import "./set-test-version.ts";
 import { initDownwindWithConfig } from "../src/index.ts";
 import type { UserConfig } from "../src/types.d.ts";
 import { shouldUpdateSnapshots } from "./test-utils.ts";
@@ -75,7 +76,7 @@ const cases: [name: string, content: string, config?: UserConfig][] = [
   ["variants", "hover:p-4 md:print:landscape:first:p-8"],
   [
     "alpha modifier",
-    "bg-orange-400/20 text-slate-200/[.06] border-black/15",
+    "bg-orange-400/20 text-slate-200/[.06] border-black/15 bg-[#123456]/15 text-[#222]/[--custom-var]",
     { theme: { extend: { borderOpacity: { "15": "0.15" } } } },
   ],
   [
@@ -85,6 +86,10 @@ const cases: [name: string, content: string, config?: UserConfig][] = [
   [
     "arbitrary-values",
     "inset-[-10px] pt-[100px] w-[45%] text-[#ddd] text-[#f009] text-[12px] text-[10px] animate-[highlight_1s_ease-in-out_1] bg-[#ddd]/50 bg-[--primary] bg-red-500/[--opacity] text-[19px]/7 text-[19px]/[27px]",
+  ],
+  [
+    "line height modifier",
+    "text-lg/[18px] text-[calc(3rem/5)]/7 text-[calc(3rem/5)]/[calc(4rem/5)]",
   ],
   ["arbitrary-values-with-spaces", "grid grid-cols-[1fr_500px_2fr]"],
   [

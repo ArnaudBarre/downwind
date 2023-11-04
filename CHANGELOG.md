@@ -30,6 +30,10 @@ To simplify the code, I now delayed the generation the virtual utils module unti
 
 This is not perfect, but I think that the cost of waiting few hundred milliseconds in a build is better than having utils not bing processed and minified like the rest of the CSS files.
 
+### Fix important modifier with variant
+
+There was a involuntary mismatch with Tailwind when applying the important modifier (`!`) with a variant, the implementation required to use `!hover:font-medium` instead of `hover:!font-medium`. This has been changed to match Tailwind syntax.
+
 ## 0.6.2
 
 Align with Tailwind 3.3.3:

@@ -157,16 +157,20 @@ export const initDownwindWithConfig = ({
     const cachedValue = parseCache.get(token);
     if (cachedValue) return cachedValue;
 
-    const important = token.startsWith("!");
-    let tokenWithoutVariants = important ? token.slice(1) : token;
+    let important = false;
+    let tokenWithoutVariants = token;
     const variants: Variant[] = [];
     let isArbitraryProperty = false;
 
     const extractVariant = (): Variant | "NO_VARIANT" | undefined => {
+      important = tokenWithoutVariants.startsWith("!");
+      if (important) tokenWithoutVariants = tokenWithoutVariants.slice(1);
       if (tokenWithoutVariants.startsWith("[")) {
         if (arbitraryPropertyRE.test(tokenWithoutVariants)) {
           isArbitraryProperty = true;
           return "NO_VARIANT";
+        } else if (important) {
+          return; // Using ! prefix is not valid for variant
         }
         const index = tokenWithoutVariants.indexOf("]:");
         if (index === -1) return;
@@ -184,8 +188,9 @@ export const initDownwindWithConfig = ({
           return { type: "media", key: media, order: Infinity, media };
         }
         return undefined;
-      }
-      if (tokenWithoutVariants.startsWith("supports-[")) {
+      } else if (important) {
+        return "NO_VARIANT"; // Using ! prefix is not valid for variant
+      } else if (tokenWithoutVariants.startsWith("supports-[")) {
         const index = tokenWithoutVariants.indexOf("]:");
         if (index === -1) return;
         const content = tokenWithoutVariants.slice(10, index);

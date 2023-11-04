@@ -78,7 +78,10 @@ const cases: [name: string, content: string, config?: UserConfig][] = [
     "bg-orange-400/20 text-slate-200/[.06] border-black/15",
     { theme: { extend: { borderOpacity: { "15": "0.15" } } } },
   ],
-  ["important modifier", "!border-0 !rounded-l-none"],
+  [
+    "important modifier",
+    "!border-0 !rounded-l-none hover:!font-medium first:![color:red]",
+  ],
   [
     "arbitrary-values",
     "inset-[-10px] pt-[100px] w-[45%] text-[#ddd] text-[#f009] text-[12px] text-[10px] animate-[highlight_1s_ease-in-out_1] bg-[#ddd]/50 bg-[--primary] bg-red-500/[--opacity] text-[19px]/7 text-[19px]/[27px]",

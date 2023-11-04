@@ -284,13 +284,19 @@
   color: rgb(226 232 240 / .06);
 }
 
-/* important modifier: !border-0 !rounded-l-none */
+/* important modifier: !border-0 !rounded-l-none hover:!font-medium first:![color:red] */
 .\!rounded-l-none {
   border-top-left-radius: 0px !important;
   border-bottom-left-radius: 0px !important;
 }
 .\!border-0 {
   border-width: 0px !important;
+}
+.hover\:\!font-medium:hover {
+  font-weight: 500 !important;
+}
+.first\:\!\[color\:red\]:first-child {
+  color:red !important
 }
 
 /* arbitrary-values: inset-[-10px] pt-[100px] w-[45%] text-[#ddd] text-[#f009] text-[12px] text-[10px] animate-[highlight_1s_ease-in-out_1] bg-[#ddd]/50 bg-[--primary] bg-red-500/[--opacity] text-[19px]/7 text-[19px]/[27px] */

@@ -152,10 +152,14 @@
   --tw-gradient-to: #dc2626 var(--tw-gradient-to-position);
 }
 
-/* line-height modifier: text-lg/8 */
+/* line-height modifier: text-lg/8 text-lg/tight */
 .text-lg\/8 {
   font-size: 1.125rem;
   line-height: 2rem;
+}
+.text-lg\/tight {
+  font-size: 1.125rem;
+  line-height: 1.25;
 }
 
 /* box-shadow colors: shadow shadow-lg shadow-none shadow-teal-800 shadow-[#dd2] shadow-[5px_10px_teal] */
@@ -360,12 +364,15 @@
   line-height: 1.75rem;
 }
 
-/* arbitrary-values-with-spaces: grid grid-cols-[1fr_500px_2fr] */
+/* arbitrary-values-with-spaces: grid grid-cols-[1fr_500px_2fr] before:content-['hello_world'] */
 .grid {
   display: grid;
 }
 .grid-cols-\[1fr_500px_2fr\] {
   grid-template-columns: 1fr 500px 2fr;
+}
+.before\:content-\[\'hello_world\'\]::before {
+  content: 'hello world';
 }
 
 /* arbitrary-properties: [mask-type:luminance] hover:[mask-type:alpha] [background:repeating-linear-gradient(45deg,#606dbc,#606dbc_10px,#465298_10px,#465298_20px)] */
@@ -379,7 +386,11 @@
   background:repeating-linear-gradient(45deg,#606dbc,#606dbc 10px,#465298 10px,#465298 20px)
 }
 
-/* arbitrary-variants: [html:has(&)]:bg-blue-500 [&:nth-child(3)]:underline [&>*]:p-4 [.sidebar:hover_&]:opacity-70 */
+/* arbitrary-variants: [html:has(&)]:bg-blue-500 [&:nth-child(3)]:underline [&>*]:p-4 [&[data-selected="true"]]:bg-blue-100 [.sidebar:hover_&]:opacity-70 */
+.\[\&\[data-selected\=\"true\"\]\]\:bg-blue-100[data-selected="true"] {
+  --tw-bg-opacity: 1;
+  background-color: rgb(219 234 254 / var(--tw-bg-opacity));
+}
 html:has(.\[html\:has\(\&\)\]\:bg-blue-500) {
   --tw-bg-opacity: 1;
   background-color: rgb(59 130 246 / var(--tw-bg-opacity));
@@ -495,7 +506,7 @@ html:has(.\[html\:has\(\&\)\]\:bg-blue-500) {
   padding: 4px;
 }
 
-/* extend-config: p-4 p-6 m-4 */
+/* extend-config: p-4 p-6 m-4 4xl:p-2 */
 .m-4 {
   margin: 1rem;
 }
@@ -504,6 +515,11 @@ html:has(.\[html\:has\(\&\)\]\:bg-blue-500) {
 }
 .p-6 {
   padding: 1.5rem;
+}
+@media (min-width: 2000px) {
+  .\4xl\:p-2 {
+    padding: 0.5rem;
+  }
 }
 
 /* static-plugin: flex-center m-4 */

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.7.0
+
 ### Remove dependency on LightningCSS
 
 This was here mostly because I wanted to get CSS modules and Tailwind working with esbuild. Now that esbuild support CSS modules, I can remove this coupling and makes this repo easier to re-use in other bundlers. This also mean I'm dropping from this repo features related to build tools, like `downwind.transform`, `cssModuleToJS` & `convertTargets`. The rest of the core downwind object API has also been updated to give more flexibility outside of built-in plugins.
@@ -34,9 +36,17 @@ This is not perfect, but I think that the cost of waiting few hundred millisecon
 
 There was a involuntary mismatch with Tailwind when applying the important modifier (`!`) with a variant, the implementation required to use `!hover:font-medium` instead of `hover:!font-medium`. This has been changed to match Tailwind syntax.
 
-### Support `/` in arbitrary values
+### Scanning update
 
-The parser has been modifier to parse arbitrary values before modifiers (opacity, line height) so that `/` can be used inside arbitrary values. `text-[calc(3rem/5)]/[calc(4rem/5)]` is now supported.
+The read of https://marvinh.dev/blog/speeding-up-javascript-ecosystem-part-8/ make me realize the current regex approach was really inefficient: instead of search for "strings" and then for classes inside strings, we should directly grep all patterns that looks like a Tailwind classes, and by having a strict subset on the left border (``'"`\s}``), the first character (`a-z0-9![-`), the last char (`a-z0-9%]`) and the right border (``'"`\s:$``), we can get a good ratio of matches. This means that custom utils & shortcuts should be at least 2 chars.
+
+This change uses a lookbehind assertion for the left border, which means that if a playground was made, it would not work with Safari before 16.4.
+
+This new approach also allow for quotes inside custom values, which makes `before:content-['hello_world']` & `[&[data-selected="true"]]:bg-blue-100` now possible in downwind.
+
+The parser has been modified to parse arbitrary values before modifiers (opacity, line height) so that `/` can be used inside arbitrary values. `text-[calc(3rem/5)]/[calc(4rem/5)]` is now supported.
+
+And the nice part is that it's also quite fast. When running (mac M1) on 281 tsx files of my production codebase, time running regex went from `90ms` to `13ms` (and 125543 to 33992 candidates). For the total time (init, scan & CSS generation), the time went from `117ms` to `36ms`. The perf update is completely crushed by the 'Interval check' change, but this is nice to see that a new approach with less limitations is also faster!
 
 ## 0.6.2
 

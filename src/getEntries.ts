@@ -1,5 +1,4 @@
-import { getRules, type Rule, type Shortcut } from "./getRules.ts";
-import type { ResolvedConfig } from "./resolveConfig.ts";
+import type { Rule, Shortcut } from "./getRules.ts";
 import type {
   DirectionThemeRule,
   RuleMeta,
@@ -32,8 +31,7 @@ type ArbitraryEntry = {
 
 const allowNegativeRE = /^[1-9]|^0\./;
 
-export const getEntries = (config: ResolvedConfig) => {
-  const rules = getRules(config);
+export const getEntries = (rules: Rule[]) => {
   const rulesEntries = new Map<string, RuleEntry & { isArbitrary: false }>();
   const arbitraryEntries = new Map<string, ArbitraryEntry[]>();
   let order = 0;

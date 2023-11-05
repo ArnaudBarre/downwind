@@ -3,3 +3,4 @@ dist/
 tests/snapshots/
 bench/source
 playground/output.css
+local-bench/out.css

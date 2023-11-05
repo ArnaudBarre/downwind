@@ -9,7 +9,7 @@ import {
   isThemeRule,
   type RuleEntry,
 } from "./getEntries.ts";
-import type { Rule } from "./getRules.ts";
+import { getRules, type Rule } from "./getRules.ts";
 import { resolveConfig } from "./resolveConfig.ts";
 import type {
   CSSEntries,
@@ -24,11 +24,11 @@ import {
   applyVariants,
   arbitraryPropertyMatchToLine,
   cssEntriesToLines,
-  escapeSelector,
   printBlock,
   printContainerClass,
   printScreenContainer,
 } from "./utils/print.ts";
+import { escapeSelector, selectorRE } from "./utils/regex.ts";
 import { themeGet } from "./utils/themeGet.ts";
 import { getVariants, type Variant } from "./variants.ts";
 
@@ -37,8 +37,6 @@ export const VERSION = __VERSION__;
 const applyRE = /[{\s]@apply ([^;}\n]+)([;}\n])/g;
 const screenRE = /screen\(([a-z-]+)\)/g;
 const themeRE = /theme\("([^)]+)"\)/g;
-const validSelectorRE = /^[a-z0-9.:/_[\]!#,%&>+~*()@-]+$/;
-const arbitraryPropertyRE = /^\[[^[\]:]+:[^[\]:]+]$/;
 
 type Match = {
   token: string;
@@ -71,7 +69,8 @@ export const initDownwindWithConfig = ({
   const config = resolveConfig(userConfig);
   const defaults = getDefaults(config);
   const variantsMap = getVariants(config);
-  const { rulesEntries, arbitraryEntries } = getEntries(config);
+  const rules = getRules(config);
+  const { rulesEntries, arbitraryEntries } = getEntries(rules);
 
   const usedKeyframes = new Set<string>();
   const usedDefaults = new Set<Default>();
@@ -158,8 +157,8 @@ export const initDownwindWithConfig = ({
   };
 
   const parseCache = new Map<string, Match>();
-  const parse = (token: string, skipBlockList?: boolean): Match | undefined => {
-    if (!skipBlockList && blockList.has(token)) return;
+  const parse = (token: string): Match | undefined => {
+    if (blockList.has(token)) return;
     const cachedValue = parseCache.get(token);
     if (cachedValue) return cachedValue;
 
@@ -172,14 +171,15 @@ export const initDownwindWithConfig = ({
       important = tokenWithoutVariants.startsWith("!");
       if (important) tokenWithoutVariants = tokenWithoutVariants.slice(1);
       if (tokenWithoutVariants.startsWith("[")) {
-        if (arbitraryPropertyRE.test(tokenWithoutVariants)) {
+        const index = tokenWithoutVariants.indexOf("]:");
+        if (index === -1) {
+          // This is not a custom variant. Test
           isArbitraryProperty = true;
           return "NO_VARIANT";
         } else if (important) {
-          return; // Using ! prefix is not valid for variant
+          // Using ! prefix is not valid for variant
+          return;
         }
-        const index = tokenWithoutVariants.indexOf("]:");
-        if (index === -1) return;
         const content = tokenWithoutVariants.slice(1, index);
         tokenWithoutVariants = tokenWithoutVariants.slice(index + 2);
         if (content.includes("&")) {
@@ -368,7 +368,7 @@ export const initDownwindWithConfig = ({
     let invalidateUtils = false;
     for (const token of tokens.split(" ")) {
       if (!token) continue;
-      const match = parse(token, true);
+      const match = parse(token);
       if (!match) {
         throw new DownwindError(`No rule matching "${token}"`, context);
       }
@@ -418,9 +418,12 @@ export const initDownwindWithConfig = ({
   };
 
   for (const token of config.safelist) {
-    const match = parse(token, true);
+    const match = parse(token);
     if (!match) {
-      throw new Error(`downwind: No rule matching "${token}" in safelist`);
+      throw new DownwindError(
+        `No rule matching "${token}" in safelist`,
+        JSON.stringify({ safelist: config.safelist }),
+      );
     }
     addMatch(match);
   }
@@ -487,11 +490,8 @@ export const initDownwindWithConfig = ({
       return { code: content, invalidateUtils };
     },
     scan: (code: string): boolean /* hasNewUtils */ => {
-      const tokens = code
-        .split(/[\s'"`;=]+/g)
-        .filter((t) => validSelectorRE.test(t) && !blockList.has(t));
       let hasNewUtils = false;
-      for (const token of tokens) {
+      for (const [token] of code.matchAll(selectorRE)) {
         const match = parse(token);
         if (match && addMatch(match)) hasNewUtils = true;
       }

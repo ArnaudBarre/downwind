@@ -27,7 +27,7 @@ const cases: [name: string, content: string, config?: UserConfig][] = [
   ["with-default", "rotate-12"],
   ["with-keyframes", "animate-spin"],
   ["gradients", "from-orange-200 via-purple-400 via-40% to-red-600"],
-  ["line-height modifier", "text-lg/8"],
+  ["line-height modifier", "text-lg/8 text-lg/tight"],
   [
     "box-shadow colors",
     "shadow shadow-lg shadow-none shadow-teal-800 shadow-[#dd2] shadow-[5px_10px_teal]",
@@ -91,14 +91,17 @@ const cases: [name: string, content: string, config?: UserConfig][] = [
     "line height modifier",
     "text-lg/[18px] text-[calc(3rem/5)]/7 text-[calc(3rem/5)]/[calc(4rem/5)]",
   ],
-  ["arbitrary-values-with-spaces", "grid grid-cols-[1fr_500px_2fr]"],
+  [
+    "arbitrary-values-with-spaces",
+    "grid grid-cols-[1fr_500px_2fr] before:content-['hello_world']",
+  ],
   [
     "arbitrary-properties",
     "[mask-type:luminance] hover:[mask-type:alpha] [background:repeating-linear-gradient(45deg,#606dbc,#606dbc_10px,#465298_10px,#465298_20px)]",
   ],
   [
     "arbitrary-variants",
-    "[html:has(&)]:bg-blue-500 [&:nth-child(3)]:underline [&>*]:p-4 [.sidebar:hover_&]:opacity-70",
+    '[html:has(&)]:bg-blue-500 [&:nth-child(3)]:underline [&>*]:p-4 [&[data-selected="true"]]:bg-blue-100 [.sidebar:hover_&]:opacity-70',
   ],
   ["arbitrary-media", "[@media(min-width:900px)]:block"],
   ["max-screen", "sm:max-md:p-2"],
@@ -115,8 +118,15 @@ const cases: [name: string, content: string, config?: UserConfig][] = [
   ["custom-config", "p-4 p-6 m-4", { theme: { padding: { 4: "4px" } } }],
   [
     "extend-config",
-    "p-4 p-6 m-4",
-    { theme: { extend: { padding: { 4: "4px" } } } },
+    "p-4 p-6 m-4 4xl:p-2",
+    {
+      theme: {
+        extend: {
+          screens: { "4xl": "2000px" },
+          padding: { 4: "4px" },
+        },
+      },
+    },
   ],
   [
     "static-plugin",
@@ -193,7 +203,7 @@ const snapshots = Object.fromEntries(
 let newSnapshot = "";
 for (const [name, content, config] of cases) {
   const downwind = initDownwindWithConfig({ config });
-  downwind.scan(content);
+  downwind.scan(`<div className="${content}" />`);
   const actual = `/* ${name}: ${content} */\n${downwind.generate()}\n`;
   if (shouldUpdateSnapshots) newSnapshot += actual;
   test(name, () => {

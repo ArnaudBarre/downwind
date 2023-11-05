@@ -117,7 +117,6 @@ The implementation would work most of the time, but some shortcuts have been mad
 - `backgroundImage`, `backgroundPosition` and `fontFamily` are not supported
 - For prefix with collision (divide, border, bg, gradient steps, stroke, text, decoration, outline, ring, ring-offset), if the value doesn't match a CSS color (hex, rgb\[a], hsl\[a]) or a CSS variable it's interpreted as the "size" version. Using data types is not supported
 - Underscore are always mapped to space
-- Values with quotes are not possible (by design for fast scanning)
 - The theme function is not supported
 
 [Arbitrary properties](https://tailwindcss.com/docs/adding-custom-styles#arbitrary-properties) can be used to bypass some edge cases.
@@ -268,8 +267,13 @@ Then an object with few methods is returned:
     - If the token start `[`, looks for next `]:` and add the content as arbitrary variant. If no `]:`, test if it's an arbitrary value (`[color:red]`).
     - else search `:` and use the prefix to search in the variant map
   - Test if the remaining token is part of the static rules
-  - Search for `-[.+]` and then for the prefix possible arbitrary values maps
-  - If the token ends roughly `/\d+` or `/[.+]`, parse the end as a modifier
+  - Search for `-[`
+    - if matchs:
+      - search for the prefix in the arbitrary values maps, if not bail out
+      - search for `]/`
+        - if matchs, parse the left as arbitrary value and thr right as modifier
+        - else if ends with `]`, parse the left as arbitrary value
+    - else search for `/`, parse search for the left in the static rules map and parse the end as a modifier
 
 If the token matches a rule and is new it's added to an internal map structure by media queries. `true` is returned and this can be used to invalidate utils in developments.
 

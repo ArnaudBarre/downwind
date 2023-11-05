@@ -8,6 +8,7 @@ declare global {
 }
 
 import("./generate.test.ts");
+import("./regex.test.ts");
 import("./preTransformCSS.test.ts");
 import("./codegen.test.ts");
 import("./esbuildPlugin.test.ts");

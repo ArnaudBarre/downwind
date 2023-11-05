@@ -14,8 +14,7 @@ export const config: DownwindConfig = {};
   );
   writeFileSync(
     "./input.ts",
-    `// @downwind-scan
-console.log("p-4");
+    `const foo = "p-4";
 `,
   );
   writeFileSync(
@@ -38,11 +37,11 @@ const downwind = initDownwindWithConfig({
   // @ts-ignore (file exist locally but not on CI)
   config: (await import("./config.ts")).config,
 });
-downwind.scan("./input.ts");
+downwind.scan(readFileSync("./input.ts", "utf-8"));
 
-const transform = downwind.preTransform(
+const css = downwind.preTransformCSS(
   readFileSync("./input.module.css", "utf-8"),
-).content;
+).code;
 const utils = downwind.generate();
 
 const warningsHeader = warnings.length
@@ -52,4 +51,4 @@ const logsHeader = logs.length
   ? `/* Logs:\n${logs.map((l) => l.join(", ")).join("\n")}\n*/\n`
   : "";
 
-writeFileSync("./output.css", warningsHeader + logsHeader + transform + utils);
+writeFileSync("./output.css", warningsHeader + logsHeader + css + utils);

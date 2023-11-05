@@ -10,7 +10,9 @@ const cssRE = /\.css(\?.+)?$/;
 export { vitePlugin as downwind };
 
 const vitePlugin: typeof declaration = ({
-  scannedExtension,
+  shouldScan = (id: string, code: string) =>
+    id.endsWith(".tsx") ||
+    (id.endsWith(".ts") && code.includes("@downwind-scan")),
   buildIntervalCheckMs = 200,
 } = {}): Plugin[] => {
   let downwind: Downwind;
@@ -20,7 +22,7 @@ const vitePlugin: typeof declaration = ({
   const configResolved = async (config: ResolvedConfig) => {
     const origin = config.server.origin ?? "";
     devtoolsPostPath = `${origin}/@downwind-devtools-update`;
-    downwind = await initDownwind({ scannedExtension });
+    downwind = await initDownwind();
   };
 
   let hasBase = false;
@@ -96,10 +98,7 @@ const vitePlugin: typeof declaration = ({
           }
           getBodyJson<string[]>(res.req)
             .then((classes) => {
-              const hasNew = downwind.scan(
-                "devtools-update",
-                `@downwind-scan ${classes.join(" ")}`,
-              );
+              const hasNew = downwind.scan(` ${classes.join(" ")} `);
               if (hasNew) sendUpdate();
               res.writeHead(200);
               res.end();
@@ -140,12 +139,12 @@ const vitePlugin: typeof declaration = ({
       },
       transform(code, id) {
         if (id.endsWith(".css")) {
-          const result = downwind.preTransform(code);
+          const result = downwind.preTransformCSS(code);
           if (result.invalidateUtils && lastServed) sendUpdate();
-          return { code: result.content };
+          return { code: result.code };
         }
-        if (!id.includes("/node_modules/")) {
-          const hasNew = downwind.scan(id, code);
+        if (!id.includes("/node_modules/") && shouldScan(id, code)) {
+          const hasNew = downwind.scan(code);
           if (hasNew && lastServed) sendUpdate();
         }
       },
@@ -177,13 +176,13 @@ const vitePlugin: typeof declaration = ({
         if (cssRE.test(id)) {
           utilsIntervalCheck.taskRunning();
           return {
-            code: downwind.preTransform(code).content,
+            code: downwind.preTransformCSS(code).code,
             map: { mappings: "" },
           };
         }
-        if (!id.includes("/node_modules/")) {
+        if (!id.includes("/node_modules/") && shouldScan(id, code)) {
           utilsIntervalCheck.taskRunning();
-          downwind.scan(id, code);
+          downwind.scan(code);
         }
       },
     },

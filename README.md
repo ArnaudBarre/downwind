@@ -43,22 +43,28 @@ await build({
 
 Add `import "virtual:@downwind/base.css";` and `import "virtual:@downwind/utils.css";` to your code.
 
-## Scanned extension
+## Scanned extensions
 
-For almost all UI application, the CSS classes are always located in the same file extension (`tsx`, `vue`, `svelte`).
-
-By default, downwind will only scan the file with matches the `scannedExtension` (default to `tsx`).
-
-It can be changed in both plugins:
+By default, only `.tsx` files and `.ts` files containing `@downwind-scan` are scanned. This can be changed in both plugins:
 
 ```ts
 // vite
-plugins: [downwind({ scannedExtension: "vue" })];
+plugins: [
+  downwind({
+    shouldScan: (id, code) =>
+      id.endsWith(".vue") ||
+      (id.endsWith(".ts") && code.includes("@downwind-scan")),
+  }),
+];
 // esbuild
-plugins: [downwind({ scannedExtension: "vue", scanRegex: /\.(vue|ts)$/ })];
+plugins: [
+  downwind({
+    filter: /\.(vue|ts)$/,
+    shouldScan: (path, code) =>
+      path.endsWith(".vue") || code.includes("@downwind-scan"),
+  }),
+];
 ```
-
-For cases where you need any other file to be scanned, include the `@downwind-scan` pragma in any comment of the file.
 
 ## Configuration
 
@@ -236,3 +242,35 @@ To avoid parsing errors in WebStorm, double quotes are required. And because [th
 - Letter spacing & font weight in fontSize theme
 - Font feature & variation settings in fontFamily theme
 - Regular expressions in safelist
+
+## How it works
+
+When loading the configuration, three maps are generated: one for all possible variants, one for all static rules and one for all prefix with possible arbitrary values.
+
+Then an object with few methods is returned:
+
+```ts
+{
+  getBase: () => string;
+  preTransformCSS: (content: string) => {
+    invalidateUtils: boolean;
+    code: string;
+  };
+  scan: (code: string) => boolean /* hasNewUtils */;
+  generate: () => string;
+}
+```
+
+- `getBase` returns the static preflight, identical to Tailwind. Init of CSS variables like `--tw-ring-inset` are included in the "utils", which remove the need for base to be processed with utils.
+- `preTransformCSS` is used to replace `@apply`, `@screen` & `theme()` in CSS files. Some utils may depend on CSS variable injected in the header of utils, so `invalidateUtils` can be used during development to send an HMR update or refresh the page.
+- `scan` is used to scan some source code. A regex is first use to match candidates and then these candidates are parsed roughly like this:
+  - Search for variants (repeat until not match):
+    - If the token start `[`, looks for next `]:` and add the content as arbitrary variant. If no `]:`, test if it's an arbitrary value (`[color:red]`).
+    - else search `:` and use the prefix to search in the variant map
+  - Test if the remaining token is part of the static rules
+  - Search for `-[.+]` and then for the prefix possible arbitrary values maps
+  - If the token ends roughly `/\d+` or `/[.+]`, parse the end as a modifier
+
+If the token matches a rule and is new it's added to an internal map structure by media queries. `true` is returned and this can be used to invalidate utils in developments.
+
+- `generate` is used to transform the recursive map into a CSS output. This is returned as the content of `virtual:@downwind/utils.css` in plugins.

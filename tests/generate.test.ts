@@ -193,7 +193,7 @@ const snapshots = Object.fromEntries(
 let newSnapshot = "";
 for (const [name, content, config] of cases) {
   const downwind = initDownwindWithConfig({ config });
-  downwind.scan(`${name}.tsx`, content);
+  downwind.scan(content);
   const actual = `/* ${name}: ${content} */\n${downwind.generate()}\n`;
   if (shouldUpdateSnapshots) newSnapshot += actual;
   test(name, () => {

@@ -1,9 +1,9 @@
 import { snapshotTest } from "./test-utils.ts";
 
 snapshotTest(
-  "preTransform",
+  "preTransformCSS",
   (downwind) =>
-    downwind.preTransform(`
+    downwind.preTransformCSS(`
 .class1 {
   @apply m-4 px-4;
   min-height: theme("spacing.2.5");
@@ -24,5 +24,5 @@ snapshotTest(
     @apply top-4 last:space-y-10
   }
 }
-`).content,
+`).code,
 );

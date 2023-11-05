@@ -1,4 +1,3 @@
-import { readFileSync } from "node:fs";
 import { loadConfig } from "@arnaud-barre/config-loader";
 import { getBase } from "./base/getBase.ts";
 import { getDefaults } from "./getDefaults.ts";
@@ -51,25 +50,24 @@ type Match = {
 );
 type MatchMap = { matches: Match[]; medias: Map<string, MatchMap> };
 
-export const initDownwind: typeof initDownwindDeclaration = async (opts) => {
+export const initDownwind: typeof initDownwindDeclaration = async () => {
   const loadedConfig = globalThis.TEST_CONFIG
     ? { config: globalThis.TEST_CONFIG, files: [] }
     : await loadConfig<UserConfig>("downwind");
   return initDownwindWithConfig({
     config: loadedConfig?.config,
     configFiles: loadedConfig?.files,
-    ...opts,
   });
 };
 
+/** @internal */
 export const initDownwindWithConfig = ({
   config: userConfig,
   configFiles = [],
-  scannedExtension = "tsx",
 }: {
   config: UserConfig | undefined;
   configFiles?: string[];
-} & Parameters<typeof initDownwindDeclaration>[0]) => {
+}) => {
   const config = resolveConfig(userConfig);
   const defaults = getDefaults(config);
   const variantsMap = getVariants(config);
@@ -429,7 +427,7 @@ export const initDownwindWithConfig = ({
 
   return {
     getBase: () => getBase(config.theme),
-    preTransform: (content: string) => {
+    preTransformCSS: (content: string) => {
       let invalidateUtils = false;
       const hasApply = content.includes("@apply ");
       if (hasApply) {
@@ -486,24 +484,18 @@ export const initDownwindWithConfig = ({
         });
       }
 
-      return { content, invalidateUtils };
+      return { code: content, invalidateUtils };
     },
-    scan: (
-      path: string,
-      code = readFileSync(path, "utf-8"),
-    ): boolean /* hasNew */ => {
-      const shouldScan =
-        path.endsWith(scannedExtension) || code.includes("@downwind-scan");
-      if (!shouldScan) return false;
+    scan: (code: string): boolean /* hasNewUtils */ => {
       const tokens = code
         .split(/[\s'"`;=]+/g)
         .filter((t) => validSelectorRE.test(t) && !blockList.has(t));
-      let hasNew = false;
+      let hasNewUtils = false;
       for (const token of tokens) {
         const match = parse(token);
-        if (match && addMatch(match)) hasNew = true;
+        if (match && addMatch(match)) hasNewUtils = true;
       }
-      return hasNew;
+      return hasNewUtils;
     },
     generate: () => {
       let useContainer = false;

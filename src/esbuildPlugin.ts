@@ -6,13 +6,14 @@ import { intervalCheck } from "./utils/intervalCheck.ts";
 export { esbuildPlugin as downwind };
 
 const esbuildPlugin: typeof declaration = ({
-  scannedExtension,
-  scanRegex = /\.[jt]sx?$/,
+  filter = /\.tsx?$/,
+  shouldScan = (path: string, code: string) =>
+    path.endsWith("x") || code.includes("@downwind-scan"),
   intervalCheckMs = 50,
 } = {}) => ({
   name: "downwind",
   setup: async (build) => {
-    const downwind = await initDownwind({ scannedExtension });
+    const downwind = await initDownwind();
 
     let hasBase = false;
     let hasUtils = false;
@@ -52,17 +53,20 @@ const esbuildPlugin: typeof declaration = ({
     build.onLoad({ filter: /\.css$/ }, ({ path }) => {
       utilsIntervalCheck.taskRunning();
       return {
-        contents: downwind.preTransform(readFileSync(path, "utf-8")).content,
+        contents: downwind.preTransformCSS(readFileSync(path, "utf-8")).code,
         loader: path.endsWith(".module.css") ? "local-css" : "css",
       };
     });
 
     // Scanned files
-    build.onLoad({ filter: scanRegex }, ({ path }) => {
+    build.onLoad({ filter }, ({ path }) => {
       // https://github.com/evanw/esbuild/issues/1222
       if (path.includes("/node_modules/")) return;
-      utilsIntervalCheck.taskRunning();
-      downwind.scan(path);
+      const code = readFileSync(path, "utf-8");
+      if (shouldScan(path, code)) {
+        utilsIntervalCheck.taskRunning();
+        downwind.scan(code);
+      }
       return null;
     });
 

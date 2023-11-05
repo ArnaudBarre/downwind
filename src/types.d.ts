@@ -18,17 +18,15 @@ export type DownwindConfig = DefineConfig<UserConfig>;
 /**
  * API
  */
-export declare const initDownwind: (opts?: {
-  scannedExtension?: string;
-}) => Promise<Downwind>;
+export declare const initDownwind: () => Promise<Downwind>;
 
 export type Downwind = {
   getBase: () => string;
-  preTransform: (content: string) => {
+  preTransformCSS: (content: string) => {
     invalidateUtils: boolean;
-    content: string;
+    code: string;
   };
-  scan: (path: string, content?: string) => boolean /* hasNew */;
+  scan: (code: string) => boolean /* hasNewUtils */;
   generate: () => string;
   codegen: (opts: {
     mode: "WITH_CONTENT" | "OMIT_CONTENT" | "DEVTOOLS";

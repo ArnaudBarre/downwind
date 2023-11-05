@@ -4,7 +4,7 @@
 
 ### Remove dependency on LightningCSS
 
-This was here mostly because I wanted to get CSS modules and Tailwind working with esbuild. Now that esbuild support CSS modules, I can remove this coupling and makes this repo easier to re-use in other bundlers. This also mean I'm dropping from this repo features related to build tools, like `downwind.transform`, `cssModuleToJS` & `convertTargets`.
+This was here mostly because I wanted to get CSS modules and Tailwind working with esbuild. Now that esbuild support CSS modules, I can remove this coupling and makes this repo easier to re-use in other bundlers. This also mean I'm dropping from this repo features related to build tools, like `downwind.transform`, `cssModuleToJS` & `convertTargets`. The rest of the core downwind object API has also been updated to give more flexibility outside of built-in plugins.
 
 For usage Vite, you can get back the same behaviour by using the builtin support for lightningCSS:
 

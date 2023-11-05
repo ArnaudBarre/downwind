@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Sort defaults to get a stable output
+
 ## 0.7.0
 
 ### Remove dependency on LightningCSS
@@ -30,7 +32,7 @@ Previously this was done line in unocss by injecting a placeholder, and inside t
 
 To simplify the code, I now delayed the generation the virtual utils module until other files are scanned. But there is no API to be sure every other files is processed, so for now the build is checking at a fixed interval if some work was done in the previous Xms and if not, generate the utils. This interval is configurable and default to `50ms` for the esbuild plugin and `200ms` for the Vite plugin.
 
-This is not perfect, but I think that the cost of waiting few hundred milliseconds in a build is better than having utils not bing processed and minified like the rest of the CSS files.
+This is not perfect, but I think that the cost of waiting few hundred milliseconds in a build is better than having utils not processed and minified like the rest of the CSS files.
 
 ### Fix important modifier with variant
 

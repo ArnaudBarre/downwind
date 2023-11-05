@@ -611,7 +611,7 @@ export const initDownwindWithConfig = ({
         header += printBlock(
           "*, ::before, ::after, ::backdrop",
           cssEntriesToLines(
-            [...usedDefaults].flatMap((d) => defaults[d]),
+            [...usedDefaults].sort().flatMap((d) => defaults[d]),
             false,
           ),
         );

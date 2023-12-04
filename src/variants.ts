@@ -2,40 +2,41 @@ import type { ResolvedConfig } from "./resolveConfig.ts";
 import type { SelectorRewrite } from "./types.d.ts";
 
 export type VariantsMap = Map<string, Variant>;
+export type AtRuleVariant = {
+  type: "atRule";
+  order: number;
+  condition: string;
+};
 export type Variant =
   | { type: "selectorRewrite"; selectorRewrite: SelectorRewrite }
-  | { type: "media"; key: string; order: number; media: string }
-  | { type: "supports"; supports: string };
+  | AtRuleVariant;
 
 // https://github.com/tailwindlabs/tailwindcss/blob/master/src/corePlugins.js
 export const getVariants = (config: ResolvedConfig) => {
   const variantsMap: VariantsMap = new Map();
-  let mediaOrder = 0;
+  let atRuleOrder = 0;
 
   const screensEntries = Object.entries(config.theme.screens);
   for (const [screen, values] of screensEntries) {
     if (values.min) {
       if (values.max) {
         variantsMap.set(screen, {
-          type: "media",
-          key: screen,
-          order: mediaOrder++,
-          media: `(min-width: ${values.min}) and (max-width: ${values.max})`,
+          type: "atRule",
+          order: atRuleOrder++,
+          condition: `@media (min-width: ${values.min}) and (max-width: ${values.max})`,
         });
       } else {
         variantsMap.set(screen, {
-          type: "media",
-          key: screen,
-          order: mediaOrder++,
-          media: `(min-width: ${values.min})`,
+          type: "atRule",
+          order: atRuleOrder++,
+          condition: `@media (min-width: ${values.min})`,
         });
       }
     } else {
       variantsMap.set(screen, {
-        type: "media",
-        key: screen,
-        order: mediaOrder++,
-        media: `(max-width: ${values.max!})`,
+        type: "atRule",
+        order: atRuleOrder++,
+        condition: `@media (max-width: ${values.max!})`,
       });
     }
   }
@@ -43,10 +44,9 @@ export const getVariants = (config: ResolvedConfig) => {
   if (screensEntries.every((e) => e[1].min && !e[1].max)) {
     for (const [name, { min }] of screensEntries) {
       variantsMap.set(`max-${name}`, {
-        type: "media",
-        key: `max-${name}`,
-        order: mediaOrder++,
-        media: `not all and (max-width: ${min!})`,
+        type: "atRule",
+        order: atRuleOrder++,
+        condition: `@media not all and (max-width: ${min!})`,
       });
     }
   }
@@ -145,13 +145,18 @@ export const getVariants = (config: ResolvedConfig) => {
     ["contrast-more", "(prefers-contrast: more)"],
     ["contrast-less", "(prefers-contrast: less)"],
   ]) {
-    variantsMap.set(key, { type: "media", key, order: mediaOrder++, media });
+    variantsMap.set(key, {
+      type: "atRule",
+      order: atRuleOrder++,
+      condition: `@media ${media}`,
+    });
   }
 
   for (const [key, value] of Object.entries(config.theme.supports)) {
     variantsMap.set(`supports-${key}`, {
-      type: "supports",
-      supports: `(${value!})`,
+      type: "atRule",
+      condition: `@supports (${value!})`,
+      order: atRuleOrder++,
     });
   }
 

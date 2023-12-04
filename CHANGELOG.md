@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Sort defaults to get a stable output
+- Internally consider media & supports variant as `atRule`s so that the nesting output is closer to Tailwind
 
 ## 0.7.0
 

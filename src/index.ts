@@ -30,7 +30,7 @@ import {
 } from "./utils/print.ts";
 import { escapeSelector, selectorRE } from "./utils/regex.ts";
 import { themeGet } from "./utils/themeGet.ts";
-import { getVariants, type Variant } from "./variants.ts";
+import { type AtRuleVariant, getVariants, type Variant } from "./variants.ts";
 
 export const VERSION = __VERSION__;
 
@@ -46,7 +46,15 @@ type Match = {
   | { type: "Rule"; ruleEntry: RuleEntry }
   | { type: "Arbitrary property"; content: string }
 );
-type MatchMap = { matches: Match[]; medias: Map<string, MatchMap> };
+type MatchesGroup = {
+  matches: Match[];
+  atRules: {
+    screenKey?: string;
+    order: number;
+    condition: string;
+    content: MatchesGroup;
+  }[];
+};
 
 export const initDownwind: typeof initDownwindDeclaration = async () => {
   const loadedConfig = globalThis.TEST_CONFIG
@@ -74,33 +82,44 @@ export const initDownwindWithConfig = ({
 
   const usedKeyframes = new Set<string>();
   const usedDefaults = new Set<Default>();
-  const allMatches: MatchMap = {
+  const allMatches: MatchesGroup = {
     matches: [],
-    medias: new Map(
+    atRules:
       // This init is for the `container` edge case
-      Object.keys(config.theme.screens).map((screen) => [
-        screen,
-        { matches: [], medias: new Map() },
-      ]),
-    ),
+      Object.keys(config.theme.screens).map(
+        (screen): MatchesGroup["atRules"][number] => {
+          const variant = variantsMap.get(screen) as AtRuleVariant;
+          return {
+            screenKey: screen,
+            order: variant.order,
+            condition: variant.condition,
+            content: { matches: [], atRules: [] },
+          };
+        },
+      ),
   };
   const allClasses = new Set<string>();
   const blockList = new Set<string>(config.blocklist);
   const addMatch = (match: Match): boolean /* isNew */ => {
     if (allClasses.has(match.token)) return false;
     allClasses.add(match.token);
-    let map = allMatches;
+    let group = allMatches;
     for (const variant of match.variants) {
-      if (variant.type === "media") {
-        let mediaMap = map.medias.get(variant.key);
-        if (!mediaMap) {
-          mediaMap = { matches: [], medias: new Map() };
-          map.medias.set(variant.key, mediaMap);
-        }
-        map = mediaMap;
+      if (variant.type === "selectorRewrite") continue;
+      let atRule = group.atRules.find(
+        (it) => it.condition === variant.condition,
+      );
+      if (!atRule) {
+        atRule = {
+          order: variant.order,
+          condition: variant.condition,
+          content: { matches: [], atRules: [] },
+        };
+        group.atRules.push(atRule);
       }
+      group = atRule.content;
     }
-    map.matches.push(match);
+    group.matches.push(match);
     if (match.type === "Rule") {
       const meta = getRuleMeta(match.ruleEntry.rule);
       if (meta?.addDefault) usedDefaults.add(meta.addDefault);
@@ -190,8 +209,12 @@ export const initDownwindWithConfig = ({
           };
         }
         if (content.startsWith("@media")) {
-          const media = content.slice(6).replaceAll("_", " ");
-          return { type: "media", key: media, order: Infinity, media };
+          const media = content.slice(6).replaceAll("_", " ").trim();
+          return {
+            type: "atRule",
+            order: Infinity,
+            condition: `@media ${media}`,
+          };
         }
         return undefined;
       } else if (important) {
@@ -202,7 +225,11 @@ export const initDownwindWithConfig = ({
         const content = tokenWithoutVariants.slice(10, index);
         tokenWithoutVariants = tokenWithoutVariants.slice(index + 2);
         const check = content.includes(":") ? content : `${content}: var(--tw)`;
-        return { type: "supports", supports: `(${check})` };
+        return {
+          type: "atRule",
+          order: Infinity,
+          condition: `@supports (${check})`,
+        };
       }
       const index = tokenWithoutVariants.indexOf(":");
       if (index === -1) return "NO_VARIANT";
@@ -377,28 +404,16 @@ export const initDownwindWithConfig = ({
         continue;
       }
       const meta = getRuleMeta(match.ruleEntry.rule);
-      const flags = { hasMedia: false, hasSupports: false };
-      const selector = applyVariants(
-        "&",
-        match.variants,
-        meta,
-        () => {
-          flags.hasMedia = true;
-        },
-        () => {
-          flags.hasSupports = true;
-        },
-      );
+      const { hasAtRule, selector } = applyVariants("&", match.variants, meta);
       if (
-        flags.hasMedia ||
-        flags.hasSupports ||
+        hasAtRule ||
         !selector.startsWith("&") ||
         (meta?.addKeyframes ?? false) ||
         meta?.addContainer
       ) {
         throw new DownwindError(
           `Complex utils like "${token}" are not supported.${
-            flags.hasMedia && from === "CSS"
+            hasAtRule && from === "CSS"
               ? " You can use @media screen(...) for media variants."
               : ""
           }`,
@@ -458,13 +473,16 @@ export const initDownwindWithConfig = ({
               substring,
             );
           }
-          if (variant.type !== "media") {
+          if (
+            variant.type !== "atRule" ||
+            !variant.condition.startsWith("@media ")
+          ) {
             throw new DownwindError(
               `"${value}" is not a media variant`,
               substring,
             );
           }
-          return variant.media;
+          return variant.condition.slice(7);
         });
       }
 
@@ -501,13 +519,13 @@ export const initDownwindWithConfig = ({
       let useContainer = false;
       let utilsOutput = "";
 
-      const printMatchMap = (map: MatchMap, indentation: string) => {
-        map.matches.sort((a, b) => {
+      const printMatchesGroup = (group: MatchesGroup, indentation: string) => {
+        group.matches.sort((a, b) => {
           const diff = getOrder(a) - getOrder(b);
           if (diff !== 0) return diff;
           return a.token.localeCompare(b.token);
         });
-        for (const match of map.matches) {
+        for (const match of group.matches) {
           const meta =
             match.type === "Rule"
               ? getRuleMeta(match.ruleEntry.rule)
@@ -519,24 +537,11 @@ export const initDownwindWithConfig = ({
             }
             continue;
           }
-          let supportsWrapper: string | undefined;
-          let selector = `.${escapeSelector(match.token)}`;
-          selector = applyVariants(
-            selector,
+          const { selector } = applyVariants(
+            `.${escapeSelector(match.token)}`,
             match.variants,
             meta,
-            () => undefined,
-            (check) => {
-              supportsWrapper = supportsWrapper
-                ? `${check} and ${supportsWrapper}`
-                : check;
-            },
           );
-          if (supportsWrapper) {
-            utilsOutput += `${indentation}@supports ${supportsWrapper} {\n`;
-            indentation += "  ";
-          }
-
           utilsOutput += printBlock(
             selector,
             match.type === "Rule"
@@ -544,43 +549,23 @@ export const initDownwindWithConfig = ({
               : [arbitraryPropertyMatchToLine(match)],
             indentation,
           );
-          if (supportsWrapper) {
-            indentation = indentation.slice(2);
-            utilsOutput += `${indentation}}\n`;
-          }
         }
 
-        const medias: {
-          key: string;
-          matchMap: MatchMap;
-          order: number;
-          media: string;
-        }[] = [];
-        for (const [key, matchMap] of map.medias) {
-          const variant = variantsMap.get(key) as
-            | (Variant & { type: "media" })
-            | undefined;
-          medias.push({
-            key,
-            matchMap,
-            order: variant?.order ?? Infinity,
-            media: variant?.media ?? key,
-          });
-        }
-        medias.sort((a, b) => {
+        group.atRules.sort((a, b) => {
           const diff = a.order - b.order;
           if (diff !== 0) return diff;
-          return a.media.localeCompare(b.media);
+          return a.condition.localeCompare(b.condition);
         });
-        for (const { key, media, matchMap } of medias) {
-          const screenConf = useContainer
-            ? config.theme.screens[key]
-            : undefined;
+        for (const atRule of group.atRules) {
+          const screenConf =
+            useContainer && atRule.screenKey
+              ? config.theme.screens[atRule.screenKey]
+              : undefined;
           if (screenConf?.min && screenConf.max !== undefined) {
             // If max is defined, we need to use a separate media query
             const declaration = printScreenContainer(
               config,
-              key,
+              atRule.screenKey!,
               screenConf.min,
             );
             utilsOutput += `@media (min-width: ${screenConf.min}) {\n${declaration}\n}\n`;
@@ -589,22 +574,24 @@ export const initDownwindWithConfig = ({
             screenConf?.min && screenConf.max === undefined
               ? screenConf.min
               : undefined;
-          if (!printScreenContainerMin && isMatchMapEmpty(matchMap)) continue;
-          utilsOutput += `${indentation}@media ${media} {\n`;
+          if (!printScreenContainerMin && isMatchesGroupEmpty(atRule.content)) {
+            continue;
+          }
+          utilsOutput += `${indentation}${atRule.condition} {\n`;
           if (printScreenContainerMin) {
             const declaration = printScreenContainer(
               config,
-              key,
+              atRule.screenKey!,
               printScreenContainerMin,
             );
             utilsOutput += `${declaration}\n`;
           }
-          printMatchMap(matchMap, `${indentation}  `);
+          printMatchesGroup(atRule.content, `${indentation}  `);
           utilsOutput += `${indentation}}\n`;
         }
       };
 
-      printMatchMap(allMatches, "");
+      printMatchesGroup(allMatches, "");
 
       let header = "";
       if (usedDefaults.size) {
@@ -656,10 +643,10 @@ export const initDownwindWithConfig = ({
   };
 };
 
-const isMatchMapEmpty = (map: MatchMap) => {
-  if (map.matches.length) return false;
-  for (const subMap of map.medias.values()) {
-    if (!isMatchMapEmpty(subMap)) return false;
+const isMatchesGroupEmpty = (group: MatchesGroup) => {
+  if (group.matches.length) return false;
+  for (const atRule of group.atRules) {
+    if (!isMatchesGroupEmpty(atRule.content)) return false;
   }
   return true;
 };

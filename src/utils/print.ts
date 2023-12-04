@@ -59,23 +59,19 @@ export const applyVariants = (
   selector: string,
   variants: Variant[],
   meta: RuleMeta | undefined,
-  onMedia: (media: string) => void,
-  onSupports: (media: string) => void,
 ) => {
+  let hasAtRule = false;
   for (let i = variants.length - 1; i >= 0; i--) {
     const variant = variants[i];
     switch (variant.type) {
       case "selectorRewrite":
         selector = variant.selectorRewrite(selector);
         break;
-      case "media":
-        onMedia(variant.media);
-        break;
-      case "supports":
-        onSupports(variant.supports);
+      case "atRule":
+        hasAtRule = true;
         break;
     }
   }
   if (meta?.selectorRewrite) selector = meta.selectorRewrite(selector);
-  return selector;
+  return { selector, hasAtRule };
 };

@@ -498,6 +498,17 @@ html:has(.\[html\:has\(\&\)\]\:bg-blue-500) {
   color: #e2e8f0;
 }
 
+/* group-rules: first:p-2 p-2 last:p-2 before:mt-[3px] after:mt-[3px] */
+.after\:mt-\[3px\]::after,
+.before\:mt-\[3px\]::before {
+  margin-top: 3px;
+}
+.first\:p-2:first-child,
+.last\:p-2:last-child,
+.p-2 {
+  padding: 0.5rem;
+}
+
 /* custom-config: p-4 p-6 m-4 */
 .m-4 {
   margin: 1rem;

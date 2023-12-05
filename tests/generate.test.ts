@@ -115,6 +115,7 @@ const cases: [name: string, content: string, config?: UserConfig][] = [
     "text-slate-200 bg-orange-300 border-blue-100 border-black/20",
     { coreRules: { textOpacity: false, borderOpacity: false } },
   ],
+  ["group-rules", "first:p-2 p-2 last:p-2 before:mt-[3px] after:mt-[3px]"],
   ["custom-config", "p-4 p-6 m-4", { theme: { padding: { 4: "4px" } } }],
   [
     "extend-config",

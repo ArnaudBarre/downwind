@@ -2,8 +2,11 @@
 
 ## Unreleased
 
+## 0.7.1
+
 - Sort defaults to get a stable output
 - Internally consider media & supports variant as `atRule`s so that the nesting output is closer to Tailwind
+- Group selectors with same content. Pre 0.7 this optimization was done by Lightning CSS and esbuild does not support this optimization when minifying
 
 ## 0.7.0
 

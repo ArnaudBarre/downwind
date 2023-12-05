@@ -432,6 +432,11 @@ export const initDownwindWithConfig = ({
     return { cssLines, invalidateUtils };
   };
 
+  const getLines = (match: Match) =>
+    match.type === "Rule"
+      ? toCSS(match.ruleEntry, match.important)
+      : [arbitraryPropertyMatchToLine(match)];
+
   for (const token of config.safelist) {
     const match = parse(token);
     if (!match) {
@@ -525,7 +530,8 @@ export const initDownwindWithConfig = ({
           if (diff !== 0) return diff;
           return a.token.localeCompare(b.token);
         });
-        for (const match of group.matches) {
+        let nextLines: string[] | undefined = undefined;
+        for (const [idx, match] of group.matches.entries()) {
           const meta =
             match.type === "Rule"
               ? getRuleMeta(match.ruleEntry.rule)
@@ -542,13 +548,23 @@ export const initDownwindWithConfig = ({
             match.variants,
             meta,
           );
-          utilsOutput += printBlock(
-            selector,
-            match.type === "Rule"
-              ? toCSS(match.ruleEntry, match.important)
-              : [arbitraryPropertyMatchToLine(match)],
-            indentation,
-          );
+          const lines: string[] = nextLines ?? getLines(match);
+          const nextMatch = group.matches.at(idx + 1);
+          nextLines = nextMatch ? getLines(nextMatch) : undefined;
+          if (
+            lines.length === nextLines?.length &&
+            nextLines.every((l, i) => l === lines[i])
+          ) {
+            utilsOutput += `${indentation}${selector},\n`;
+          } else {
+            utilsOutput += printBlock(
+              selector,
+              match.type === "Rule"
+                ? toCSS(match.ruleEntry, match.important)
+                : [arbitraryPropertyMatchToLine(match)],
+              indentation,
+            );
+          }
         }
 
         group.atRules.sort((a, b) => {

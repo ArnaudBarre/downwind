@@ -3,6 +3,11 @@ export const intervalCheck = <T>(ms: number, getValue: () => T) => {
   let scanHappenedOnce = false;
   let scanHappened = false;
   return {
+    reset: () => {
+      utilsResolved = false;
+      scanHappenedOnce = false;
+      scanHappened = false;
+    },
     promise: new Promise<T>((resolve) => {
       const intervalId = setInterval(() => {
         if (!scanHappenedOnce) return;

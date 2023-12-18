@@ -112,7 +112,7 @@ export const config: DownwindConfig = {
 
 ### Arbitrary values
 
-The implementation would work most of the time, but some shortcuts have been made to keep the implementation lean and fast:
+Few complex cases are not implemented to keep the implementation lean and fast:
 
 - `backgroundImage`, `backgroundPosition` and `fontFamily` are not supported
 - For prefix with collision (divide, border, bg, gradient steps, stroke, text, decoration, outline, ring, ring-offset), if the value doesn't match a CSS color (hex, rgb\[a], hsl\[a]) or a CSS variable it's interpreted as the "size" version. Using data types is not supported
@@ -155,7 +155,7 @@ export const config: DownwindConfig = {
 
 `max-<screen>` is supported when the screens config is a basic `min-width` only. No sorting is done.
 
-It means `min-*`, `data-*`, `aria-*`, `group-*`, `peer-*` are **not** supported.
+Other dynamic variants are not implemented for now. It means `min-*`, `data-*`, `aria-*`, `group-*`, `peer-*` are **not** supported.
 
 Punctual need usage can be accomplished using arbitrary variants: `[@media(min-width:900px)]:block`
 
@@ -275,6 +275,6 @@ Then an object with few methods is returned:
         - else if ends with `]`, parse the left as arbitrary value
     - else search for `/`, parse search for the left in the static rules map and parse the end as a modifier
 
-If the token matches a rule and is new it's added to an internal map structure by media queries. `true` is returned and this can be used to invalidate utils in developments.
+If the token matches a rule and is new it's added to an internal map structured by media queries. `true` is returned and this can be used to invalidate utils in developments.
 
 - `generate` is used to transform the recursive map into a CSS output. This is returned as the content of `virtual:@downwind/utils.css` in plugins.

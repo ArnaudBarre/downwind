@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 0.7.2
+
+- Fix plugin usage in build watch mode
+
 ## 0.7.1
 
 - Sort defaults to get a stable output

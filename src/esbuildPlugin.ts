@@ -50,6 +50,11 @@ const esbuildPlugin: typeof declaration = ({
     );
 
     // CSS files
+    build.onStart(() => {
+      hasBase = false;
+      hasUtils = false;
+      utilsIntervalCheck.reset();
+    });
     build.onLoad({ filter: /\.css$/ }, ({ path }) => {
       utilsIntervalCheck.taskRunning();
       return {

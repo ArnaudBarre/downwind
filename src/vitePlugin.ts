@@ -166,6 +166,11 @@ const vitePlugin: typeof declaration = ({
       enforce: "pre",
       configResolved,
       resolveId,
+      buildStart() {
+        hasBase = false;
+        hasUtils = false;
+        utilsIntervalCheck.reset();
+      },
       load(id) {
         if (id === baseModuleId) return downwind.getBase();
         if (id === utilsModuleId) return utilsIntervalCheck.promise;

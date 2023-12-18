@@ -1,4 +1,4 @@
-import { DefineConfig } from "@arnaud-barre/config-loader";
+import type { DefineConfig } from "@arnaud-barre/config-loader";
 
 export declare const VERSION: string;
 

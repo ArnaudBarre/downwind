@@ -1,4 +1,4 @@
-import { Plugin as ESBuildPlugin } from "esbuild";
+import type { Plugin as ESBuildPlugin } from "esbuild";
 
 export declare const downwind: (opts?: {
   /**

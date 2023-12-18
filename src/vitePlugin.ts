@@ -1,4 +1,4 @@
-import { IncomingMessage } from "node:http";
+import type { IncomingMessage } from "node:http";
 import type { Logger, Plugin, ResolvedConfig, ViteDevServer } from "vite";
 import { initDownwind } from "./index.ts";
 import type { Downwind } from "./types.d.ts";

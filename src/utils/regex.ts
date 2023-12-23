@@ -8,12 +8,14 @@ export const escapeSelector = (selector: string) => {
 };
 
 const regularVariant = /[a-z0-9][a-z0-9-]+/;
-const dynamicVariant = /[a-z]+-\[[a-z:-]+]/;
+// ="'_ for attributes: aria-[labelledby='a_b']
+// : for supports query
+const dynamicVariant = /[a-z-]+-\[[a-z0-9="'_:-]+]/;
 // & to position the selector
-// []=" for attributes: [&[type="email"]]
+// []="' for attributes: [&[type="email"]]
 // :>+*~.()_ for css selectors: [&:nth-child(3)] [&_p] [&>*] [.sidebar+&]
 // @ for media: [@media(min-width:900px)]
-const arbitraryVariant = /\[[a-z0-9&[\]=":>+*~.()_@-]+]/;
+const arbitraryVariant = /\[[a-z0-9&[\]="':>+*~.()_@-]+]/;
 const variant = new RegExp(
   `(?:${regularVariant.source}|${dynamicVariant.source}|${arbitraryVariant.source}):`,
 );

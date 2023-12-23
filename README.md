@@ -151,15 +151,11 @@ export const config: DownwindConfig = {
 
 ### Dynamic variants
 
-`supports-*` is supported.
+`supports-*`, `min-*`, `max-*`, `(group/peer-)data-*`, `(group/peer-)aria-*` are supported.
 
 `max-<screen>` is supported when the screens config is a basic `min-width` only. No sorting is done.
 
-Other dynamic variants are not implemented for now. It means `min-*`, `data-*`, `aria-*`, `group-*`, `peer-*` are **not** supported.
-
-Punctual need usage can be accomplished using arbitrary variants: `[@media(min-width:900px)]:block`
-
-Variants modifier (ex. `group/sidebar`) are not supported either. The few cases were there are needed can also be covered with arbitrary variants:
+`group-*`, `peer-*` and variants modifier (ex. `group/sidebar`) are not supported. The few cases were there are needed can be covered with arbitrary variants:
 `group-hover/sidebar:opacity-75 group-hover/navitem:bg-black/75` -> `[.sidebar:hover_&]:opacity-75 group-hover:bg-black/75`
 
 ### Variants
@@ -222,7 +218,7 @@ To avoid parsing errors in WebStorm, double quotes are required. And because [th
 ### Almost exhaustive list of non-supported features
 
 - Container queries, but this will probably be added later
-- Some `addVariant` capabilities like generating at-rules. Also something useful to support in the future
+- Adding variants via plugins. Also something useful to support in the future
 - [prefix](https://tailwindcss.com/docs/configuration#prefix), [separator](https://tailwindcss.com/docs/configuration#separator) and [important](https://tailwindcss.com/docs/configuration#important) configuration options
 - These deprecated utils: `transform`, `transform-cpu`, `decoration-slice` `decoration-clone`, `filter`, `backdrop-filter`, `blur-0`
 - These deprecated colors: `lightBlue`, `warmGray`, `trueGray`, `coolGray`, `blueGray`
@@ -244,7 +240,7 @@ To avoid parsing errors in WebStorm, double quotes are required. And because [th
 
 ## How it works
 
-When loading the configuration, three maps are generated: one for all possible variants, one for all static rules and one for all prefix with possible arbitrary values.
+When loading the configuration, four maps are generated: one for static variants, one for prefixes of dynamic variants, one for static rules and one for prefixes of arbitrary values.
 
 Then an object with few methods is returned:
 
@@ -265,7 +261,9 @@ Then an object with few methods is returned:
 - `scan` is used to scan some source code. A regex is first use to match candidates and then these candidates are parsed roughly like this:
   - Search for variants (repeat until not match):
     - If the token start `[`, looks for next `]:` and add the content as arbitrary variant. If no `]:`, test if it's an arbitrary value (`[color:red]`).
-    - else search `:` and use the prefix to search in the variant map
+    - else search `:`
+      - if the left part contains `-[`, search for the prefix in the dynamic variant map
+      - otherwise lookup the value in the static variant map
   - Test if the remaining token is part of the static rules
   - Search for `-[`
     - if matchs:

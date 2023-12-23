@@ -1,39 +1,52 @@
 import type { ResolvedConfig } from "./resolveConfig.ts";
 import type { SelectorRewrite } from "./types.d.ts";
 
-export type VariantsMap = Map<string, Variant>;
+export type StaticVariant =
+  | { type: "selectorRewrite"; selectorRewrite: SelectorRewrite }
+  | AtRuleVariant;
 export type AtRuleVariant = {
   type: "atRule";
   order: number;
   condition: string;
 };
-export type Variant =
-  | { type: "selectorRewrite"; selectorRewrite: SelectorRewrite }
-  | AtRuleVariant;
+
+type DynamicVariant =
+  | {
+      type: "dynamicAtRule";
+      order: number;
+      prefix: string;
+      get: (content: string) => /* condition */ string;
+    }
+  | {
+      type: "dynamicSelectorRewrite";
+      prefix: string;
+      get: (content: string) => SelectorRewrite;
+    };
 
 // https://github.com/tailwindlabs/tailwindcss/blob/master/src/corePlugins.js
 export const getVariants = (config: ResolvedConfig) => {
-  const variantsMap: VariantsMap = new Map();
+  const staticVariantsMap = new Map<string, StaticVariant>();
+  const dynamicVariantsMap = new Map<string, DynamicVariant>();
   let atRuleOrder = 0;
 
   const screensEntries = Object.entries(config.theme.screens);
   for (const [screen, values] of screensEntries) {
     if (values.min) {
       if (values.max) {
-        variantsMap.set(screen, {
+        staticVariantsMap.set(screen, {
           type: "atRule",
           order: atRuleOrder++,
           condition: `@media (min-width: ${values.min}) and (max-width: ${values.max})`,
         });
       } else {
-        variantsMap.set(screen, {
+        staticVariantsMap.set(screen, {
           type: "atRule",
           order: atRuleOrder++,
           condition: `@media (min-width: ${values.min})`,
         });
       }
     } else {
-      variantsMap.set(screen, {
+      staticVariantsMap.set(screen, {
         type: "atRule",
         order: atRuleOrder++,
         condition: `@media (max-width: ${values.max!})`,
@@ -43,16 +56,29 @@ export const getVariants = (config: ResolvedConfig) => {
 
   if (screensEntries.every((e) => e[1].min && !e[1].max)) {
     for (const [name, { min }] of screensEntries) {
-      variantsMap.set(`max-${name}`, {
+      staticVariantsMap.set(`max-${name}`, {
         type: "atRule",
         order: atRuleOrder++,
-        condition: `@media not all and (max-width: ${min!})`,
+        condition: `@media not all and (min-width: ${min!})`,
       });
     }
   }
 
+  dynamicVariantsMap.set("min", {
+    type: "dynamicAtRule",
+    order: atRuleOrder++,
+    prefix: "min",
+    get: (content) => `@media (min-width: ${content})`,
+  });
+  dynamicVariantsMap.set("max", {
+    type: "dynamicAtRule",
+    order: atRuleOrder++,
+    prefix: "max",
+    get: (content) => `@media (max-width: ${content})`,
+  });
+
   // Non-compliant: Only support class dark mode
-  variantsMap.set("dark", {
+  staticVariantsMap.set("dark", {
     type: "selectorRewrite",
     selectorRewrite: (v) => `.dark ${v}`,
   });
@@ -69,11 +95,27 @@ export const getVariants = (config: ResolvedConfig) => {
     "after", // Non-compliant: Don't add content property if not present
   ]) {
     const [prefix, suffix] = Array.isArray(value) ? value : [value, value];
-    variantsMap.set(prefix, {
+    staticVariantsMap.set(prefix, {
       type: "selectorRewrite",
       selectorRewrite: (sel) => `${sel}::${suffix}`,
     });
   }
+
+  const withGroupAndPeer = (prefix: string, suffix: string) => {
+    staticVariantsMap.set(prefix, {
+      type: "selectorRewrite",
+      selectorRewrite: (sel) => `${sel}${suffix}`,
+    });
+    // Non-compliant: Don't support complex stacked variants
+    staticVariantsMap.set(`group-${prefix}`, {
+      type: "selectorRewrite",
+      selectorRewrite: (sel) => `.group${suffix} ${sel}`,
+    });
+    staticVariantsMap.set(`peer-${prefix}`, {
+      type: "selectorRewrite",
+      selectorRewrite: (sel) => `.peer${suffix} ~ ${sel}`,
+    });
+  };
 
   for (const value of [
     // Positional
@@ -121,19 +163,7 @@ export const getVariants = (config: ResolvedConfig) => {
       ? value
       : [value, `:${value}`];
 
-    variantsMap.set(prefix, {
-      type: "selectorRewrite",
-      selectorRewrite: (sel) => `${sel}${suffix}`,
-    });
-    // Non-compliant: Don't support complex stacked variants
-    variantsMap.set(`group-${prefix}`, {
-      type: "selectorRewrite",
-      selectorRewrite: (sel) => `.group${suffix} ${sel}`,
-    });
-    variantsMap.set(`peer-${prefix}`, {
-      type: "selectorRewrite",
-      selectorRewrite: (sel) => `.peer${suffix} ~ ${sel}`,
-    });
+    withGroupAndPeer(prefix, suffix);
   }
 
   for (const [key, media] of [
@@ -145,7 +175,7 @@ export const getVariants = (config: ResolvedConfig) => {
     ["contrast-more", "(prefers-contrast: more)"],
     ["contrast-less", "(prefers-contrast: less)"],
   ]) {
-    variantsMap.set(key, {
+    staticVariantsMap.set(key, {
       type: "atRule",
       order: atRuleOrder++,
       condition: `@media ${media}`,
@@ -153,12 +183,52 @@ export const getVariants = (config: ResolvedConfig) => {
   }
 
   for (const [key, value] of Object.entries(config.theme.supports)) {
-    variantsMap.set(`supports-${key}`, {
+    staticVariantsMap.set(`supports-${key}`, {
       type: "atRule",
       condition: `@supports (${value!})`,
       order: atRuleOrder++,
     });
   }
+  dynamicVariantsMap.set("supports", {
+    type: "dynamicAtRule",
+    order: atRuleOrder++,
+    prefix: "supports",
+    get: (content) => {
+      const check = content.includes(":") ? content : `${content}: var(--tw)`;
+      return `@supports (${check})`;
+    },
+  });
 
-  return variantsMap;
+  const withDynamicGroupAndPeer = (
+    prefix: string,
+    getSuffix: (content: string) => string,
+  ) => {
+    dynamicVariantsMap.set(prefix, {
+      type: "dynamicSelectorRewrite",
+      prefix,
+      get: (content) => (sel) => `${sel}${getSuffix(content)}`,
+    });
+    // Non-compliant: Don't support complex stacked variants
+    dynamicVariantsMap.set(`group-${prefix}`, {
+      type: "dynamicSelectorRewrite",
+      prefix: `group-${prefix}`,
+      get: (content) => (sel) => `.group${getSuffix(content)} ${sel}`,
+    });
+    dynamicVariantsMap.set(`peer-${prefix}`, {
+      type: "dynamicSelectorRewrite",
+      prefix: `peer-${prefix}`,
+      get: (content) => (sel) => `.peer${getSuffix(content)} ~ ${sel}`,
+    });
+  };
+
+  for (const [key, value] of Object.entries(config.theme.aria)) {
+    withGroupAndPeer(`aria-${key}`, `[aria-${value!}]`);
+  }
+  withDynamicGroupAndPeer("aria", (content) => `[aria-${content}]`);
+  for (const [key, value] of Object.entries(config.theme.data)) {
+    withGroupAndPeer(`data-${key}`, `[data-${value!}]`);
+  }
+  withDynamicGroupAndPeer("data", (content) => `[data-${content}]`);
+
+  return { staticVariantsMap, dynamicVariantsMap };
 };

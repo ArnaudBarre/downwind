@@ -1,6 +1,6 @@
 import type { ResolvedConfig } from "../resolveConfig.ts";
 import type { Container, CSSEntries, RuleMeta } from "../types.d.ts";
-import type { Variant } from "../variants.ts";
+import type { StaticVariant } from "../variants.ts";
 
 export const printBlock = (
   selector: string,
@@ -57,7 +57,7 @@ export const arbitraryPropertyMatchToLine = (match: {
 
 export const applyVariants = (
   selector: string,
-  variants: Variant[],
+  variants: StaticVariant[],
   meta: RuleMeta | undefined,
 ) => {
   let hasAtRule = false;

@@ -30,7 +30,11 @@ import {
 } from "./utils/print.ts";
 import { escapeSelector, selectorRE } from "./utils/regex.ts";
 import { themeGet } from "./utils/themeGet.ts";
-import { type AtRuleVariant, getVariants, type Variant } from "./variants.ts";
+import {
+  type AtRuleVariant,
+  getVariants,
+  type StaticVariant,
+} from "./variants.ts";
 
 export const VERSION = __VERSION__;
 
@@ -40,7 +44,7 @@ const themeRE = /theme\("([^)]+)"\)/g;
 
 type Match = {
   token: string;
-  variants: Variant[];
+  variants: StaticVariant[];
   important: boolean;
 } & (
   | { type: "Rule"; ruleEntry: RuleEntry }
@@ -76,7 +80,7 @@ export const initDownwindWithConfig = ({
 }) => {
   const config = resolveConfig(userConfig);
   const defaults = getDefaults(config);
-  const variantsMap = getVariants(config);
+  const { staticVariantsMap, dynamicVariantsMap } = getVariants(config);
   const rules = getRules(config);
   const { rulesEntries, arbitraryEntries } = getEntries(rules);
 
@@ -88,7 +92,7 @@ export const initDownwindWithConfig = ({
       // This init is for the `container` edge case
       Object.keys(config.theme.screens).map(
         (screen): MatchesGroup["atRules"][number] => {
-          const variant = variantsMap.get(screen) as AtRuleVariant;
+          const variant = staticVariantsMap.get(screen) as AtRuleVariant;
           return {
             screenKey: screen,
             order: variant.order,
@@ -183,10 +187,10 @@ export const initDownwindWithConfig = ({
 
     let important = false;
     let tokenWithoutVariants = token;
-    const variants: Variant[] = [];
+    const variants: StaticVariant[] = [];
     let isArbitraryProperty = false;
 
-    const extractVariant = (): Variant | "NO_VARIANT" | undefined => {
+    const extractVariant = (): StaticVariant | "NO_VARIANT" | undefined => {
       important = tokenWithoutVariants.startsWith("!");
       if (important) tokenWithoutVariants = tokenWithoutVariants.slice(1);
       if (tokenWithoutVariants.startsWith("[")) {
@@ -219,23 +223,38 @@ export const initDownwindWithConfig = ({
         return undefined;
       } else if (important) {
         return "NO_VARIANT"; // Using ! prefix is not valid for variant
-      } else if (tokenWithoutVariants.startsWith("supports-[")) {
-        const index = tokenWithoutVariants.indexOf("]:");
-        if (index === -1) return;
-        const content = tokenWithoutVariants.slice(10, index);
-        tokenWithoutVariants = tokenWithoutVariants.slice(index + 2);
-        const check = content.includes(":") ? content : `${content}: var(--tw)`;
-        return {
-          type: "atRule",
-          order: Infinity,
-          condition: `@supports (${check})`,
-        };
       }
       const index = tokenWithoutVariants.indexOf(":");
       if (index === -1) return "NO_VARIANT";
-      const prefix = tokenWithoutVariants.slice(0, index);
-      tokenWithoutVariants = tokenWithoutVariants.slice(index + 1);
-      return variantsMap.get(prefix);
+      const dynamicIndex = tokenWithoutVariants.indexOf("-[");
+      // -[ can be for arbitrary values
+      if (dynamicIndex === -1 || dynamicIndex > index) {
+        const prefix = tokenWithoutVariants.slice(0, index);
+        tokenWithoutVariants = tokenWithoutVariants.slice(index + 1);
+        return staticVariantsMap.get(prefix);
+      }
+      const endIndex = tokenWithoutVariants.indexOf("]:");
+      if (endIndex === -1) return;
+      const dynamicPrefix = tokenWithoutVariants.slice(0, dynamicIndex);
+      const dynamicVariant = dynamicVariantsMap.get(dynamicPrefix);
+      if (!dynamicVariant) return;
+      const content = tokenWithoutVariants
+        .slice(dynamicIndex + 2, endIndex)
+        .replaceAll("_", " ");
+      tokenWithoutVariants = tokenWithoutVariants.slice(endIndex + 2);
+      switch (dynamicVariant.type) {
+        case "dynamicAtRule":
+          return {
+            type: "atRule",
+            order: dynamicVariant.order,
+            condition: dynamicVariant.get(content),
+          };
+        case "dynamicSelectorRewrite":
+          return {
+            type: "selectorRewrite",
+            selectorRewrite: dynamicVariant.get(content),
+          };
+      }
     };
 
     let variant = extractVariant();
@@ -471,7 +490,7 @@ export const initDownwindWithConfig = ({
       const hasScreen = content.includes("screen(");
       if (hasScreen) {
         content = content.replaceAll(screenRE, (substring, value: string) => {
-          const variant = variantsMap.get(value);
+          const variant = staticVariantsMap.get(value);
           if (variant === undefined) {
             throw new DownwindError(
               `No variant matching "${value}"`,

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Support main dynamic variants (`min-*`, `max-*`, `(group/peer-)data-*`, `(group/peer-)aria-*`)
+
 ## 0.7.2
 
 - Fix plugin usage in build watch mode

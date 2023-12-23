@@ -85,6 +85,17 @@ export const getBaseTheme = (): DownwindTheme => ({
     pulse: "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
     bounce: "bounce 1s infinite",
   },
+  aria: {
+    busy: 'busy="true"',
+    checked: 'checked="true"',
+    disabled: 'disabled="true"',
+    expanded: 'expanded="true"',
+    hidden: 'hidden="true"',
+    pressed: 'pressed="true"',
+    readonly: 'readonly="true"',
+    required: 'required="true"',
+    selected: 'selected="true"',
+  },
   aspectRatio: {
     auto: "auto",
     square: "1 / 1",
@@ -751,6 +762,7 @@ export const getBaseTheme = (): DownwindTheme => ({
     2: "2",
   },
   supports: {},
+  data: {},
   textColor: (theme) => theme("colors"),
   textDecorationColor: (theme) => theme("colors"),
   textDecorationThickness: {

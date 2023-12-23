@@ -414,10 +414,22 @@ html:has(.\[html\:has\(\&\)\]\:bg-blue-500) {
 
 /* max-screen: sm:max-md:p-2 */
 @media (min-width: 640px) {
-  @media not all and (max-width: 768px) {
+  @media not all and (min-width: 768px) {
     .sm\:max-md\:p-2 {
       padding: 0.5rem;
     }
+  }
+}
+
+/* min-* max=*: min-[900px]:p-4 max-[1200px]:m-4 */
+@media (min-width: 900px) {
+  .min-\[900px\]\:p-4 {
+    padding: 1rem;
+  }
+}
+@media (max-width: 1200px) {
+  .max-\[1200px\]\:m-4 {
+    margin: 1rem;
   }
 }
 
@@ -479,6 +491,20 @@ html:has(.\[html\:has\(\&\)\]\:bg-blue-500) {
   .supports-\[display\:grid\]\:grid {
     display: grid;
   }
+}
+
+/* aria-*: aria-checked:underline aria-[sort=ascending]:underline peer-aria-[labelledby='a_b']:underline */
+.aria-\[sort\=ascending\]\:underline[aria-sort=ascending],
+.aria-checked\:underline[aria-checked="true"],
+.peer[aria-labelledby='a b'] ~ .peer-aria-\[labelledby\=\'a_b\'\]\:underline {
+  text-decoration-line: underline;
+}
+
+/* data-*: data-checked:underline data-[position=top]:underline peer-data-[foo='bar_baz']:underline */
+.data-\[position\=top\]\:underline[data-position=top],
+.data-checked\:underline[data-ui~="checked"],
+.peer[data-foo='bar baz'] ~ .peer-data-\[foo\=\'bar_baz\'\]\:underline {
+  text-decoration-line: underline;
 }
 
 /* disable-rule: p-4 m-4 */

@@ -11,10 +11,7 @@ pluginSnapshotTest("vite", async () => {
     root,
     plugins: [downwind()],
     logLevel: "warn",
-    css: {
-      transformer: "lightningcss",
-      lightningcss: {}, // https://github.com/vitejs/vite/pull/14872
-    },
+    css: { transformer: "lightningcss" },
     build: { cssMinify: false, target: ["chrome104"] },
     configFile: false,
   });

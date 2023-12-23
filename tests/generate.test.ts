@@ -75,9 +75,13 @@ const cases: [name: string, content: string, config?: UserConfig][] = [
   ],
   ["variants", "hover:p-4 md:print:landscape:first:p-8"],
   [
+    "child-variant",
+    "*:italic *:hover:italic hover:*:italic [&_p]:*:hover:italic",
+  ],
+  [
     "alpha modifier",
-    "bg-orange-400/20 text-slate-200/[.06] border-black/15 bg-[#123456]/15 text-[#222]/[--custom-var]",
-    { theme: { extend: { borderOpacity: { "15": "0.15" } } } },
+    "bg-orange-400/20 text-slate-200/[.06] border-black/16 bg-[#123456]/16 text-[#222]/[--custom-var]",
+    { theme: { extend: { borderOpacity: { "16": "0.16" } } } },
   ],
   [
     "important modifier",
@@ -110,6 +114,10 @@ const cases: [name: string, content: string, config?: UserConfig][] = [
   ["media-order-stable-1", "portrait:p-1 landscape:p-1"],
   ["media-order-stable-2", "landscape:p-1 portrait:p-1"],
   ["supports-*", "supports-[container-type]:grid supports-[display:grid]:grid"],
+  [
+    "has-*",
+    "has-[figcaption]:inline-block has-[>_.potato]:table has-[>_h1_+_h2]:contents has-[h2]:has-[.banana]:hidden",
+  ],
   [
     "aria-*",
     "aria-checked:underline aria-[sort=ascending]:underline peer-aria-[labelledby='a_b']:underline",

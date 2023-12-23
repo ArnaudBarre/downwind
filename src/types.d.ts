@@ -269,6 +269,7 @@ type ThemeKey =
   | "transitionProperty"
   | "transitionTimingFunction"
   | "translate"
+  | "size"
   | "verticalAlign"
   | "width"
   | "willChange"
@@ -303,8 +304,10 @@ type CoreRule =
   | "float"
   | "clear"
   | "boxSizing"
+  | "lineClamp"
   | "display"
   | "aspectRatio"
+  | "size"
   | "height"
   | "maxHeight"
   | "minHeight"
@@ -371,6 +374,7 @@ type CoreRule =
   | "textOverflow"
   | "hyphens"
   | "whitespace"
+  | "textWrap"
   | "wordBreak"
   | "borderRadius"
   | "borderWidth"
@@ -457,4 +461,4 @@ type CoreRule =
   | "transitionTimingFunction"
   | "willChange"
   | "content"
-  | "lineClamp";
+  | "forcedColorAdjust";

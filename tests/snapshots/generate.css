@@ -44,7 +44,7 @@
 
 /* font-sans: font-sans */
 .font-sans {
-  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
 /* transform-gpu: transform-gpu */
@@ -277,9 +277,17 @@
   }
 }
 
-/* alpha modifier: bg-orange-400/20 text-slate-200/[.06] border-black/15 bg-[#123456]/15 text-[#222]/[--custom-var] */
-.border-black\/15 {
-  border-color: rgb(0 0 0 / 0.15);
+/* child-variant: *:italic *:hover:italic hover:*:italic [&_p]:*:hover:italic */
+.\[\&_p\]\:\*\:hover\:italic:hover > * p,
+.\*\:hover\:italic:hover > *,
+.\*\:italic > *,
+.hover\:\*\:italic > *:hover {
+  font-style: italic;
+}
+
+/* alpha modifier: bg-orange-400/20 text-slate-200/[.06] border-black/16 bg-[#123456]/16 text-[#222]/[--custom-var] */
+.border-black\/16 {
+  border-color: rgb(0 0 0 / 0.16);
 }
 .bg-orange-400\/20 {
   background-color: rgb(251 146 60 / 0.2);
@@ -491,6 +499,20 @@ html:has(.\[html\:has\(\&\)\]\:bg-blue-500) {
   .supports-\[display\:grid\]\:grid {
     display: grid;
   }
+}
+
+/* has-*: has-[figcaption]:inline-block has-[>_.potato]:table has-[>_h1_+_h2]:contents has-[h2]:has-[.banana]:hidden */
+.has-\[figcaption\]\:inline-block:has(figcaption) {
+  display: inline-block;
+}
+.has-\[\>_\.potato\]\:table:has(> .potato) {
+  display: table;
+}
+.has-\[\>_h1_\+_h2\]\:contents:has(> h1 + h2) {
+  display: contents;
+}
+.has-\[h2\]\:has-\[\.banana\]\:hidden:has(.banana):has(h2) {
+  display: none;
 }
 
 /* aria-*: aria-checked:underline aria-[sort=ascending]:underline peer-aria-[labelledby='a_b']:underline */

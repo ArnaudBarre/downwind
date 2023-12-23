@@ -2,7 +2,10 @@
 
 ## Unreleased
 
-- Support main dynamic variants (`min-*`, `max-*`, `(group/peer-)data-*`, `(group/peer-)aria-*`)
+## 0.7.3
+
+- Align with Tailwind 3.4: https://tailwindcss.com/blog/tailwindcss-v3-4
+- Support main dynamic variants (`min-*`, `max-*`, `has-*`, `(group/peer-)data-*`, `(group/peer-)aria-*`)
 
 ## 0.7.2
 

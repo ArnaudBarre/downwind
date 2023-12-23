@@ -83,6 +83,11 @@ export const getVariants = (config: ResolvedConfig) => {
     selectorRewrite: (v) => `.dark ${v}`,
   });
 
+  staticVariantsMap.set("*", {
+    type: "selectorRewrite",
+    selectorRewrite: (v) => `${v} > *`,
+  });
+
   for (const value of [
     "first-letter",
     "first-line",
@@ -169,6 +174,7 @@ export const getVariants = (config: ResolvedConfig) => {
   for (const [key, media] of [
     ["motion-safe", "(prefers-reduced-motion: no-preference)"],
     ["motion-reduce", "(prefers-reduced-motion: reduce)"],
+    ["forced-colors", "(forced-colors: active)"], // if dark variant is added, should be before this one
     ["print", "print"],
     ["portrait", "(orientation: portrait)"],
     ["landscape", "(orientation: landscape)"],
@@ -221,6 +227,7 @@ export const getVariants = (config: ResolvedConfig) => {
     });
   };
 
+  withDynamicGroupAndPeer("has", (content) => `:has(${content})`);
   for (const [key, value] of Object.entries(config.theme.aria)) {
     withGroupAndPeer(`aria-${key}`, `[aria-${value!}]`);
   }

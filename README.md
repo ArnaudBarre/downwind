@@ -151,7 +151,7 @@ export const config: DownwindConfig = {
 
 ### Dynamic variants
 
-`supports-*`, `min-*`, `max-*`, `(group/peer-)data-*`, `(group/peer-)aria-*` are supported.
+`supports-*`, `min-*`, `max-*`, `has-*`, `(group/peer-)data-*`, `(group/peer-)aria-*` are supported.
 
 `max-<screen>` is supported when the screens config is a basic `min-width` only. No sorting is done.
 

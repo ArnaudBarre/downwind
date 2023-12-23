@@ -111,9 +111,39 @@ export const getCoreRules = ({
   gridRow: themeRule("row", theme.gridRow, "grid-row"),
   gridRowStart: themeRule("row-start", theme.gridRowStart, "grid-row-start"),
   gridRowEnd: themeRule("row-end", theme.gridRowEnd, "grid-row-end"),
-  float: enumRule("float-", "float", ["right", "left", "none"]),
-  clear: enumRule("clear-", "clear", ["left", "right", "both", "none"]),
+  float: [
+    ["float-start", [["float", "inline-start"]]],
+    ["float-end", [["float", "inline-end"]]],
+    ["float-right", [["float", "right"]]],
+    ["float-left", [["float", "left"]]],
+    ["float-none", [["float", "none"]]],
+  ],
+  clear: [
+    ["clear-start", [["clear", "inline-start"]]],
+    ["clear-end", [["clear", "inline-end"]]],
+    ["clear-left", [["clear", "left"]]],
+    ["clear-right", [["clear", "right"]]],
+    ["clear-both", [["clear", "both"]]],
+    ["clear-none", [["clear", "none"]]],
+  ],
   boxSizing: enumRule("box-", "box-sizing", ["border-box", "content-box"]),
+  lineClamp: [
+    themeRule("line-clamp", theme.lineClamp, [
+      ["overflow", "hidden"],
+      ["display", "-webkit-box"],
+      ["-webkit-box-orient", "vertical"],
+      "-webkit-line-clamp",
+    ]),
+    [
+      "line-clamp-none",
+      [
+        ["overflow", "visible"],
+        ["display", "block"],
+        ["-webkit-box-orient", "horizontal"],
+        ["-webkit-line-clamp", "none"],
+      ],
+    ],
+  ],
   display: enumRule(
     "",
     "display",
@@ -143,6 +173,7 @@ export const getCoreRules = ({
     (v) => (v === "hidden" ? "none" : v),
   ),
   aspectRatio: themeRule("aspect", theme.aspectRatio, "aspect-ratio"),
+  size: themeRule("size", theme.size, ["width", "height"]),
   height: themeRule("h", theme.height, "height"),
   maxHeight: themeRule("min-h", theme.minHeight, "min-height"),
   minHeight: themeRule("max-h", theme.maxHeight, "max-height"),
@@ -328,7 +359,10 @@ export const getCoreRules = ({
     theme.listStyleImage,
     "list-style-image",
   ),
-  appearance: ["appearance-none", [["appearance", "none"]]],
+  appearance: [
+    ["appearance-none", [["appearance", "none"]]],
+    ["appearance-auto", [["appearance", "auto"]]],
+  ],
   columns: themeRule("columns", theme.columns, "columns"),
   breakBefore: enumRule("break-before-", "break-before", breaks),
   breakInside: enumRule("break-inside-", "break-inside", [
@@ -603,6 +637,11 @@ export const getCoreRules = ({
     "pre-wrap",
     "break-spaces",
   ]),
+  textWrap: [
+    ["text-wrap", [["text-wrap", "wrap"]]],
+    ["text-nowrap", [["text-wrap", "nowrap"]]],
+    ["text-balance", [["text-wrap", "balance"]]],
+  ],
   wordBreak: [
     [
       "break-normal",
@@ -1168,23 +1207,9 @@ export const getCoreRules = ({
   ),
   willChange: themeRule("will-change", theme.willChange, "will-change"),
   content: themeRule("content", theme.content, "content"),
-  // https://github.com/tailwindlabs/tailwindcss-line-clamp/blob/master/src/index.js
-  lineClamp: [
-    themeRule("line-clamp", theme.lineClamp, [
-      ["overflow", "hidden"],
-      ["display", "-webkit-box"],
-      ["-webkit-box-orient", "vertical"],
-      "-webkit-line-clamp",
-    ]),
-    [
-      "line-clamp-none",
-      [
-        ["overflow", "visible"],
-        ["display", "block"],
-        ["-webkit-box-orient", "horizontal"],
-        ["-webkit-line-clamp", "none"],
-      ],
-    ],
+  forcedColorAdjust: [
+    ["forced-color-adjust-auto", [["forced-color-adjust", "auto"]]],
+    ["forced-color-adjust-none", [["forced-color-adjust", "none"]]],
   ],
 });
 

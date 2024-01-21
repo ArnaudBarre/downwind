@@ -174,7 +174,7 @@ export const getVariants = (config: ResolvedConfig) => {
   for (const [key, media] of [
     ["motion-safe", "(prefers-reduced-motion: no-preference)"],
     ["motion-reduce", "(prefers-reduced-motion: reduce)"],
-    ["forced-colors", "(forced-colors: active)"], // if dark variant is added, should be before this one
+    ["forced-colors", "(forced-colors: active)"],
     ["print", "print"],
     ["portrait", "(orientation: portrait)"],
     ["landscape", "(orientation: landscape)"],

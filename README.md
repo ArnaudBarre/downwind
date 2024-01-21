@@ -127,7 +127,7 @@ The color palette is flat, so colors should be defined like: `"blue-300": "#93c5
 
 ### Dark mode
 
-Only the `class` strategy is supported.
+Only the `class` strategy is supported with a simple `.dark &` selector rewrite
 
 ### Plugins
 

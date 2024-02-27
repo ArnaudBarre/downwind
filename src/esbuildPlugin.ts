@@ -18,10 +18,7 @@ const esbuildPlugin: typeof declaration = ({
     let hasBase = false;
     let hasUtils = false;
 
-    const utilsIntervalCheck = intervalCheck(
-      intervalCheckMs,
-      downwind.generate,
-    );
+    let utilsIntervalCheck: ReturnType<typeof intervalCheck<string>>;
 
     // Virtual entries
     build.onResolve({ filter: /^virtual:@downwind\// }, (args) => ({
@@ -53,7 +50,7 @@ const esbuildPlugin: typeof declaration = ({
     build.onStart(() => {
       hasBase = false;
       hasUtils = false;
-      utilsIntervalCheck.reset();
+      utilsIntervalCheck = intervalCheck(intervalCheckMs, downwind.generate);
     });
     build.onLoad({ filter: /\.css$/ }, ({ path }) => {
       utilsIntervalCheck.taskRunning();
@@ -83,6 +80,7 @@ const esbuildPlugin: typeof declaration = ({
           } was not found in the bundle. Downwind can't work without both virtual:@downwind/base.css and virtual:@downwind/utils.css.`,
         );
       }
+      utilsIntervalCheck.clean();
     });
   },
 });

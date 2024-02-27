@@ -73,9 +73,7 @@ const vitePlugin: typeof declaration = ({
   };
 
   // Build
-  const utilsIntervalCheck = intervalCheck(buildIntervalCheckMs, () =>
-    downwind.generate(),
-  );
+  let utilsIntervalCheck: ReturnType<typeof intervalCheck<string>>;
 
   return [
     {
@@ -169,7 +167,9 @@ const vitePlugin: typeof declaration = ({
       buildStart() {
         hasBase = false;
         hasUtils = false;
-        utilsIntervalCheck.reset();
+        utilsIntervalCheck = intervalCheck(buildIntervalCheckMs, () =>
+          downwind.generate(),
+        );
       },
       load(id) {
         if (id === baseModuleId) return downwind.getBase();
@@ -177,7 +177,9 @@ const vitePlugin: typeof declaration = ({
         if (id === devtoolsModuleId) return "";
       },
       transform(code, id) {
+        if (id === baseModuleId) return;
         if (id === utilsModuleId) return;
+        if (id === devtoolsModuleId) return;
         if (cssRE.test(id)) {
           utilsIntervalCheck.taskRunning();
           return {
@@ -203,6 +205,7 @@ const vitePlugin: typeof declaration = ({
             } was not found in the bundle. Downwind can't work without both virtual:@downwind/base.css and virtual:@downwind/utils.css.`,
           );
         }
+        utilsIntervalCheck.clean();
       },
     },
   ];

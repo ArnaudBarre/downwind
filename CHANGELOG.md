@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 0.7.4
+
+- Actually fix plugin usage in build watch mode
+
 ## 0.7.3
 
 - Align with Tailwind 3.4: https://tailwindcss.com/blog/tailwindcss-v3-4

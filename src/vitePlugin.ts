@@ -2,7 +2,6 @@ import type { IncomingMessage } from "node:http";
 import type { Logger, Plugin, ResolvedConfig, ViteDevServer } from "vite";
 import { initDownwind } from "./index.ts";
 import type { Downwind } from "./types.d.ts";
-import { intervalCheck } from "./utils/intervalCheck.ts";
 import type { downwind as declaration } from "./vite.d.ts";
 
 const cssRE = /\.css(\?.+)?$/;
@@ -13,7 +12,6 @@ const vitePlugin: typeof declaration = ({
   shouldScan = (id: string, code: string) =>
     id.endsWith(".tsx") ||
     (id.endsWith(".ts") && code.includes("@downwind-scan")),
-  buildIntervalCheckMs = 200,
 } = {}): Plugin[] => {
   let downwind: Downwind;
   let devtoolsPostPath: string;
@@ -73,7 +71,7 @@ const vitePlugin: typeof declaration = ({
   };
 
   // Build
-  let utilsIntervalCheck: ReturnType<typeof intervalCheck<string>>;
+  let cssPostPlugin: any;
 
   return [
     {
@@ -162,18 +160,18 @@ const vitePlugin: typeof declaration = ({
       name: "downwind:build",
       apply: "build",
       enforce: "pre",
-      configResolved,
+      async configResolved(config) {
+        await configResolved(config);
+        cssPostPlugin = config.plugins.find((i) => i.name === "vite:css-post");
+      },
       resolveId,
       buildStart() {
         hasBase = false;
         hasUtils = false;
-        utilsIntervalCheck = intervalCheck(buildIntervalCheckMs, () =>
-          downwind.generate(),
-        );
       },
       load(id) {
         if (id === baseModuleId) return downwind.getBase();
-        if (id === utilsModuleId) return utilsIntervalCheck.promise;
+        if (id === utilsModuleId) return "";
         if (id === devtoolsModuleId) return "";
       },
       transform(code, id) {
@@ -181,22 +179,36 @@ const vitePlugin: typeof declaration = ({
         if (id === utilsModuleId) return;
         if (id === devtoolsModuleId) return;
         if (cssRE.test(id)) {
-          utilsIntervalCheck.taskRunning();
           return {
             code: downwind.preTransformCSS(code).code,
             map: { mappings: "" },
           };
         }
         if (!id.includes("/node_modules/") && shouldScan(id, code)) {
-          utilsIntervalCheck.taskRunning();
           downwind.scan(code);
         }
       },
     },
     {
+      /*
+       To generate CSS chunks, Vite does two things in the `vite:css-post` plugin:
+       - register a map of id/code in the transform callback and empty the code 
+       - generate the CSS bundle in renderChunk by 'concatenating' the values of the map
+      
+       The idea to simulate a 'transform last' of the utils module, the idea is to call
+       again the transform method before the Vite does its `renderChunk` and we can
+       update the internal map of the plugin with the generated utils.
+      */
       name: "downwind:build:post",
       apply: "build",
-      enforce: "post",
+      enforce: "pre",
+      async renderChunk(_code, chunk) {
+        const hasUtilsModule = !!chunk.modules[utilsModuleId] as boolean;
+        if (hasUtilsModule) {
+          // fool the css plugin to generate the css in corresponding chunk
+          await cssPostPlugin.transform(downwind.generate(), utilsModuleId);
+        }
+      },
       generateBundle() {
         if (!hasBase || !hasUtils) {
           this.error(
@@ -205,7 +217,6 @@ const vitePlugin: typeof declaration = ({
             } was not found in the bundle. Downwind can't work without both virtual:@downwind/base.css and virtual:@downwind/utils.css.`,
           );
         }
-        utilsIntervalCheck.clean();
       },
     },
   ];

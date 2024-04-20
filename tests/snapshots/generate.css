@@ -314,7 +314,7 @@
   color:red !important
 }
 
-/* arbitrary-values: inset-[-10px] pt-[100px] w-[45%] text-[#ddd] text-[#f009] text-[12px] text-[10px] animate-[highlight_1s_ease-in-out_1] bg-[#ddd]/50 bg-[--primary] bg-red-500/[--opacity] text-[19px]/7 text-[19px]/[27px] */
+/* arbitrary-values: inset-[-10px] pt-[100px] w-[45%] text-[#ddd] text-[#f009] text-[red] text-[transparent] text-[12px] text-[10px] animate-[highlight_1s_ease-in-out_1] bg-[#ddd]/50 bg-[--primary] bg-red-500/[--opacity] text-[19px]/7 text-[19px]/[27px] */
 .inset-\[-10px\] {
   inset: -10px;
 }
@@ -356,6 +356,13 @@
 }
 .text-\[\#f009\] {
   color: #f009;
+}
+.text-\[red\] {
+  --tw-text-opacity: 1;
+  color: rgb(255 0 0 / var(--tw-text-opacity));
+}
+.text-\[transparent\] {
+  color: transparent;
 }
 
 /* line height modifier: text-lg/[18px] text-[calc(3rem/5)]/7 text-[calc(3rem/5)]/[calc(4rem/5)] */
@@ -463,6 +470,16 @@ html:has(.\[html\:has\(\&\)\]\:bg-blue-500) {
       padding: 0.5rem;
     }
   }
+}
+
+/* skip merge for vendor prefixed: [&:-moz-focusring]:outline-none outline-none */
+.\[\&\:-moz-focusring\]\:outline-none:-moz-focusring {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+.outline-none {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
 }
 
 /* media-order-stable-1: portrait:p-1 landscape:p-1 */

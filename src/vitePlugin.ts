@@ -222,7 +222,7 @@ const getBodyJson = <T>(req: IncomingMessage) =>
       try {
         resolve(JSON.parse(body));
       } catch (e) {
-        reject(e);
+        reject(e as Error);
       }
     });
   });

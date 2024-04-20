@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 0.7.5
+
+- Align `base.css` with Tailwind 3.4.2
+- Support named color (ie `text-[red]` generate a color utility)
+- Skip merging of utilities that contains vendor prefixes
+
 ## 0.7.4
 
 - Actually fix plugin usage in build watch mode

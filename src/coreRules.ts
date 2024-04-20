@@ -1023,7 +1023,11 @@ export const getCoreRules = ({
     "background-blend-mode",
     blendModes,
   ),
-  mixBlendMode: enumRule("mix-blend-", "mix-blend-mode", blendModes),
+  mixBlendMode: enumRule(
+    "mix-blend-",
+    "mix-blend-mode",
+    blendModes.concat(["plus-darker", "plus-lighter"]),
+  ),
   // Non-compliant: incompatible with ring
   boxShadow: complexThemeRule("shadow", theme.boxShadow, (value) =>
     typeof value === "string"

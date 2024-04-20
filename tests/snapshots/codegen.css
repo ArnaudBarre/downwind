@@ -33812,6 +33812,12 @@
 .mix-blend-luminosity {
   mix-blend-mode: luminosity;
 }
+.mix-blend-plus-darker {
+  mix-blend-mode: plus-darker;
+}
+.mix-blend-plus-lighter {
+  mix-blend-mode: plus-lighter;
+}
 .shadow-sm {
   --tw-shadow-color: rgb(0 0 0 / 0.05);
   box-shadow: 0 1px 2px 0 var(--tw-shadow-color);

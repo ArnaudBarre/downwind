@@ -92,6 +92,8 @@ export const config: DownwindConfig = async () => {
 
 ## Differences with Tailwind
 
+The current implementation aligns with Tailwind 3.4.2.
+
 ### Components
 
 Downwind doesn't have the notion of components, but custom rules can be injected before core rules by using `injectFirst: true`.

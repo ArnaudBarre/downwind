@@ -572,17 +572,12 @@ export const initDownwindWithConfig = ({
           nextLines = nextMatch ? getLines(nextMatch) : undefined;
           if (
             lines.length === nextLines?.length &&
-            nextLines.every((l, i) => l === lines[i])
+            nextLines.every((l, i) => l === lines[i]) &&
+            !isUnsafeSelector(selector)
           ) {
             utilsOutput += `${indentation}${selector},\n`;
           } else {
-            utilsOutput += printBlock(
-              selector,
-              match.type === "Rule"
-                ? toCSS(match.ruleEntry, match.important)
-                : [arbitraryPropertyMatchToLine(match)],
-              indentation,
-            );
+            utilsOutput += printBlock(selector, lines, indentation);
           }
         }
 
@@ -688,6 +683,16 @@ const isMatchesGroupEmpty = (group: MatchesGroup) => {
 
 const getOrder = (match: Match) =>
   match.type === "Rule" ? match.ruleEntry.order : Infinity;
+
+// If selector contains a vendor prefix after a pseudo element or class,
+// we consider them separately because merging the declarations into
+// a single rule will cause browsers that do not understand the
+// vendor prefix to throw out the whole rule
+// lightningcss smartly separate them afterward, but esbuild does not
+// For `:has`, for people that really want progressive enhancement for
+// they CSS should use lightningcss as a post processor
+const isUnsafeSelector = (selector: string) =>
+  selector.includes(":-") || selector.includes("::-");
 
 export const staticRules: typeof staticRulesDeclaration = (rules) =>
   Object.entries(rules).map(([key, value]) => [key, Object.entries(value)]);

@@ -11,8 +11,12 @@ pluginSnapshotTest("vite", async () => {
     root,
     plugins: [downwind()],
     logLevel: "warn",
-    css: { transformer: "lightningcss" },
-    build: { cssMinify: false, target: ["chrome104"] },
+    css: {
+      transformer: "lightningcss",
+      // eslint-disable-next-line no-bitwise
+      lightningcss: { targets: { chrome: 104 << 16 } },
+    },
+    build: { cssMinify: false },
     configFile: false,
   });
   return readFileSync(

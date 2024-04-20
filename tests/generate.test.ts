@@ -89,7 +89,7 @@ const cases: [name: string, content: string, config?: UserConfig][] = [
   ],
   [
     "arbitrary-values",
-    "inset-[-10px] pt-[100px] w-[45%] text-[#ddd] text-[#f009] text-[12px] text-[10px] animate-[highlight_1s_ease-in-out_1] bg-[#ddd]/50 bg-[--primary] bg-red-500/[--opacity] text-[19px]/7 text-[19px]/[27px]",
+    "inset-[-10px] pt-[100px] w-[45%] text-[#ddd] text-[#f009] text-[red] text-[transparent] text-[12px] text-[10px] animate-[highlight_1s_ease-in-out_1] bg-[#ddd]/50 bg-[--primary] bg-red-500/[--opacity] text-[19px]/7 text-[19px]/[27px]",
   ],
   [
     "line height modifier",
@@ -111,6 +111,10 @@ const cases: [name: string, content: string, config?: UserConfig][] = [
   ["max-screen", "sm:max-md:p-2"],
   ["min-* max=*", "min-[900px]:p-4 max-[1200px]:m-4"],
   ["group-nested-media", "p-1 sm:p-3 sm:print:p-2 m-1 sm:m-3 sm:print:m-2"],
+  [
+    "skip merge for vendor prefixed",
+    "[&:-moz-focusring]:outline-none outline-none",
+  ],
   ["media-order-stable-1", "portrait:p-1 landscape:p-1"],
   ["media-order-stable-2", "landscape:p-1 portrait:p-1"],
   ["supports-*", "supports-[container-type]:grid supports-[display:grid]:grid"],

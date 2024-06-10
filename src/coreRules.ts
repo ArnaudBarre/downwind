@@ -106,11 +106,18 @@ export const getCoreRules = ({
     "col-start",
     theme.gridColumnStart,
     "grid-column-start",
+    { supportsNegativeValues: true },
   ),
-  gridColumnEnd: themeRule("col-end", theme.gridColumnEnd, "grid-column-end"),
+  gridColumnEnd: themeRule("col-end", theme.gridColumnEnd, "grid-column-end", {
+    supportsNegativeValues: true,
+  }),
   gridRow: themeRule("row", theme.gridRow, "grid-row"),
-  gridRowStart: themeRule("row-start", theme.gridRowStart, "grid-row-start"),
-  gridRowEnd: themeRule("row-end", theme.gridRowEnd, "grid-row-end"),
+  gridRowStart: themeRule("row-start", theme.gridRowStart, "grid-row-start", {
+    supportsNegativeValues: true,
+  }),
+  gridRowEnd: themeRule("row-end", theme.gridRowEnd, "grid-row-end", {
+    supportsNegativeValues: true,
+  }),
   float: [
     ["float-start", [["float", "inline-start"]]],
     ["float-end", [["float", "inline-end"]]],

@@ -33,7 +33,7 @@ const modifier = new RegExp(
 
 // % linear-background: via-40%
 // Requires at least 3 chars, only a constraint for custom utils
-const regularUtilities = /[a-z][a-z0-9-]*[a-z0-9%]/;
+const regularUtilities = /[a-z][a-z0-9-.]*[a-z0-9%]/;
 // # for color
 // . for opacity
 // _, for linear-background

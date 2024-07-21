@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 0.7.6
+
+- Align with Tailwind 3.4.6
+
 ## 0.7.5
 
 - Align `base.css` with Tailwind 3.4.2

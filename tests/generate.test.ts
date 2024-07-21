@@ -21,6 +21,7 @@ const cases: [name: string, content: string, config?: UserConfig][] = [
   ["border-default", "border"],
   ["inset", "inset-0"],
   ["negative values rules", "-m-0 -m-auto -m-4"],
+  ["dot values", "px-1.5 py-2.5"],
   ["screen", "md:p-4 p-2 md:p-6"],
   ["omit-hyphen rules", "px-2 mt-6 scroll-p-2 scroll-pb-4 scroll-my-6"],
   ["direction mandatory rules", "space-2 space-y-4"],

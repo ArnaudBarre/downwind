@@ -143,7 +143,7 @@ export const getBaseTheme = (): DownwindTheme => ({
   },
   // Non-compliant: Omit `blur-0`
   blur: {
-    "none": "0",
+    "none": "",
     "sm": "4px",
     "DEFAULT": "8px",
     "md": "12px",

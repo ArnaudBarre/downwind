@@ -1177,7 +1177,13 @@ export const getCoreRules = ({
   ),
   backdropSepia: backdropFilterRule("backdrop-sepia", theme.backdropSepia),
   // Non-compliant: Doesn't ship default useless backdrop-filter
-  backdropFilter: ["backdrop-filter-none", [["backdrop-filter", "none"]]],
+  backdropFilter: [
+    "backdrop-filter-none",
+    [
+      ["-webkit-backdrop-filter", "none"],
+      ["backdrop-filter", "none"],
+    ],
+  ],
   transitionProperty: themeRule(
     "transition",
     theme.transitionProperty,
@@ -1299,7 +1305,7 @@ const filterRule = (
   name,
   themeMap,
   (value) => [
-    [`--tw-${name}`, `${name}(${value})`],
+    [`--tw-${name}`, value ? `${name}(${value})` : ""],
     ["filter", cssFilterValue],
   ],
   { addDefault: "filter" },
@@ -1312,7 +1318,8 @@ const backdropFilterRule = (
   name,
   themeMap,
   (value) => [
-    [`--tw-${name}`, `${name.slice(9)}(${value})`],
+    [`--tw-${name}`, value ? `${name.slice(9)}(${value})` : ""],
+    ["-webkit-backdrop-filter", cssBackdropFilterValue],
     ["backdrop-filter", cssBackdropFilterValue],
   ],
   { addDefault: "backdrop-filter" },

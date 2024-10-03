@@ -236,6 +236,7 @@ To avoid parsing errors in WebStorm, double quotes are required. And because [th
 - Sorting of extended screens with default ones
 - Object for keyframes definition
 - Multiple keyframes in animation
+- Wrap attribute with quotes when using `data-` and `aria-`
 - Automatic var injection in arbitrary properties
 - Letter spacing & font weight in fontSize theme
 - Font feature & variation settings in fontFamily theme

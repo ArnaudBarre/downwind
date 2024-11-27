@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 0.7.7
+
+- Fix overscroll util
+
 ## 0.7.6
 
 - Align with Tailwind 3.4.6

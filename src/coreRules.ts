@@ -618,9 +618,9 @@ export const getCoreRules = ({
     ...enumRule("overflow-y-", "overflow-y", overflows),
   ],
   overscrollBehavior: [
-    ...enumRule("overscroll-", "overscroll", overscrolls),
-    ...enumRule("overscroll-x-", "overscroll-x", overscrolls),
-    ...enumRule("overscroll-y-", "overscroll-y", overscrolls),
+    ...enumRule("overscroll-", "overscroll-behavior", overscrolls),
+    ...enumRule("overscroll-x-", "overscroll-behavior-x", overscrolls),
+    ...enumRule("overscroll-y-", "overscroll-behavior-y", overscrolls),
   ],
   scrollBehavior: enumRule("scroll-", "scroll-behavior", ["auto", "smooth"]),
   textOverflow: [

@@ -3,7 +3,7 @@
   "description": "A bundler-first & PostCSS-independent implementation of Tailwind",
   "private": true,
   "type": "module",
-  "version": "0.7.6",
+  "version": "0.7.7",
   "author": "Arnaud Barré (https://github.com/ArnaudBarre)",
   "license": "MIT",
   "scripts": {

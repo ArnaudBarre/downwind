@@ -1,8 +1,7 @@
 import type { IncomingMessage } from "node:http";
-import type { Logger, Plugin, ResolvedConfig, ViteDevServer } from "vite";
+import type { Logger, Plugin, Rollup, ViteDevServer } from "vite";
 import { initDownwind } from "./index.ts";
 import type { Downwind } from "./types.d.ts";
-import { intervalCheck } from "./utils/intervalCheck.ts";
 import type { downwind as declaration } from "./vite.d.ts";
 
 const cssRE = /\.css(\?.+)?$/;
@@ -13,18 +12,11 @@ const vitePlugin: typeof declaration = ({
   shouldScan = (id: string, code: string) =>
     id.endsWith(".tsx")
     || (id.endsWith(".ts") && code.includes("@downwind-scan")),
-  buildIntervalCheckMs = 200,
 } = {}): Plugin[] => {
   let downwind: Downwind;
   let devtoolsPostPath: string;
 
   // Common
-  const configResolved = async (config: ResolvedConfig) => {
-    const origin = config.server.origin ?? "";
-    devtoolsPostPath = `${origin}/@downwind-devtools-update`;
-    downwind = await initDownwind();
-  };
-
   let hasBase = false;
   let hasUtils = false;
   const notFoundErrorMessage =
@@ -73,7 +65,7 @@ const vitePlugin: typeof declaration = ({
   };
 
   // Build
-  let utilsIntervalCheck: ReturnType<typeof intervalCheck<string>>;
+  let cssPostPlugin: Plugin;
 
   return [
     {
@@ -81,7 +73,9 @@ const vitePlugin: typeof declaration = ({
       apply: "serve",
       enforce: "pre",
       async configResolved(config) {
-        await configResolved(config);
+        const origin = config.server.origin ?? "";
+        devtoolsPostPath = `${origin}/@downwind-devtools-update`;
+        downwind = await initDownwind();
         logger = config.logger;
       },
       configureServer(_server) {
@@ -123,9 +117,10 @@ const vitePlugin: typeof declaration = ({
         }
       },
       resolveId,
-      load(id) {
+      async load(id) {
         if (id === baseModuleId) return downwind.getBase();
         if (id === utilsModuleId) {
+          await server.waitForRequestsIdle(id);
           lastServed = Date.now();
           return downwind.generate();
         }
@@ -162,35 +157,44 @@ const vitePlugin: typeof declaration = ({
       name: "downwind:build",
       apply: "build",
       enforce: "pre",
-      configResolved,
+      async configResolved(config) {
+        downwind = await initDownwind();
+        cssPostPlugin = config.plugins.find((i) => i.name === "vite:css-post")!;
+      },
       resolveId,
       buildStart() {
         hasBase = false;
         hasUtils = false;
-        utilsIntervalCheck = intervalCheck(buildIntervalCheckMs, () =>
-          downwind.generate(),
-        );
       },
       load(id) {
         if (id === baseModuleId) return downwind.getBase();
-        if (id === utilsModuleId) return utilsIntervalCheck.promise;
+        if (id === utilsModuleId) return "";
         if (id === devtoolsModuleId) return "";
       },
       transform(code, id) {
         if (id === baseModuleId) return;
         if (id === utilsModuleId) return;
         if (id === devtoolsModuleId) return;
-        if (cssRE.test(id)) {
-          utilsIntervalCheck.taskRunning();
-          return {
-            code: downwind.preTransformCSS(code).code,
-            map: { mappings: "" },
-          };
-        }
+        if (cssRE.test(id)) return downwind.preTransformCSS(code).code;
         if (!id.includes("/node_modules/") && shouldScan(id, code)) {
-          utilsIntervalCheck.taskRunning();
           downwind.scan(code);
         }
+      },
+      async renderChunk(_, chunk) {
+        if (utilsModuleId in chunk.modules) {
+          const handler =
+            "handler" in cssPostPlugin.transform!
+              ? cssPostPlugin.transform.handler
+              : cssPostPlugin.transform!;
+          // Fool the vite:css-post plugin to replace the CSS content
+          // https://github.com/unocss/unocss/blob/f341004e95e283a4e6f3177f338a44edba497e21/packages-integrations/vite/src/modes/global/build.ts#L215-L216
+          await handler.call(
+            this as Rollup.TransformPluginContext,
+            downwind.generate(),
+            utilsModuleId,
+          );
+        }
+        return null;
       },
     },
     {
@@ -205,7 +209,6 @@ const vitePlugin: typeof declaration = ({
             } was not found in the bundle. Downwind can't work without both virtual:@downwind/base.css and virtual:@downwind/utils.css.`,
           );
         }
-        utilsIntervalCheck.clean();
       },
     },
   ];

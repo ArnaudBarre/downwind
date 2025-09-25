@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Remove interval check in Vite plugin
+
 ## 0.7.7
 
 - Fix overscroll util

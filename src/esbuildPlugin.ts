@@ -1,7 +1,6 @@
 import { readFileSync } from "node:fs";
 import type { downwind as declaration } from "./esbuild.d.ts";
 import { initDownwind } from "./index.ts";
-import { intervalCheck } from "./utils/intervalCheck.ts";
 
 export { esbuildPlugin as downwind };
 
@@ -18,7 +17,17 @@ const esbuildPlugin: typeof declaration = ({
     let hasBase = false;
     let hasUtils = false;
 
-    let utilsIntervalCheck: ReturnType<typeof intervalCheck<string>>;
+    let utilsResolved = false;
+    let scanHappenedOnce = false;
+    let scanHappened = false;
+    const taskRunning = () => {
+      if (utilsResolved) throw new Error("Utils are already resolved");
+      scanHappenedOnce = true;
+      scanHappened = true;
+    };
+    const timoutId = setTimeout(() => {
+      if (!scanHappenedOnce) throw new Error("No file to scan");
+    }, 5_000);
 
     // Virtual entries
     build.onResolve({ filter: /^virtual:@downwind\// }, (args) => ({
@@ -35,7 +44,18 @@ const esbuildPlugin: typeof declaration = ({
           case "utils.css":
             hasUtils = true;
             return {
-              contents: await utilsIntervalCheck.promise,
+              contents: await new Promise<string>((resolve) => {
+                const intervalId = setInterval(() => {
+                  if (!scanHappenedOnce) return;
+                  if (scanHappened) {
+                    scanHappened = false;
+                  } else {
+                    resolve(downwind.generate());
+                    utilsResolved = true;
+                    clearInterval(intervalId);
+                  }
+                }, intervalCheckMs);
+              }),
               loader: "css",
             };
           case "devtools":
@@ -50,10 +70,9 @@ const esbuildPlugin: typeof declaration = ({
     build.onStart(() => {
       hasBase = false;
       hasUtils = false;
-      utilsIntervalCheck = intervalCheck(intervalCheckMs, downwind.generate);
     });
     build.onLoad({ filter: /\.css$/ }, ({ path }) => {
-      utilsIntervalCheck.taskRunning();
+      taskRunning();
       return {
         contents: downwind.preTransformCSS(readFileSync(path, "utf-8")).code,
         loader: path.endsWith(".module.css") ? "local-css" : "css",
@@ -66,7 +85,7 @@ const esbuildPlugin: typeof declaration = ({
       if (path.includes("/node_modules/")) return;
       const code = readFileSync(path, "utf-8");
       if (shouldScan(path, code)) {
-        utilsIntervalCheck.taskRunning();
+        taskRunning();
         downwind.scan(code);
       }
       return null;
@@ -80,7 +99,8 @@ const esbuildPlugin: typeof declaration = ({
           } was not found in the bundle. Downwind can't work without both virtual:@downwind/base.css and virtual:@downwind/utils.css.`,
         );
       }
-      utilsIntervalCheck.clean();
+      if (!utilsResolved) throw new Error("Build ended without utils");
+      clearTimeout(timoutId);
     });
   },
 });

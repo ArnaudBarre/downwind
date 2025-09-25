@@ -24,12 +24,12 @@ type ParsedColor = {
   alpha: string | undefined;
 };
 export const isColor = (value: string) =>
-  value === "transparent" ||
-  namedColors[value] !== undefined ||
-  HEX.test(value) ||
-  SHORT_HEX.test(value) ||
-  RGB.test(value) ||
-  HSL.test(value);
+  value === "transparent"
+  || namedColors[value] !== undefined
+  || HEX.test(value)
+  || SHORT_HEX.test(value)
+  || RGB.test(value)
+  || HSL.test(value);
 
 export const parseColor = (value: string): ParsedColor | null => {
   value = value.trim();

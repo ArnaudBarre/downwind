@@ -24,7 +24,7 @@ export default defineConfig({
 
 Add `import "virtual:@downwind/base.css";` and `import "virtual:@downwind/utils.css";` to your code.
 
-[Like unocss](https://github.com/unocss/unocss/tree/main/packages/vite#design-in-devtools), you can also add `import "virtual:@downwind/devtools";` to get autocomplete and on-demand CSS in the browser. The same warning apply:
+[Like unocss](https://unocss.dev/integrations/vite#edit-classes-in-devtools), you can also add `import "virtual:@downwind/devtools";` to get autocomplete and on-demand CSS in the browser. The same warning apply:
 
 > ⚠️ Please use it with caution, under the hood we use [MutationObserver](https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver) to detect the class changes. Which means not only your manual changes but also the changes made by your scripts will be detected and included in the stylesheet. This could cause some misalignment between dev and the production build when you add dynamic classes based on some logic in script tags. We recommended adding your dynamic parts to the safelist or setup UI regression tests for your production build if possible.
 
@@ -52,8 +52,8 @@ By default, only `.tsx` files and `.ts` files containing `@downwind-scan` are sc
 plugins: [
   downwind({
     shouldScan: (id, code) =>
-      id.endsWith(".vue") ||
-      (id.endsWith(".ts") && code.includes("@downwind-scan")),
+      id.endsWith(".vue")
+      || (id.endsWith(".ts") && code.includes("@downwind-scan")),
   }),
 ];
 // esbuild

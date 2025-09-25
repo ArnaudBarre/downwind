@@ -1260,16 +1260,16 @@ const directionThemeRule = <
   Mandatory extends boolean,
 >(
   prefix: string,
-  directions: Direction[] | readonly Direction[],
+  directions: readonly Direction[],
   themeMap: Record<string, string | undefined>,
   properties: (
     direction: Mandatory extends true ? Direction : Direction | "all",
     value: string,
-  ) => CSSEntries | Properties,
+  ) => Properties,
   options?: ThemeRuleMeta & { omitHyphen?: boolean; mandatory?: Mandatory },
 ): DirectionThemeRule => [
   prefix,
-  directions as string[],
+  directions,
   themeMap,
   (d, v) =>
     properties(d as any, v).map((p) => (typeof p === "string" ? [p, v] : p)),

@@ -143,7 +143,7 @@ export const initDownwindWithConfig = ({
 
   const getModifierValue = (
     rawModifier: string,
-    themeMap: Record<string, any>,
+    themeMap: Record<string, string | undefined>,
   ) => {
     if (rawModifier.startsWith("[")) {
       if (!rawModifier.endsWith("]")) return;
@@ -281,8 +281,8 @@ export const initDownwindWithConfig = ({
     }
 
     const ruleEntry =
-      rulesEntries.get(tokenWithoutVariants) ??
-      run((): RuleEntry | undefined => {
+      rulesEntries.get(tokenWithoutVariants)
+      ?? run((): RuleEntry | undefined => {
         let start = tokenWithoutVariants.indexOf("-[");
         if (start === -1) {
           start = tokenWithoutVariants.indexOf("/");
@@ -297,7 +297,7 @@ export const initDownwindWithConfig = ({
             entry.key,
             undefined,
           );
-          if (!value) return;
+          if (value === undefined) return;
           return {
             rule: entry.rule,
             isArbitrary: true,
@@ -316,10 +316,9 @@ export const initDownwindWithConfig = ({
           opacityModifierIndex !== -1
             ? opacityModifierIndex
             : tokenWithoutVariants.endsWith("]")
-            ? -1
-            : undefined;
-        // zero is empty string which it's useless
-        if (!arbitraryValueEnd) return;
+              ? -1
+              : undefined;
+        if (arbitraryValueEnd === undefined) return;
         const arbitraryValue = tokenWithoutVariants.slice(
           start + 2,
           arbitraryValueEnd,
@@ -341,7 +340,7 @@ export const initDownwindWithConfig = ({
                 normalizeArbitraryValue(arbitraryValue),
               )
             : normalizeArbitraryValue(arbitraryValue);
-        if (!value) return;
+        if (value === undefined) return;
         return {
           rule: arbitraryEntry.rule,
           isArbitrary: true,
@@ -384,19 +383,19 @@ export const initDownwindWithConfig = ({
           ruleEntry.isArbitrary
             ? ruleEntry.value
             : ruleEntry.negative
-            ? `-${(rule[1] as Record<string, string>)[ruleEntry.key]}`
-            : rule[1][ruleEntry.key]!,
+              ? `-${(rule[1] as Record<string, string>)[ruleEntry.key]}`
+              : rule[1][ruleEntry.key],
         )
       : isDirectionRule(rule)
-      ? rule[3](
-          ruleEntry.direction,
-          ruleEntry.isArbitrary
-            ? (ruleEntry.value as string)
-            : ruleEntry.negative
-            ? `-${rule[2][ruleEntry.key]!}`
-            : rule[2][ruleEntry.key]!,
-        )
-      : rule[1];
+        ? rule[3](
+            ruleEntry.direction,
+            ruleEntry.isArbitrary
+              ? (ruleEntry.value as string)
+              : ruleEntry.negative
+                ? `-${rule[2][ruleEntry.key]!}`
+                : rule[2][ruleEntry.key]!,
+          )
+        : rule[1];
 
     return cssEntriesToLines(cssEntries, important);
   };
@@ -425,10 +424,10 @@ export const initDownwindWithConfig = ({
       const meta = getRuleMeta(match.ruleEntry.rule);
       const { hasAtRule, selector } = applyVariants("&", match.variants, meta);
       if (
-        hasAtRule ||
-        !selector.startsWith("&") ||
-        (meta?.addKeyframes ?? false) ||
-        meta?.addContainer
+        hasAtRule
+        || !selector.startsWith("&")
+        || (meta?.addKeyframes ?? false)
+        || meta?.addContainer
       ) {
         throw new DownwindError(
           `Complex utils like "${token}" are not supported.${
@@ -498,8 +497,8 @@ export const initDownwindWithConfig = ({
             );
           }
           if (
-            variant.type !== "atRule" ||
-            !variant.condition.startsWith("@media ")
+            variant.type !== "atRule"
+            || !variant.condition.startsWith("@media ")
           ) {
             throw new DownwindError(
               `"${value}" is not a media variant`,
@@ -571,9 +570,9 @@ export const initDownwindWithConfig = ({
           const nextMatch = group.matches.at(idx + 1);
           nextLines = nextMatch ? getLines(nextMatch) : undefined;
           if (
-            lines.length === nextLines?.length &&
-            nextLines.every((l, i) => l === lines[i]) &&
-            !isUnsafeSelector(selector)
+            lines.length === nextLines?.length
+            && nextLines.every((l, i) => l === lines[i])
+            && !isUnsafeSelector(selector)
           ) {
             utilsOutput += `${indentation}${selector},\n`;
           } else {

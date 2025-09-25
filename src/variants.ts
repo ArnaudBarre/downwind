@@ -54,7 +54,7 @@ export const getVariants = (config: ResolvedConfig) => {
     }
   }
 
-  if (screensEntries.every((e) => e[1].min && !e[1].max)) {
+  if (screensEntries.every((e) => e[1].min !== undefined && !e[1].max)) {
     for (const [name, { min }] of screensEntries) {
       staticVariantsMap.set(`max-${name}`, {
         type: "atRule",

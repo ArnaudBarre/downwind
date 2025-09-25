@@ -11,8 +11,8 @@ export { vitePlugin as downwind };
 
 const vitePlugin: typeof declaration = ({
   shouldScan = (id: string, code: string) =>
-    id.endsWith(".tsx") ||
-    (id.endsWith(".ts") && code.includes("@downwind-scan")),
+    id.endsWith(".tsx")
+    || (id.endsWith(".ts") && code.includes("@downwind-scan")),
   buildIntervalCheckMs = 200,
 } = {}): Plugin[] => {
   let downwind: Downwind;
@@ -101,8 +101,8 @@ const vitePlugin: typeof declaration = ({
               res.writeHead(200);
               res.end();
             })
-            .catch((err) => {
-              logger.error(err);
+            .catch((err: Error) => {
+              logger.error(err.message);
               res.writeHead(500);
               res.end(err.message);
             });

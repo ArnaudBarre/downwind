@@ -1,15 +1,15 @@
-#!/usr/bin/env tnode
+#!/usr/bin/env node
 import { execSync } from "node:child_process";
 import { copyFileSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { build, type BuildOptions, context } from "esbuild";
-import packageJSON from "../package.json";
+import packageJSON from "../package.json" with { type: "json" };
 
 const dev = process.argv.includes("--dev");
 
 rmSync("dist", { force: true, recursive: true });
 
 const buildOrWatch = async (options: BuildOptions) => {
-  if (!dev) return build(options);
+  if (!dev) return await build(options);
   const ctx = await context(options);
   await ctx.watch();
   await ctx.rebuild();
@@ -27,7 +27,7 @@ await buildOrWatch({
   outdir: "dist",
   platform: "node",
   format: "esm",
-  target: "node18",
+  target: "node22",
   define: {
     "__VERSION__": `"${packageJSON.version}"`,
     "globalThis.TEST_CONFIG": "undefined",
@@ -44,9 +44,9 @@ copyFileSync("src/base/base.css", "dist/base.css");
 copyFileSync("src/types.d.ts", "dist/index.d.ts");
 
 if (
-  !dev &&
+  !dev
   // https://github.com/ArnaudBarre/github-release/blob/main/index.ts#L11-L13
-  readFileSync("CHANGELOG.md", "utf-8")
+  && readFileSync("CHANGELOG.md", "utf-8")
     .split("\n## ")[2]
     .split("\n")[0]
     .trim() !== packageJSON.version

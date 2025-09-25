@@ -1,9 +1,8 @@
-#!/usr/bin/env tnode
+#!/usr/bin/env node
 import type { UserConfig } from "../src/types.d.ts";
 import "./set-test-version.ts";
 
 declare global {
-  // eslint-disable-next-line no-var
   var TEST_CONFIG: UserConfig | undefined;
 }
 

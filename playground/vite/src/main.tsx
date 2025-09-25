@@ -1,6 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
+// @ts-expect-error
 import "virtual:@downwind/devtools";
 import "virtual:@downwind/base.css";
 import "./index.css";

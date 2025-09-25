@@ -73,7 +73,7 @@ export const resolveConfig = (
     rules:
       typeof config?.rules === "function"
         ? config.rules(theme as ResolvedTheme)
-        : config?.rules ?? [],
+        : (config?.rules ?? []),
     shortcuts: config?.shortcuts ?? {},
     safelist: config?.safelist?.(theme as ResolvedTheme) ?? [],
     blocklist: config?.blocklist ?? [],

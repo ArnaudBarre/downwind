@@ -58,7 +58,7 @@ export type ThemeRule<T> = [
 ];
 export type DirectionThemeRule = [
   base: string,
-  directions: string[],
+  directions: readonly string[],
   themeMap: Record<string, string | undefined>,
   callback: (direction: string, value: string) => CSSEntries,
   meta?: ThemeRuleMeta & { omitHyphen?: boolean; mandatory?: boolean },

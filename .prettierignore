@@ -1,6 +1,4 @@
 node_modules/
 dist/
-tests/snapshots/
-bench/source
-playground/output.css
-local-bench/out.css
+/tests/snapshots/
+/playground/output.css

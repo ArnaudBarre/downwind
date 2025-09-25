@@ -154,10 +154,10 @@ export const getRuleMeta = (rule: Rule): RuleMeta | undefined =>
   isThemeRule(rule)
     ? rule[3]
     : isDirectionRule(rule)
-    ? rule[4]
-    : isShortcut(rule)
-    ? undefined
-    : rule[2];
+      ? rule[4]
+      : isShortcut(rule)
+        ? undefined
+        : rule[2];
 export const isThemeRule = (rule: Rule): rule is ThemeRule<any> =>
   typeof rule[2] === "function";
 export const isDirectionRule = (rule: Rule): rule is DirectionThemeRule =>

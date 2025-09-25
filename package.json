@@ -10,32 +10,34 @@
     "postinstall": "cd playground/vite && bun install",
     "dev": "scripts/bundle.ts --dev",
     "build": "scripts/bundle.ts",
-    "tsc": "tsc && tsc -p playground/vite",
+    "tsc": "tsl && tsl -p playground/vite/tsconfig.json",
     "test": "tests/run-tests.ts --update-snapshots",
     "test-ci": "tests/run-tests.ts",
-    "lint-ci": "eslint ./ --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint": "eslint --max-warnings 0",
     "prettier": "bun run prettier-ci --write",
     "prettier-ci": "prettier --cache --check '**/*.{cjs,ts,tsx,html,css,json,md,yml}'",
-    "ci": "bun run build && bun tsc && bun test-ci && bun lint-ci && bun prettier-ci"
+    "ci": "bun run build && bun tsc && bun test-ci && bun lint && bun prettier-ci"
   },
   "prettier": {
     "quoteProps": "consistent",
+    "experimentalOperatorPosition": "start",
     "plugins": [
       "@arnaud-barre/prettier-plugin-sort-imports"
     ]
   },
   "dependencies": {
-    "@arnaud-barre/config-loader": "^0.7.1"
+    "@arnaud-barre/config-loader": "^0.7.6"
   },
   "devDependencies": {
-    "@arnaud-barre/eslint-config": "^4.1.1",
-    "@arnaud-barre/prettier-plugin-sort-imports": "^0.1.3",
-    "@arnaud-barre/tnode": "^0.19.2",
-    "@types/node": "^20.12.7",
-    "eslint": "^8.57.0",
-    "lightningcss": "^1.24.1",
-    "prettier": "3.0.3",
-    "typescript": "^5.4.5",
-    "vite": "^5.2.9"
+    "@arnaud-barre/eslint-config": "^6.1.2",
+    "@arnaud-barre/prettier-plugin-sort-imports": "^0.2.3",
+    "@arnaud-barre/tsl-config": "^0.1.1",
+    "@types/node": "^22.12.7",
+    "eslint": "^9.36.0",
+    "lightningcss": "^1.30.1",
+    "prettier": "^3.6.2",
+    "tsl": "^1.0.25",
+    "typescript": "~5.9.2",
+    "vite": "^7.1.7"
   }
 }

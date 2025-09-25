@@ -1,4 +1,5 @@
 import { readdirSync, readFileSync } from "node:fs";
+import { format } from "prettier";
 import { build } from "vite";
 import { downwind } from "../src/vitePlugin.ts";
 import { pluginSnapshotTest } from "./test-utils.ts";
@@ -33,8 +34,11 @@ pluginSnapshotTest("vite-minify", async () => {
     build: { cssMinify: "lightningcss" },
     configFile: false,
   });
-  return readFileSync(
-    `${assets}/${readdirSync(assets).find((f) => f.endsWith(".css"))!}`,
-    "utf-8",
+  return await format(
+    readFileSync(
+      `${assets}/${readdirSync(assets).find((f) => f.endsWith(".css"))!}`,
+      "utf-8",
+    ),
+    { parser: "css" },
   );
 });

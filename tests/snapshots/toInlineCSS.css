@@ -1,0 +1,14 @@
+.wrapper {
+  margin: 1rem;
+  padding: 1rem;
+  color: red;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  --tw-shadow-color: rgb(0 0 0 / 0.1);
+  box-shadow: 0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);
+  background-color: rgb(17 34 51 / 0.8);
+}

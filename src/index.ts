@@ -12,6 +12,7 @@ import {
 import { getRules, type Rule } from "./getRules.ts";
 import { resolveConfig } from "./resolveConfig.ts";
 import type {
+  BaseRule,
   CSSEntries,
   Default,
   initDownwind as initDownwindDeclaration,
@@ -378,7 +379,11 @@ export const initDownwindWithConfig = ({
       }).cssLines;
     }
 
-    const cssEntries: CSSEntries = isThemeRule(rule)
+    return cssEntriesToLines(toCSSEntries(ruleEntry, rule), important);
+  };
+
+  const toCSSEntries = (ruleEntry: RuleEntry, rule: BaseRule): CSSEntries =>
+    isThemeRule(rule)
       ? rule[2](
           ruleEntry.isArbitrary
             ? ruleEntry.value
@@ -396,9 +401,6 @@ export const initDownwindWithConfig = ({
                 : rule[2][ruleEntry.key]!,
           )
         : rule[1];
-
-    return cssEntriesToLines(cssEntries, important);
-  };
 
   const apply = ({
     tokens,
@@ -448,6 +450,52 @@ export const initDownwindWithConfig = ({
       );
     }
     return { cssLines, invalidateUtils };
+  };
+
+  const toInlineCSS = (tokens: string): Record<string, string> => {
+    const cssEntries: [string, string][] = [];
+    for (const token of tokens.split(" ")) {
+      if (!token) continue;
+      const match = parse(token);
+      if (!match) {
+        throw new DownwindError(`No rule matching "${token}"`, tokens);
+      }
+      if (match.type === "Arbitrary property") {
+        const colonIndex = match.content.indexOf(":");
+        if (colonIndex === -1) {
+          throw new DownwindError(
+            `Invalid arbitrary property "${match.content}"`,
+            tokens,
+          );
+        }
+        const property = match.content.slice(0, colonIndex);
+        const value = match.content.slice(colonIndex + 1);
+        cssEntries.push([property, value]);
+        continue;
+      }
+      if (isShortcut(match.ruleEntry.rule)) {
+        cssEntries.push(
+          ...Object.entries(toInlineCSS(match.ruleEntry.rule[1])),
+        );
+        continue;
+      }
+      const meta = getRuleMeta(match.ruleEntry.rule);
+      const { hasAtRule, selector } = applyVariants("&", match.variants, meta);
+      if (
+        hasAtRule
+        || selector !== "&"
+        || meta?.addDefault
+        || (meta?.addKeyframes ?? false)
+        || meta?.addContainer
+      ) {
+        throw new DownwindError(
+          `Complex utils like "${token}" are not supported.`,
+          tokens,
+        );
+      }
+      cssEntries.push(...toCSSEntries(match.ruleEntry, match.ruleEntry.rule));
+    }
+    return Object.fromEntries(cssEntries);
   };
 
   const getLines = (match: Match) =>
@@ -669,6 +717,7 @@ export const initDownwindWithConfig = ({
         .join("");
     },
     configFiles,
+    toInlineCSS,
   };
 };
 

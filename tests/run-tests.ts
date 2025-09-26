@@ -6,9 +6,10 @@ declare global {
   var TEST_CONFIG: UserConfig | undefined;
 }
 
-import("./generate.test.ts");
-import("./regex.test.ts");
-import("./preTransformCSS.test.ts");
-import("./codegen.test.ts");
-import("./esbuildPlugin.test.ts");
-import("./vitePlugin.test.ts");
+void import("./generate.test.ts");
+void import("./regex.test.ts");
+void import("./preTransformCSS.test.ts");
+void import("./toInlineCss.test.ts");
+void import("./codegen.test.ts");
+void import("./esbuildPlugin.test.ts");
+void import("./vitePlugin.test.ts");

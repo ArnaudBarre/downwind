@@ -32,6 +32,8 @@ export type Downwind = {
     mode: "WITH_CONTENT" | "OMIT_CONTENT" | "DEVTOOLS";
   }) => string;
   configFiles: string[];
+  /** @experimental */
+  toInlineCSS: (content: string) => Record<string, string>;
 };
 
 declare class DownwindError extends Error {

@@ -7,7 +7,7 @@ export default defineConfig({
   overrides: [
     {
       files: ["/tests/"],
-      rules: [core.noFloatingPromises("off")],
+      rules: [core.noFloatingPromises({ allowList: ["test"] })],
     },
   ],
 });

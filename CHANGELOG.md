@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Remove interval check in Vite plugin
+- Add experimental `toInlineCSS`
 
 ## 0.7.7
 

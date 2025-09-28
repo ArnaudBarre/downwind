@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Remove interval check in Vite plugin
+- Use rolldown filters for scan filtering, requires Vite 6.3+ or rolldown-vite
 - Add experimental `toInlineCSS`
 
 ## 0.7.7

@@ -4,14 +4,10 @@ import { initDownwind } from "./index.ts";
 import type { Downwind } from "./types.d.ts";
 import type { downwind as declaration } from "./vite.d.ts";
 
-const cssRE = /\.css(\?.+)?$/;
-
 export { vitePlugin as downwind };
 
 const vitePlugin: typeof declaration = ({
-  shouldScan = (id: string, code: string) =>
-    id.endsWith(".tsx")
-    || (id.endsWith(".ts") && code.includes("@downwind-scan")),
+  filters = [{ id: /\.tsx$/ }, { id: /\.ts$/, code: /@downwind-scan/ }],
 } = {}): Plugin[] => {
   let downwind: Downwind;
   let devtoolsPostPath: string;
@@ -27,17 +23,31 @@ const vitePlugin: typeof declaration = ({
   const utilsModuleId = `/${utilsVirtual}`;
   const devtoolsVirtual = "virtual:@downwind/devtools";
   const devtoolsModuleId = `/${devtoolsVirtual}`;
-  const resolveId = (id: string) => {
-    if (id === baseVirtual) {
-      hasBase = true;
-      return baseModuleId;
-    }
-    if (id === utilsVirtual) {
-      hasUtils = true;
-      return utilsModuleId;
-    }
-    if (id === devtoolsVirtual) return devtoolsModuleId;
-  };
+  const resolveId = {
+    filter: { id: /^virtual:@downwind\// },
+    handler: (id: string) => {
+      if (id === baseVirtual) {
+        hasBase = true;
+        return baseModuleId;
+      }
+      if (id === utilsVirtual) {
+        hasUtils = true;
+        return utilsModuleId;
+      }
+      if (id === devtoolsVirtual) return devtoolsModuleId;
+    },
+  } satisfies Plugin["resolveId"];
+  const transform = {
+    filter: { id: { include: /\.css(\?.+)?$/, exclude: /\/node_modules\// } },
+    handler(code, id) {
+      if (id === baseVirtual) return;
+      if (id === utilsVirtual) return;
+      if (id === devtoolsVirtual) return;
+      const result = downwind.preTransformCSS(code);
+      if (result.invalidateUtils && lastServed) sendUpdate();
+      return { code: result.code };
+    },
+  } satisfies Plugin["transform"];
 
   // Dev
   let server: ViteDevServer;
@@ -68,6 +78,18 @@ const vitePlugin: typeof declaration = ({
   let cssPostPlugin: Plugin;
 
   return [
+    ...filters.map(
+      (filter, index): Plugin => ({
+        name: `downwind:scan:filter-${index}`,
+        transform: {
+          filter,
+          handler(code) {
+            const hasNew = downwind.scan(code);
+            if (hasNew && lastServed) sendUpdate();
+          },
+        },
+      }),
+    ),
     {
       name: "downwind:dev",
       apply: "serve",
@@ -117,30 +139,23 @@ const vitePlugin: typeof declaration = ({
         }
       },
       resolveId,
-      async load(id) {
-        if (id === baseModuleId) return downwind.getBase();
-        if (id === utilsModuleId) {
-          await server.waitForRequestsIdle(id);
-          lastServed = Date.now();
-          return downwind.generate();
-        }
-        if (id === devtoolsModuleId) {
-          return devtoolsClient
-            .replace("__POST_PATH__", devtoolsPostPath)
-            .replace("__CSS__", downwind.codegen({ mode: "DEVTOOLS" }));
-        }
+      load: {
+        filter: { id: { include: /^\/virtual:@downwind\// } },
+        async handler(id) {
+          if (id === baseModuleId) return downwind.getBase();
+          if (id === utilsModuleId) {
+            await server.waitForRequestsIdle(id);
+            lastServed = Date.now();
+            return downwind.generate();
+          }
+          if (id === devtoolsModuleId) {
+            return devtoolsClient
+              .replace("__POST_PATH__", devtoolsPostPath)
+              .replace("__CSS__", downwind.codegen({ mode: "DEVTOOLS" }));
+          }
+        },
       },
-      transform(code, id) {
-        if (id.endsWith(".css")) {
-          const result = downwind.preTransformCSS(code);
-          if (result.invalidateUtils && lastServed) sendUpdate();
-          return { code: result.code };
-        }
-        if (!id.includes("/node_modules/") && shouldScan(id, code)) {
-          const hasNew = downwind.scan(code);
-          if (hasNew && lastServed) sendUpdate();
-        }
-      },
+      transform,
     },
     {
       name: "downwind:dev:post",
@@ -157,29 +172,24 @@ const vitePlugin: typeof declaration = ({
       name: "downwind:build",
       apply: "build",
       enforce: "pre",
-      async configResolved(config) {
-        downwind = await initDownwind();
+      configResolved(config) {
         cssPostPlugin = config.plugins.find((i) => i.name === "vite:css-post")!;
       },
       resolveId,
-      buildStart() {
+      async buildStart() {
+        downwind = await initDownwind();
         hasBase = false;
         hasUtils = false;
       },
-      load(id) {
-        if (id === baseModuleId) return downwind.getBase();
-        if (id === utilsModuleId) return "";
-        if (id === devtoolsModuleId) return "";
+      load: {
+        filter: { id: /^\/virtual:@downwind\// },
+        handler: (id) => {
+          if (id === baseModuleId) return downwind.getBase();
+          if (id === utilsModuleId) return "";
+          if (id === devtoolsModuleId) return "";
+        },
       },
-      transform(code, id) {
-        if (id === baseModuleId) return;
-        if (id === utilsModuleId) return;
-        if (id === devtoolsModuleId) return;
-        if (cssRE.test(id)) return downwind.preTransformCSS(code).code;
-        if (!id.includes("/node_modules/") && shouldScan(id, code)) {
-          downwind.scan(code);
-        }
-      },
+      transform,
       async renderChunk(_, chunk) {
         if (utilsModuleId in chunk.modules) {
           const handler =
@@ -196,19 +206,8 @@ const vitePlugin: typeof declaration = ({
         }
         return null;
       },
-    },
-    {
-      name: "downwind:build:post",
-      apply: "build",
-      enforce: "post",
       generateBundle() {
-        if (!hasBase || !hasUtils) {
-          this.error(
-            `Import virtual:@downwind/${
-              hasUtils ? "base.css" : "utils.css"
-            } was not found in the bundle. Downwind can't work without both virtual:@downwind/base.css and virtual:@downwind/utils.css.`,
-          );
-        }
+        if (!hasBase || !hasUtils) this.error(notFoundErrorMessage);
       },
     },
   ];

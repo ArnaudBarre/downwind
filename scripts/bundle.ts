@@ -65,7 +65,7 @@ writeFileSync(
       author: packageJSON.author,
       license: packageJSON.license,
       repository: "ArnaudBarre/downwind",
-      keywords: ["tailwind"],
+      keywords: ["tailwind", "bundler"],
       exports: {
         ".": "./index.js",
         "./esbuild": "./esbuild.js",
@@ -73,6 +73,8 @@ writeFileSync(
       },
       bin: { downwind: "cli.js" },
       dependencies: packageJSON.dependencies,
+      peerDependencies: packageJSON.peerDependencies,
+      peerDependenciesMeta: packageJSON.peerDependenciesMeta,
     },
     null,
     2,

@@ -28,6 +28,14 @@
   "dependencies": {
     "@arnaud-barre/config-loader": "^0.7.6"
   },
+  "peerDependencies": {
+    "vite": "^6.3 || ^7"
+  },
+  "peerDependenciesMeta": {
+    "vite": {
+      "optional": true
+    }
+  },
   "devDependencies": {
     "@arnaud-barre/eslint-config": "^6.1.2",
     "@arnaud-barre/prettier-plugin-sort-imports": "^0.2.3",
@@ -38,6 +46,6 @@
     "prettier": "^3.6.2",
     "tsl": "^1.0.25",
     "typescript": "~5.9.2",
-    "vite": "^7.1.7"
+    "vite": "npm:rolldown-vite@latest"
   }
 }

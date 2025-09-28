@@ -12,4 +12,5 @@ void import("./preTransformCSS.test.ts");
 void import("./toInlineCss.test.ts");
 void import("./codegen.test.ts");
 void import("./esbuildPlugin.test.ts");
+void import("./rolldownPlugin.test.ts");
 void import("./vitePlugin.test.ts");

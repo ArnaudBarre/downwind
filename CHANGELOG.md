@@ -2,8 +2,11 @@
 
 ## Unreleased
 
+## 0.8.0
+
 - Remove interval check in Vite plugin
 - Use rolldown filters for scan filtering, requires Vite 6.3+ or rolldown-vite
+- Change `intervalCheckMs` to `idleMs` in the esbuild plugin and add `experimental-double-build` value.
 - Add experimental `toInlineCSS`
 
 ## 0.7.7

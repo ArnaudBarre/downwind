@@ -1,6 +1,8 @@
 import { readFileSync } from "node:fs";
+import type { PluginBuild } from "esbuild";
 import type { downwind as declaration } from "./esbuild.d.ts";
 import { initDownwind } from "./index.ts";
+import type { Downwind } from "./types.d.ts";
 
 export { esbuildPlugin as downwind };
 
@@ -8,18 +10,46 @@ const esbuildPlugin: typeof declaration = ({
   filter = /\.tsx?$/,
   shouldScan = (path: string, code: string) =>
     path.endsWith("x") || code.includes("@downwind-scan"),
-  intervalCheckMs = 50,
+  idleMs = 50,
 } = {}) => ({
   name: "downwind",
-  setup: async (build) => {
-    const downwind = await initDownwind();
-
+  setup: (build) => {
     let hasBase = false;
     let hasUtils = false;
+    let downwind: Downwind;
+    let scanBuildResult: Promise<unknown> | undefined;
+
+    build.onStart(async () => {
+      hasBase = false;
+      hasUtils = false;
+      downwind = await initDownwind();
+      if (idleMs === "experimental-double-build") {
+        scanBuildResult = build.esbuild.build({
+          ...build.initialOptions,
+          write: false,
+          sourcemap: false,
+          plugins: build.initialOptions.plugins!.map((p) =>
+            p.name !== "downwind"
+              ? p
+              : {
+                  name: "downwind-scan",
+                  setup: (innerBuild) => {
+                    innerBuild.onResolve(
+                      { filter: /^virtual:@downwind\// },
+                      () => ({ external: true }),
+                    );
+                    addScanToBuild(innerBuild);
+                  },
+                },
+          ),
+        });
+      }
+    });
 
     let utilsResolved = false;
     let scanHappenedOnce = false;
     let scanHappened = false;
+    let lastScanHappened = 0;
     const taskRunning = () => {
       if (utilsResolved) throw new Error("Utils are already resolved");
       scanHappenedOnce = true;
@@ -43,21 +73,24 @@ const esbuildPlugin: typeof declaration = ({
             return { contents: downwind.getBase(), loader: "css" };
           case "utils.css":
             hasUtils = true;
-            return {
-              contents: await new Promise<string>((resolve) => {
+            if (idleMs === "experimental-double-build") {
+              await scanBuildResult;
+            } else {
+              await new Promise<void>((resolve) => {
                 const intervalId = setInterval(() => {
                   if (!scanHappenedOnce) return;
                   if (scanHappened) {
+                    lastScanHappened = Date.now();
                     scanHappened = false;
-                  } else {
-                    resolve(downwind.generate());
+                  } else if (Date.now() - lastScanHappened > idleMs) {
+                    resolve();
                     utilsResolved = true;
                     clearInterval(intervalId);
                   }
-                }, intervalCheckMs);
-              }),
-              loader: "css",
-            };
+                }, 50);
+              });
+            }
+            return { contents: downwind.generate(), loader: "css" };
           case "devtools":
             return { contents: "" };
           default:
@@ -67,10 +100,6 @@ const esbuildPlugin: typeof declaration = ({
     );
 
     // CSS files
-    build.onStart(() => {
-      hasBase = false;
-      hasUtils = false;
-    });
     build.onLoad({ filter: /\.css$/ }, ({ path }) => {
       taskRunning();
       return {
@@ -80,16 +109,19 @@ const esbuildPlugin: typeof declaration = ({
     });
 
     // Scanned files
-    build.onLoad({ filter }, ({ path }) => {
-      // https://github.com/evanw/esbuild/issues/1222
-      if (path.includes("/node_modules/")) return;
-      const code = readFileSync(path, "utf-8");
-      if (shouldScan(path, code)) {
-        taskRunning();
-        downwind.scan(code);
-      }
-      return null;
-    });
+    const addScanToBuild = (b: PluginBuild) => {
+      b.onLoad({ filter }, ({ path }) => {
+        // https://github.com/evanw/esbuild/issues/1222
+        if (path.includes("/node_modules/")) return;
+        const code = readFileSync(path, "utf-8");
+        if (shouldScan(path, code)) {
+          taskRunning();
+          downwind.scan(code);
+        }
+        return null;
+      });
+    };
+    if (idleMs !== "experimental-double-build") addScanToBuild(build);
 
     build.onEnd(() => {
       if (!hasBase || !hasUtils) {
@@ -99,7 +131,6 @@ const esbuildPlugin: typeof declaration = ({
           } was not found in the bundle. Downwind can't work without both virtual:@downwind/base.css and virtual:@downwind/utils.css.`,
         );
       }
-      if (!utilsResolved) throw new Error("Build ended without utils");
       clearTimeout(timoutId);
     });
   },

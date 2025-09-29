@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 0.8.1
+
+- Remove usage of `import.meta.filename` to keep compatibility with Tailwind VSCode extension
+
 ## 0.8.0
 
 - Remove interval check in Vite plugin

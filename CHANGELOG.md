@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 0.8.2
+
+- Enforce order `pre` for transformations in the Vite plugin
+
 ## 0.8.1
 
 - Remove usage of `import.meta.filename` to keep compatibility with Tailwind VSCode extension

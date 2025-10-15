@@ -39,6 +39,7 @@ const vitePlugin: typeof declaration = ({
   } satisfies Plugin["resolveId"];
   const transform = {
     filter: { id: { include: /\.css(\?.+)?$/, exclude: /\/node_modules\// } },
+    order: "pre",
     handler(code, id) {
       if (id === baseVirtual) return;
       if (id === utilsVirtual) return;
@@ -83,6 +84,7 @@ const vitePlugin: typeof declaration = ({
         name: `downwind:scan:filter-${index}`,
         transform: {
           filter,
+          order: "pre",
           handler(code) {
             const hasNew = downwind.scan(code);
             if (hasNew && lastServed) sendUpdate();

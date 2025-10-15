@@ -12,6 +12,7 @@ import { downwind } from "@arnaud-barre/downwind/vite";
 import { defineConfig } from "vite";
 
 export default defineConfig({
+  // keep the plugin before any other plugins that do code transformations
   plugins: [downwind()],
   css: {
     transformer: "lightningcss",

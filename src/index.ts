@@ -589,6 +589,7 @@ export const initDownwindWithConfig = ({
       }
       return hasNewUtils;
     },
+    isValidToken: (token: string) => parse(token) !== undefined,
     generate: () => {
       let useContainer = false;
       let utilsOutput = "";

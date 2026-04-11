@@ -27,6 +27,7 @@ export type Downwind = {
     code: string;
   };
   scan: (code: string) => boolean /* hasNewUtils */;
+  isValidToken: (token) => boolean;
   generate: () => string;
   codegen: (opts: {
     mode: "WITH_CONTENT" | "OMIT_CONTENT" | "DEVTOOLS";

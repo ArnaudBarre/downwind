@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 0.8.3
+
+- Expose `isValidToken` method
+
 ## 0.8.2
 
 - Enforce order `pre` for transformations in the Vite plugin

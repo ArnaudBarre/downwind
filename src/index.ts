@@ -127,7 +127,7 @@ export const initDownwindWithConfig = ({
     group.matches.push(match);
     if (match.type === "Rule") {
       const meta = getRuleMeta(match.ruleEntry.rule);
-      if (meta?.addDefault) usedDefaults.add(meta.addDefault);
+      if (meta?.addDefault !== undefined) usedDefaults.add(meta.addDefault);
       if (meta?.addKeyframes) {
         const animationProperty = match.ruleEntry.isArbitrary
           ? (match.ruleEntry.value as string)
@@ -414,7 +414,7 @@ export const initDownwindWithConfig = ({
     const cssLines: string[] = [];
     let invalidateUtils = false;
     for (const token of tokens.split(" ")) {
-      if (!token) continue;
+      if (token === "") continue;
       const match = parse(token);
       if (!match) {
         throw new DownwindError(`No rule matching "${token}"`, context);
@@ -440,7 +440,10 @@ export const initDownwindWithConfig = ({
           context,
         );
       }
-      if (meta?.addDefault && !usedDefaults.has(meta.addDefault)) {
+      if (
+        meta?.addDefault !== undefined
+        && !usedDefaults.has(meta.addDefault)
+      ) {
         usedDefaults.add(meta.addDefault);
         invalidateUtils = true;
       }
@@ -455,7 +458,7 @@ export const initDownwindWithConfig = ({
   const toInlineCSS = (tokens: string): Record<string, string> => {
     const cssEntries: [string, string][] = [];
     for (const token of tokens.split(" ")) {
-      if (!token) continue;
+      if (token === "") continue;
       const match = parse(token);
       if (!match) {
         throw new DownwindError(`No rule matching "${token}"`, tokens);
@@ -484,7 +487,7 @@ export const initDownwindWithConfig = ({
       if (
         hasAtRule
         || selector !== "&"
-        || meta?.addDefault
+        || meta?.addDefault !== undefined
         || (meta?.addKeyframes ?? false)
         || meta?.addContainer
       ) {
@@ -671,7 +674,7 @@ export const initDownwindWithConfig = ({
       printMatchesGroup(allMatches, "");
 
       let header = "";
-      if (usedDefaults.size) {
+      if (usedDefaults.size > 0) {
         header += printBlock(
           "*, ::before, ::after, ::backdrop",
           cssEntriesToLines(
@@ -686,7 +689,7 @@ export const initDownwindWithConfig = ({
           name
         ]!}\n}\n`;
       }
-      if (usedKeyframes.size) header += "\n";
+      if (usedKeyframes.size > 0) header += "\n";
 
       return header + utilsOutput;
     },
@@ -722,7 +725,7 @@ export const initDownwindWithConfig = ({
 };
 
 const isMatchesGroupEmpty = (group: MatchesGroup) => {
-  if (group.matches.length) return false;
+  if (group.matches.length > 0) return false;
   for (const atRule of group.atRules) {
     if (!isMatchesGroupEmpty(atRule.content)) return false;
   }

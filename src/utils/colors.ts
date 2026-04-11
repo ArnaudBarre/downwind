@@ -54,7 +54,10 @@ export const parseColor = (value: string): ParsedColor | null => {
         parseInt(hex[2], 16).toString(),
         parseInt(hex[3], 16).toString(),
       ],
-      alpha: hex[4] ? (parseInt(hex[4], 16) / 255).toString() : undefined,
+      alpha:
+        hex.at(4) !== undefined
+          ? (parseInt(hex[4], 16) / 255).toString()
+          : undefined,
     };
   }
 

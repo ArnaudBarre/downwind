@@ -14,9 +14,9 @@
     "test": "tests/run-tests.ts --update-snapshots",
     "test-ci": "tests/run-tests.ts",
     "lint": "eslint --max-warnings 0",
-    "prettier": "bun run prettier-ci --write",
-    "prettier-ci": "prettier --cache --check '**/*.{cjs,ts,tsx,html,css,json,md,yml}'",
-    "ci": "bun run build && bun tsc && bun test-ci && bun lint && bun prettier-ci"
+    "format": "bun run prettier-ci --write",
+    "format-ci": "prettier --cache --check '**/*.{js,ts,tsx,html,css,json,md,yml}'",
+    "check": "bun run build && bun tsc && bun test-ci && bun lint && bun format-ci"
   },
   "prettier": {
     "quoteProps": "consistent",
@@ -26,10 +26,10 @@
     ]
   },
   "dependencies": {
-    "@arnaud-barre/config-loader": "^0.7.6"
+    "@arnaud-barre/config-loader": "^0.7.8"
   },
   "peerDependencies": {
-    "vite": "^6.3 || ^7"
+    "vite": "^6.3 || ^7 || ^8"
   },
   "peerDependenciesMeta": {
     "vite": {
@@ -37,15 +37,15 @@
     }
   },
   "devDependencies": {
-    "@arnaud-barre/eslint-config": "^6.1.2",
-    "@arnaud-barre/prettier-plugin-sort-imports": "^0.2.3",
-    "@arnaud-barre/tsl-config": "^0.1.1",
-    "@types/node": "^22.12.7",
-    "eslint": "^9.36.0",
-    "lightningcss": "^1.30.1",
-    "prettier": "^3.6.2",
-    "tsl": "^1.0.25",
-    "typescript": "~5.9.2",
-    "vite": "npm:rolldown-vite@latest"
+    "@arnaud-barre/eslint-config": "^7.1.0",
+    "@arnaud-barre/prettier-plugin-sort-imports": "^0.2.4",
+    "@arnaud-barre/tsl-config": "^0.1.5",
+    "@types/node": "^22.19.17",
+    "eslint": "^10.2.0",
+    "lightningcss": "^1.32.0",
+    "prettier": "^3.8.2",
+    "tsl": "^1.0.30",
+    "typescript": "~6.0",
+    "vite": "^8.0.8"
   }
 }

@@ -44,11 +44,11 @@ const css = downwind.preTransformCSS(
 ).code;
 const utils = downwind.generate();
 
-const warningsHeader = warnings.length
-  ? `/* Warnings:\n${warnings.join("\n")}\n*/\n`
-  : "";
-const logsHeader = logs.length
-  ? `/* Logs:\n${logs.map((l) => l.join(", ")).join("\n")}\n*/\n`
-  : "";
+const warningsHeader =
+  warnings.length > 0 ? `/* Warnings:\n${warnings.join("\n")}\n*/\n` : "";
+const logsHeader =
+  logs.length > 0
+    ? `/* Logs:\n${logs.map((l) => l.join(", ")).join("\n")}\n*/\n`
+    : "";
 
 writeFileSync("./output.css", warningsHeader + logsHeader + css + utils);

@@ -1281,7 +1281,7 @@ const enumRule = (
   property: string,
   values: string[],
   transformValue: (value: string) => string = (v) => v,
-  selectorRewrite: SelectorRewrite | undefined = undefined,
+  selectorRewrite?: SelectorRewrite,
 ): StaticRule[] =>
   values.map((v) => [
     `${prefix}${v}`,
@@ -1305,7 +1305,7 @@ const filterRule = (
   name,
   themeMap,
   (value) => [
-    [`--tw-${name}`, value ? `${name}(${value})` : ""],
+    [`--tw-${name}`, value !== "" ? `${name}(${value})` : ""],
     ["filter", cssFilterValue],
   ],
   { addDefault: "filter" },
@@ -1318,7 +1318,7 @@ const backdropFilterRule = (
   name,
   themeMap,
   (value) => [
-    [`--tw-${name}`, value ? `${name.slice(9)}(${value})` : ""],
+    [`--tw-${name}`, value !== "" ? `${name.slice(9)}(${value})` : ""],
     ["-webkit-backdrop-filter", cssBackdropFilterValue],
     ["backdrop-filter", cssBackdropFilterValue],
   ],

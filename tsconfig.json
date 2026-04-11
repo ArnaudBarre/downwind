@@ -18,10 +18,8 @@
     "noEmit": true,
 
     /* Linting */
-    "strict": true,
     "noFallthroughCasesInSwitch": true,
     "useUnknownInCatchVariables": true,
-    "noUncheckedSideEffectImports": true,
     "noPropertyAccessFromIndexSignature": true,
 
     "plugins": [{ "name": "tsl/plugin" }]

@@ -45,7 +45,7 @@ const vitePlugin: typeof declaration = ({
       if (id === utilsVirtual) return;
       if (id === devtoolsVirtual) return;
       const result = downwind.preTransformCSS(code);
-      if (result.invalidateUtils && lastServed) sendUpdate();
+      if (result.invalidateUtils && lastServed > 0) sendUpdate();
       return { code: result.code };
     },
   } satisfies Plugin["transform"];
@@ -87,7 +87,7 @@ const vitePlugin: typeof declaration = ({
           order: "pre",
           handler(code) {
             const hasNew = downwind.scan(code);
-            if (hasNew && lastServed) sendUpdate();
+            if (hasNew && lastServed > 0) sendUpdate();
           },
         },
       }),
@@ -102,8 +102,8 @@ const vitePlugin: typeof declaration = ({
         downwind = await initDownwind();
         logger = config.logger;
       },
-      configureServer(_server) {
-        server = _server;
+      configureServer(__server) {
+        server = __server;
         server.ws.on(hmrEvent, (servedTime: number) => {
           if (servedTime < lastUpdate) sendUpdate();
         });

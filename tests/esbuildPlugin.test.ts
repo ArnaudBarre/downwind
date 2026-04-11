@@ -13,7 +13,7 @@ for (const idleMs of [50, "experimental-double-build" as const]) {
       outdir: "./tests/dist",
       target: ["chrome104"],
     });
-    if (result.warnings.length) {
+    if (result.warnings.length > 0) {
       const messages = formatMessagesSync(result.warnings, {
         kind: "warning",
         color: true,

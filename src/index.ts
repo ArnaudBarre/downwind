@@ -15,8 +15,9 @@ import type {
   BaseRule,
   CSSEntries,
   Default,
-  initDownwind as initDownwindDeclaration,
-  staticRules as staticRulesDeclaration,
+  initDownwind as initDownwindDef,
+  initDownwindWithConfig as initDownwindWithConfigDef,
+  staticRules as staticRulesDef,
   UserConfig,
 } from "./types.d.ts";
 import { formatColor, isColor, parseColor } from "./utils/colors.ts";
@@ -61,23 +62,21 @@ type MatchesGroup = {
   }[];
 };
 
-export const initDownwind: typeof initDownwindDeclaration = async () => {
+export const initDownwind: typeof initDownwindDef = async () => {
   const loadedConfig = globalThis.TEST_CONFIG
     ? { config: globalThis.TEST_CONFIG, files: [] }
     : await loadConfig<UserConfig>("downwind");
-  return initDownwindWithConfig({
+  const downwind = initDownwindWithConfig({
     config: loadedConfig?.config,
-    configFiles: loadedConfig?.files,
   });
+  return {
+    ...downwind,
+    configFiles: loadedConfig?.files ?? [],
+  };
 };
 
-/** @internal */
-export const initDownwindWithConfig = ({
+export const initDownwindWithConfig: typeof initDownwindWithConfigDef = ({
   config: userConfig,
-  configFiles = [],
-}: {
-  config: UserConfig | undefined;
-  configFiles?: string[];
 }) => {
   const config = resolveConfig(userConfig);
   const defaults = getDefaults(config);
@@ -720,7 +719,6 @@ export const initDownwindWithConfig = ({
         })
         .join("");
     },
-    configFiles,
     toInlineCSS,
   };
 };
@@ -746,7 +744,7 @@ const getOrder = (match: Match) =>
 const isUnsafeSelector = (selector: string) =>
   selector.includes(":-") || selector.includes("::-");
 
-export const staticRules: typeof staticRulesDeclaration = (rules) =>
+export const staticRules: typeof staticRulesDef = (rules) =>
   Object.entries(rules).map(([key, value]) => [key, Object.entries(value)]);
 
 export class DownwindError extends Error {

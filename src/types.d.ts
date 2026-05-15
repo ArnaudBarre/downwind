@@ -18,7 +18,13 @@ export type DownwindConfig = DefineConfig<UserConfig>;
 /**
  * API
  */
-export declare const initDownwind: () => Promise<Downwind>;
+export declare const initDownwind: () => Promise<
+  Downwind & { configFiles: string[] }
+>;
+
+export declare const initDownwindWithConfig: (opts: {
+  config: UserConfig | undefined;
+}) => Downwind;
 
 export type Downwind = {
   getBase: () => string;
@@ -27,12 +33,11 @@ export type Downwind = {
     code: string;
   };
   scan: (code: string) => boolean /* hasNewUtils */;
-  isValidToken: (token) => boolean;
+  isValidToken: (token: string) => boolean;
   generate: () => string;
   codegen: (opts: {
     mode: "WITH_CONTENT" | "OMIT_CONTENT" | "DEVTOOLS";
   }) => string;
-  configFiles: string[];
   /** @experimental */
   toInlineCSS: (content: string) => Record<string, string>;
 };

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 0.8.4
+
+- Expose `initDownwindWithConfig` API
+
 ## 0.8.3
 
 - Expose `isValidToken` method

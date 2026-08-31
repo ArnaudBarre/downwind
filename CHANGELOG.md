@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 0.8.5
+
+- Add `text-pretty` utility
+
 ## 0.8.4
 
 - Expose `initDownwindWithConfig` API

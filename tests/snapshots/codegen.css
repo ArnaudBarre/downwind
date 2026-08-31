@@ -13639,6 +13639,9 @@
 .text-balance {
   text-wrap: balance;
 }
+.text-pretty {
+  text-wrap: pretty;
+}
 .break-normal {
   overflow-wrap: normal;
   word-break: normal;
